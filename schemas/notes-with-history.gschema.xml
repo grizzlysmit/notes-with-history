@@ -1,0 +1,76 @@
+<schemalist>
+    <enum id="org.gnome.shell.extensions.notes-with-history.area">
+        <value value="0" nick="left"/>
+        <value value="1" nick="center"/>
+        <value value="2" nick="right"/>
+    </enum>
+    <enum id="org.gnome.shell.extensions.notes-with-history.page">
+        <value value="0" nick="settings"/>
+        <value value="1" nick="notesScroller"/>
+        <value value="2" nick="editNote"/>
+        <value value="3" nick="aboutPage"/>
+        <value value="4" nick="credits"/>
+    </enum>
+    <schema id="notes-with-history.xml" path="/notes-with-history/xml/">
+        <key name="area" enum="org.gnome.shell.extensions.notes-with-history.area">
+            <default>'left'</default>
+            <summary>The panel area to place the button.</summary>
+            <description>Which area of the panel do we want to put the menu button, left centre or right.</description>
+        </key>
+        <key type="i" name="position">
+            <default>0</default>
+            <summary>The position in the area.</summary>
+            <description>The position to place the button in the area 0 to 25.</description>
+        </key>
+        <key type="i" name="show-messages">
+            <default>15</default>
+            <summary>The number of messages to show in the menu.</summary>
+            <description>Show only this many messages in the menu.</description>
+        </key>
+        <key type="i" name="window-width">
+            <default>925</default>
+            <summary>The window width.</summary>
+            <description>The users chosen window width.</description>
+        </key>
+        <key type="i" name="window-height">
+            <default>575</default>
+            <summary>The window height.</summary>
+            <description>The users chosen window height.</description>
+        </key>
+        <key name="page" enum="org.gnome.shell.extensions.notes-with-history.page">
+            <default>'settings'</default>
+            <summary>The Page to open on.</summary>
+            <description>Open on this page when first called.</description>
+        </key>
+        <key type="i" name="index">
+            <default>-1</default>
+            <summary>The index of the note to be edited.</summary>
+            <description>The index the note to be   edited is located at.</description>
+        </key>
+        <key type="as" name="notes">
+            <default>[]</default>
+            <summary>Buffer to keep note being edited.</summary>
+            <description>Buffer where note being edited is kept.</description>
+        </key>
+        <key type="i" name="max-note-length">
+            <default>-1</default>
+            <summary>The maximum length of a note.</summary>
+            <description>The the maximum length a note is alowed to be.</description>
+        </key>
+        <key type="b" name="edit-note">
+            <default>false</default>
+            <summary>Edit Note.</summary>
+            <description>Edit Note if true.</description>
+        </key>
+        <key type="s" name="notespath">
+            <default>''</default>
+            <summary>Last path used.</summary>
+            <description>The path last used to save file to.</description>
+        </key>
+        <key type="s" name="notesname">
+            <default>'notes.txt'</default>
+            <summary>Last name used.</summary>
+            <description>The name last used to save file to.</description>
+        </key>
+    </schema>
+</schemalist>

@@ -1,0 +1,11 @@
+{
+  "gettext-domain": "noteswithhistory",
+  "force": true,
+  "package-dir": "notes-with-history@grizzlysmit.smit.id.au",
+  "extra-sources": [
+    "gzzDialog.js"
+  ],
+  "podir": "po",
+  "out-dir": "/home/grizzlysmit/Projects/gnome-shell/extensions",
+  "schema": "schemas/notes-with-history.gschema.xml"
+}

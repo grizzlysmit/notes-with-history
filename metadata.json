@@ -1,0 +1,12 @@
+{
+  "name": "Notes With History",
+  "description": "A cross between sticky notes and a text file full of notes",
+  "uuid": "notes-with-history@grizzlysmit.smit.id.au",
+  "gettext-domain": "noteswithhistory",
+  "settings-schema": "notes-with-history",
+  "shell-version": [
+    "46",
+    "47"
+  ],
+  "version": 1
+}

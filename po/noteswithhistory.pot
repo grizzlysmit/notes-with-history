@@ -1,0 +1,244 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-01-16 17:58+1100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: prefs.js:36
+msgid "About"
+msgstr ""
+
+#: prefs.js:42
+msgid "Alternate Menu for Hplip2"
+msgstr ""
+
+#: prefs.js:43
+msgid ""
+"Some usefule menus, plus the original printer stuff, espcially the hp-"
+"toolbox entrypoint to hplip"
+msgstr ""
+
+#: prefs.js:76
+msgid "Hplip-menu2 Version"
+msgstr ""
+
+#: prefs.js:86
+msgid "Git Commit"
+msgstr ""
+
+#: prefs.js:96
+msgid "GNOME Version"
+msgstr ""
+
+#: prefs.js:105
+msgid "OS Name"
+msgstr ""
+
+#: prefs.js:118
+msgid "Windowing System"
+msgstr ""
+
+#: prefs.js:126
+msgid "Hplip-menu2 Github"
+msgstr ""
+
+#: prefs.js:157 prefs.js:190
+msgid "Exit Settings"
+msgstr ""
+
+#: prefs.js:230
+msgid "Area in the panel"
+msgstr ""
+
+#: prefs.js:233
+msgid "Left"
+msgstr ""
+
+#: prefs.js:233
+msgid "Center"
+msgstr ""
+
+#: prefs.js:233
+msgid "Right"
+msgstr ""
+
+#: prefs.js:251
+msgid "Position"
+msgstr ""
+
+#: prefs.js:253
+msgid "Position in the area of the panel."
+msgstr ""
+
+#: prefs.js:289
+msgid "Show Notes"
+msgstr ""
+
+#: prefs.js:290
+msgid "The number of notes to show in the menu."
+msgstr ""
+
+#: prefs.js:315
+msgid "Maximum length of a Note."
+msgstr ""
+
+#: prefs.js:316
+msgid "The maximum length allowed for a note"
+msgstr ""
+
+#: prefs.js:342
+msgid "Insert Note..."
+msgstr ""
+
+#: prefs.js:414
+msgid "Add text"
+msgstr ""
+
+#: prefs.js:420 extension.js:121 gzzDialog.js:760 gzzDialog.js:887
+msgid "Cancel"
+msgstr ""
+
+#: prefs.js:426
+msgid "Restart"
+msgstr ""
+
+#: prefs.js:432
+msgid "delete"
+msgstr ""
+
+#: prefs.js:437 extension.js:118 extension.js:139 gzzDialog.js:877
+msgid "Save"
+msgstr ""
+
+#: prefs.js:438
+msgid "Save & Exit"
+msgstr ""
+
+#: prefs.js:440
+msgid "Insert"
+msgstr ""
+
+#: prefs.js:441
+msgid "Insert & Exit"
+msgstr ""
+
+#: prefs.js:630
+msgid "Settings"
+msgstr ""
+
+#: prefs.js:630
+msgid "settings"
+msgstr ""
+
+#: prefs.js:631
+msgid "Notes"
+msgstr ""
+
+#: prefs.js:631
+msgid "notes"
+msgstr ""
+
+#: prefs.js:632 prefs.js:634
+msgid "Edit note"
+msgstr ""
+
+#: prefs.js:632 prefs.js:634
+msgid "editNotes"
+msgstr ""
+
+#: extension.js:116 extension.js:198
+msgid "Edit Note"
+msgstr ""
+
+#: extension.js:117 extension.js:199
+msgid "Edit or view Note."
+msgstr ""
+
+#: extension.js:129
+msgid "Delete"
+msgstr ""
+
+#: extension.js:165
+msgid "Are you sure"
+msgstr ""
+
+#: extension.js:170
+msgid "Yes"
+msgstr ""
+
+#: extension.js:178
+msgid "No"
+msgstr ""
+
+#: extension.js:200
+msgid "Add Note"
+msgstr ""
+
+#: extension.js:240
+msgid "Notes with history"
+msgstr ""
+
+#: extension.js:264
+msgid "Save messages as file"
+msgstr ""
+
+#: extension.js:363
+msgid "Save to file..."
+msgstr ""
+
+#: extension.js:366
+msgid "Load from file..."
+msgstr ""
+
+#: extension.js:369
+msgid "Add Note..."
+msgstr ""
+
+#: extension.js:374
+msgid "Settings..."
+msgstr ""
+
+#: extension.js:378
+msgid "Notes Scroller..."
+msgstr ""
+
+#: extension.js:379
+msgid "About..."
+msgstr ""
+
+#: extension.js:380
+msgid "Credits..."
+msgstr ""
+
+#: gzzDialog.js:740
+msgid "OK"
+msgstr ""
+
+#: gzzDialog.js:880
+msgid "Open"
+msgstr ""
+
+#: gzzDialog.js:881
+msgid "folder-open"
+msgstr ""
+
+#: gzzDialog.js:1211 gzzDialog.js:1213
+msgid "Make Directory"
+msgstr ""
+
+#: gzzDialog.js:1212
+msgid "Type a new name for the new directory."
+msgstr ""
