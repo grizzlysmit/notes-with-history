@@ -7,5 +7,5 @@
   ],
   "podir": "po",
   "out-dir": "/home/grizzlysmit/Projects/gnome-shell/extensions",
-  "schema": "schemas/notes-with-history.gschema.xml"
+  "schema": "schemas/org.gnome.shell.extensions.notes-with-history.gschema.xml"
 }

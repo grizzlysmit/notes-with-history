@@ -107,17 +107,24 @@ class ApplicationMenuItem extends PopupMenu.PopupBaseMenuItem {
         let dlg      = null;
         let new_note = null;
         let index    = null;
+        let txt      = null;
         switch (this._item.type) {
             case "note":
                 switch(this._item.subtype){
                     case 'edit':
                         index    = this._item.index;
+                        txt = this._button._caller.notes[index];
                         dlg = new Gzz.GzzPromptDialog({
                                         title:       _('Edit Note'), 
                                         description: _('Edit or view Note.'), 
                                         ok_button:   _('Save'), 
                                         ok_icon_name:  'stock_save', 
-                                        buttons:     [{
+                                        icon_name:   'notes-app', 
+                                        text:        txt,
+                        });
+                        dlg.setButtons(
+                                        [
+                                            {
                                                 label:   _('Cancel'),
                                                 icon_name: 'stock_calc-cancel', 
                                                 action: () => {
@@ -143,10 +150,9 @@ class ApplicationMenuItem extends PopupMenu.PopupBaseMenuItem {
                                                     dlg.set_result(true);
                                                     dlg.destroy();
                                                 },
-                                        }], 
-                                        icon_name:   'notes-app', 
-                                        text:        this._button._caller.notes[index],
-                        });
+                                            }
+                                        ] 
+                        );
                         dlg.open();
                         new_note = dlg.get_text();
                         if(dlg.result){
@@ -164,7 +170,8 @@ class ApplicationMenuItem extends PopupMenu.PopupBaseMenuItem {
                         dlg = new Gzz.GzzMessageDialog(
                             _('Are you sure'),
                             _(`Are you sure you want to delete note: ‷${this._button._caller.notes[index]}⁗.`),
-                            'emblem-dialog-question',
+                            'emblem-dialog-question');
+                        dlg.setButtons(
                             [
                                 {
                                     label:   _('Yes'), 
@@ -200,7 +207,7 @@ class ApplicationMenuItem extends PopupMenu.PopupBaseMenuItem {
                                 ok_button:   _('Add Note'), 
                                 ok_icon_name:  'list-add', 
                                 icon_name:   'notes-app', 
-                                text:        this._item.text,
+                                text:        '',
                 });
                 dlg.open();
                 new_note = dlg.get_text();
@@ -248,7 +255,9 @@ class Indicator extends PanelMenu.Button {
 
         const tmp = this._caller.settings.get_string("notespath").trim();
 
-        const notespath = ((tmp == '') ? GLib.build_filenamev([GLib.get_home_dir()]) : GLib.build_filenamev([tmp]));
+        const notespath = ((tmp == '') ?
+            Gio.File.new_for_path(GLib.build_filenamev([GLib.get_home_dir()])) :
+                                    Gio.File.new_for_path(GLib.build_filenamev([tmp])));
 
         this.dir_path = Gio.File.new_for_path(notespath);
 
@@ -256,32 +265,35 @@ class Indicator extends PanelMenu.Button {
         
         this._caller.notesname     = ((file_name == '') ? 'notes.txt' : file_name);
 
-        this.loadMesessages();
+        //this.loadMesessages();
 
     } // constructor(caller) //
 
     save_to_file(){
-        const title   = _("Save messages as file");
         const file_name = this._caller.notesname.trim();
-        const dlg  = new Gzz.GzzFileSaveDialog({
-            title,
-            dialogtype:        Gzz.GzzDialogType.Save,
-            dir:               this._caller.notespath, 
+        const path      = this._caller.notespath;
+        const cont      = this._caller.notes.join("\r\n");
+        const _dialogtype = Gzz.GzzDialogType.Save;
+        const dlg       = new Gzz.GzzFileDialog({
+            title:             _("Save messages as file"),
+            dialogtype:        _dialogtype,
+            dir:               path, 
             file_name:         ((file_name == '') ? 'notes.txt' : file_name), 
-            contents:          this._caller.notes.join("\r\n"), 
+            contents:          cont, 
             filter:            new RegExp('^.*\\.txt$', 'i'), 
             double_click_time: 400, 
         });
+        dlg.initialise();
         let _dir  = null;
         let _name = null;
-        [dir, name] = dlg.save_to_file();
+        [_dir, _name] = dlg.save_to_file();
         if(dlg.result){
-            if(dir){
-                this.notespath = GLib.build_filenamev([dir]);
-                this._caller.settings.set_string("notespath", this.notespath.get_path());
+            if(_dir){
+                this._caller.notespath = Gio.File.new_for_path(GLib.build_filenamev([_dir]));
+                this._caller.settings.set_string("notespath", this._caller.notespath.get_path());
             }
-            if(name){
-                this._caller.notesname = name;
+            if(_name){
+                this._caller.notesname = _name;
                 this._caller.settings.set_string("notesname", this._caller.notesname);
             }
         } // if(dlg.result) //
@@ -294,14 +306,18 @@ class Indicator extends PanelMenu.Button {
         let _etag      = null;
         let dlg       = null;
         try {
+            const _dir        = this._caller.notespath;
+            const _file_name  = this._caller.notesname;
+            const _dialogtype = Gzz.GzzDialogType.Open;
             dlg = new Gzz.GzzFileDialog({
                 title:             'Load File', 
-                dir:               this._caller.notespath, 
-                file_name:         this._caller.notesname, 
-                dialogtype:        Gzz.GzzDialogType.Open, 
+                dir:               _dir, 
+                file_name:         _file_name, 
+                dialogtype:        _dialogtype, 
                 filter:            new RegExp('^(?:.*\\.txt)$', 'i'), 
                 double_click_time: 400, 
             });
+            dlg.initialise();
             dlg.open();
             if(!dlg.result){
                 return null;
@@ -345,7 +361,7 @@ class Indicator extends PanelMenu.Button {
                         this._caller.display_error_msg('Indicator::get_file_contents',
                             "Error: some of the notes where too big they were skipped.\n"
                              + " THis can be caused by a change in the max_note_length property. "
-                             + `currently set at ${this, _caller.max_note_length}`);
+                             + `currently set at ${this._caller.max_note_length}`);
                     }
                 }
             }
@@ -358,7 +374,7 @@ class Indicator extends PanelMenu.Button {
         let item = null;
         let submenu = null;
         submenu = new PopupMenu.PopupSubMenuMenuItem('Actions & About', true, this, 0);
-        this.build_menu(submenu, this.cmds[x].actions);
+        submenu.addMenuItem(item);
 
         item = new ApplicationMenuItem(this, { text: _('Save to file...'), type: 'savefile', action: [], alt: [], });
         submenu.addMenuItem(item);
@@ -425,15 +441,32 @@ export default class IndicatorExampleExtension extends Extension {
         this.edit_note         = this.settings.get_boolean("edit-note");
         this.notesname         = this.settings.get_string("notesname");
         const tmp_path         = this.settings.get_string("notespath").trim();
-        if(tmp_path == ''){
-            this.notespath = GLib.build_filenamev([GLib.get_home_dir()]);
+        if(tmp_path === ''){
+            this.notespath = Gio.File.new_for_path(GLib.build_filenamev([GLib.get_home_dir()]));
             this.settings.set_string("notespath", this.notespath.get_path());
+        }else if(tmp_path instanceof String){
+            const path = GLib.build_filenamev([tmp_path.toString()]);
+            if(path){
+                this.notespath = Gio.File.new_for_path(GLib.build_filenamev([tmp_path.toString()]));
+            }else{
+                this.display_error_msg('Error', `bad value for path: ${path}`);
+            }
         }else{
-            this.notespath = GLib.build_filenamev([tmp]);
+            const path = GLib.build_filenamev([tmp_path.toString()]);
+            if(path){
+                this.notespath = Gio.File.new_for_path(GLib.build_filenamev([tmp_path.toString()]));
+            }else{
+                this.display_error_msg('Error', `bad value for path: ${path}`);
+            }
         }
         
+        this.settings.set_int("position", 100);
+        this.settings.set_enum('area', this.settings.get_enum('area'));
         if(this.settings.get_int("position") < 0 || this.settings.get_int("position") > 25) this.settings.set_int("position", 0);
+        this.settings.set_int('max-note-length', this.max_note_length);
         this._indicator    = new Indicator(this);
+        this.settings.set_boolean('edit-note', this.edit_note);
+        this._indicator.loadMesessages();
         Main.panel.addToStatusArea(this._name, this._indicator, this.settings.get_int("position"), this.settings.get_enum("area"));
 
         this.settingsID_show = this.settings.connect("changed::show-messages", () => {

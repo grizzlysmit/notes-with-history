@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-01-16 17:58+1100\n"
+"POT-Creation-Date: 2025-01-16 23:02+1100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -107,7 +107,7 @@ msgstr ""
 msgid "Add text"
 msgstr ""
 
-#: prefs.js:420 extension.js:121 gzzDialog.js:760 gzzDialog.js:887
+#: prefs.js:420 extension.js:128 gzzDialog.js:796 gzzDialog.js:970
 msgid "Cancel"
 msgstr ""
 
@@ -119,7 +119,7 @@ msgstr ""
 msgid "delete"
 msgstr ""
 
-#: prefs.js:437 extension.js:118 extension.js:139 gzzDialog.js:877
+#: prefs.js:437 extension.js:120 extension.js:146 gzzDialog.js:960
 msgid "Save"
 msgstr ""
 
@@ -159,86 +159,86 @@ msgstr ""
 msgid "editNotes"
 msgstr ""
 
-#: extension.js:116 extension.js:198
+#: extension.js:118 extension.js:205
 msgid "Edit Note"
 msgstr ""
 
-#: extension.js:117 extension.js:199
+#: extension.js:119 extension.js:206
 msgid "Edit or view Note."
 msgstr ""
 
-#: extension.js:129
+#: extension.js:136
 msgid "Delete"
 msgstr ""
 
-#: extension.js:165
+#: extension.js:171
 msgid "Are you sure"
 msgstr ""
 
-#: extension.js:170
+#: extension.js:177
 msgid "Yes"
 msgstr ""
 
-#: extension.js:178
+#: extension.js:185
 msgid "No"
 msgstr ""
 
-#: extension.js:200
+#: extension.js:207
 msgid "Add Note"
 msgstr ""
 
-#: extension.js:240
+#: extension.js:247
 msgid "Notes with history"
 msgstr ""
 
-#: extension.js:264
+#: extension.js:276
 msgid "Save messages as file"
 msgstr ""
 
-#: extension.js:363
+#: extension.js:377
 msgid "Save to file..."
 msgstr ""
 
-#: extension.js:366
+#: extension.js:380
 msgid "Load from file..."
 msgstr ""
 
-#: extension.js:369
+#: extension.js:383
 msgid "Add Note..."
 msgstr ""
 
-#: extension.js:374
+#: extension.js:388
 msgid "Settings..."
 msgstr ""
 
-#: extension.js:378
+#: extension.js:392
 msgid "Notes Scroller..."
 msgstr ""
 
-#: extension.js:379
+#: extension.js:393
 msgid "About..."
 msgstr ""
 
-#: extension.js:380
+#: extension.js:394
 msgid "Credits..."
 msgstr ""
 
-#: gzzDialog.js:740
+#: gzzDialog.js:776
 msgid "OK"
 msgstr ""
 
-#: gzzDialog.js:880
+#: gzzDialog.js:963
 msgid "Open"
 msgstr ""
 
-#: gzzDialog.js:881
+#: gzzDialog.js:964
 msgid "folder-open"
 msgstr ""
 
-#: gzzDialog.js:1211 gzzDialog.js:1213
+#: gzzDialog.js:1304 gzzDialog.js:1306
 msgid "Make Directory"
 msgstr ""
 
-#: gzzDialog.js:1212
+#: gzzDialog.js:1305
 msgid "Type a new name for the new directory."
 msgstr ""

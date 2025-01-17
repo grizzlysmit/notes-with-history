@@ -91,10 +91,10 @@ export class GzzMessageDialog extends ModalDialog.ModalDialog {
     constructor(_title, _text, _icon_name = null, buttons = null) {
         super({ styleClass: 'extension-dialog' });
 
-        let icon = new St.Icon({icon_name: (_icon_name ? _icon_name : 'dialog-information')});
+        const icon = new St.Icon({icon_name: (_icon_name ? _icon_name : 'dialog-information')});
         this.contentLayout.add(icon);
 
-        let messageLayout = new Dialog.MessageDialogContent({
+        const messageLayout = new Dialog.MessageDialogContent({
             title: _title,
             description: _text,
         });
@@ -139,6 +139,22 @@ export class GzzMessageDialog extends ModalDialog.ModalDialog {
 
 } // export class GzzMessageDialog extends ModalDialog.ModalDialog //
 
+export class GzzDialogType {
+
+  constructor(name) {
+    this.name = name;
+  }
+
+  toString() {
+    return `GzzDialogType.${this.name}`;
+  }
+
+  static Open = new GzzDialogType('Open');
+  static Save = new GzzDialogType('Save');
+  static SelectDir = new GzzDialogType('SelectDir');
+
+}
+
 export class GzzHeader extends St.BoxLayout {
       static {
             GObject.registerClass(this);
@@ -152,28 +168,36 @@ export class GzzHeader extends St.BoxLayout {
             ...params,
         });
 
+        /*
         if('owner' in params){
-            this.set_owner(params.owner);
+            const _owner = params.owner;
+            if(!_owner){
+                throw { name: 'GzzHeader::set_owner_error', message: 'owner cannot be null' };
+            }else if(_owner instanceof GzzFileDialog){
+                this._owner = _owner;
+                this.notify('owner');
+            }else{
+                throw { name: 'GzzHeader::set_owner_error', message: 'owner must be a GzzFileDialog' };
+            }
         }else{
             throw "owner must be supplied";
         }
+        // */
 
         let ok = null;
         let result = null;
         if('filename' in params){
             [ok, result] = splitFile(params.filename);
             if(!ok){
-                this._error_handler(this, 'GzzHeader::constructor_error', `splitFile error: ${result}`);
+                throw { name: 'GzzHeader::constructor_error', message: `splitFile error: ${result}` };
             }else{
                 this._array = this._current_array = result;
             }
         }else{
-            this._owner._error_handler(this, 'GzzHeader::constructor_error', "filename must be supplied");
+            throw { name: 'GzzHeader::constructor_error', message: "filename must be supplied" };
         }
 
         this._show_root = false;
-
-        this.add_buttons();
 
     } // constructor(params) //
 
@@ -182,13 +206,13 @@ export class GzzHeader extends St.BoxLayout {
     }
 
     set owner(_owner) {
-        if(_owner === null){
+        if(!_owner){
             if(this._owner){
                 this._owner._error_handler(this, 'GzzHeader::set_owner_error', "owner cannot be null");
             }else{
                 throw { name: 'GzzHeader::set_owner_error', message: 'owner cannot be null' };
             }
-        }else if(_owner instanceof GzzFileDialog){
+        }else if(_owner instanceof Object && _owner.get_className() === 'GzzFileDialog'){
             this._owner = _owner;
             this.notify('owner');
         }else{
@@ -322,11 +346,34 @@ export  class GzzListFileSection extends St.BoxLayout {
             ...params,
         });
 
+        this.list = new St.BoxLayout({
+            style_class: 'gzzdialog-list-box',
+            y_expand: true,
+            vertical: true,
+        });
+
+        this._listScrollView = new St.ScrollView({
+            style_class: 'gzzdialog-list-scrollview',
+            child: this.list,
+        });
+
+        this.label_actor = this.list;
+
+        /*
         if('owner' in params){
-            this.set_owner(params.owner);
+            const _owner = params.owner;
+            if(_owner === null){
+                throw { name: 'GzzListFileSection::set_owner_error', message: 'owner cannot be null' };
+            }else if(_owner instanceof GzzFileDialog){
+                this._owner = _owner;
+                this.notify('owner');
+            }else{
+                throw { name: 'GzzListFileSection::set_owner_error', message: 'owner must be a GzzFileDialog' };
+            }
         }else{
             throw "owner must be supplied";
         }
+        // */
 
         this.file_name_box = new St.BoxLayout({
             style_class: 'gzzdialog-header-box',
@@ -334,16 +381,16 @@ export  class GzzListFileSection extends St.BoxLayout {
         });
 
         if('dialog_type' in params){
-            this.set_dialog_type(params.dialog_type);
+            const _dialog_type = params.dialog_type;
         }else{
             this._dialog_type = GzzDialogType.Save;
         }
 
-        if(this.dialogtype === GzzDialogType.Open){
+        if(this.dialogtype.toString() === GzzDialogType.Open.toString()){
             this._edit = new St.Label({style_class: 'gzzdialog-list-item-edit'});
-        }else if(this.dialogtype === GzzDialogType.Save){
+        }else if(this.dialogtype.toString() === GzzDialogType.Save.toString()){
             this._edit = new St.Entry({style_class: 'gzzdialog-list-item-edit'});
-        }else if(this.dialogtype === GzzDialogType.SelectDir){
+        }else if(this.dialogtype.toString() === GzzDialogType.SelectDir.toString()){
             this._edit = new St.Label({style_class: 'gzzdialog-list-item-edit'});
         }
 
@@ -369,31 +416,23 @@ export  class GzzListFileSection extends St.BoxLayout {
 
         this.header = new GzzHeader({
             style_class: 'gzzdialog-header-box',
-            owner:       this._owner, 
         });
 
         this._header_box.add_child(this.show_root_button);
         this._header_box.add_child(this.header);
         this._header_box.add_child(this.new_dir_button);
 
-        this.list = new St.BoxLayout({
-            style_class: 'gzzdialog-list-box',
-            y_expand: true,
-            vertical: true,
-        });
-
-        this._listScrollView = new St.ScrollView({
-            style_class: 'gzzdialog-list-scrollview',
-            child: this.list,
-        });
-
-        this.label_actor = this.list;
-        if(this._dialog_type !== GzzDialogType.SelectDir){
+        if(this._dialog_type.toString() !== GzzDialogType.SelectDir.toString()){
             this.add_child(this.file_name_box);
         }
         this.add_child(this._header_box);
         this.add_child(this._listScrollView);
     } // constructor(params) //
+
+    initialise(owner){
+        this.set_owner(owner);
+        this.header.set_owner(owner);
+    }
 
     get owner() {
         return this._owner;
@@ -406,7 +445,7 @@ export  class GzzListFileSection extends St.BoxLayout {
             }else{
                 throw { name: 'GzzListFileSection::set_owner_error', message: 'owner cannot be null' };
             }
-        }else if(_owner instanceof GzzFileDialog){
+        }else if(_owner instanceof Object && _owner.get_className() === 'GzzFileDialog'){
             this._owner = _owner;
             this.notify('owner');
         }else{
@@ -485,7 +524,7 @@ export class GzzHeaderItem extends St.Button {
             }else{
                 throw { name: 'GzzHeader::set_owner_error', message: 'owner cannot be null' };
             }
-        }else if(_owner instanceof GzzFileDialog){
+        }else if(_owner instanceof Object && _owner.get_className() === 'GzzFileDialog'){
             this._owner = _owner;
             this.notify('owner');
         }else{
@@ -527,18 +566,6 @@ export class GzzListFileRow extends St.BoxLayout {
                                     GObject.ParamFlags.READWRITE |
                                     GObject.ParamFlags.CONSTRUCT,
                                     null),
-                                'owner': GObject.ParamSpec.object(
-                                    'owner', 'Owner',
-                                    'The GzzFileDialog that owns this',
-                                    GObject.ParamFlags.READWRITE |
-                                    GObject.ParamFlags.CONSTRUCT,
-                                    GzzFileDialog),
-                                'is_dir': GObject.ParamSpec.boolean(
-                                    'is_dir', 'Is_Dir',
-                                    'this represents a directory',
-                                    GObject.ParamFlags.READWRITE |
-                                    GObject.ParamFlags.CONSTRUCT,
-                                    null),
                             },
                         }, this);
     }
@@ -549,18 +576,34 @@ export class GzzListFileRow extends St.BoxLayout {
             ...params,
         });
 
+        let icon = new St.Icon({icon_name: (this._is_dir ? 'inode-directory' : 'emblem-dialog-question')});
+
+        this._title = new St.Label({style_class: 'dialog-list-item-title', reactive: true});
+
+        textLayout.add_child(icon);
+        textLayout.add_child(this._title);
+
+        this.label_actor = this._title;
+        this.add_child(textLayout);
+
         let textLayout = new St.BoxLayout({
             vertical: false,
             y_expand: true,
             y_align: Clutter.ActorAlign.CENTER,
         });
 
-        this._title = new St.Label({style_class: 'dialog-list-item-title', reactive: true});
-
         if('owner' in params){
-            this.set_owner(params.owner);
+            const _owner = params.owner;
+            if(!_owner){
+                throw { name: 'GzzListFileRow::set_owner_error', message: 'owner cannot be null' };
+            }else if(_owner instanceof Object && _owner.get_className() === 'GzzFileDialog'){
+                this._owner = _owner;
+                this.notify('owner');
+            }else{
+                throw { name: 'GzzListFileRow::set_owner_error', message: 'owner must be a GzzFileDialog' };
+            }
         }else{
-            throw "owner must be supplied";
+            throw { name: 'GzzListFileRow::set_owner_error', message: 'owner must be supplied' };
         }
 
         if('is_dir' in params){
@@ -569,17 +612,10 @@ export class GzzListFileRow extends St.BoxLayout {
             this._is_dir = false;
         }
 
-        let icon = new St.Icon({icon_name: (this._is_dir ? 'inode-directory' : 'emblem-dialog-question')});
-
         if('icon' in params){
             icon.set_gicon(params.icon);
         }
 
-        textLayout.add_child(icon);
-        textLayout.add_child(this._title);
-
-        this.label_actor = this._title;
-        this.add_child(textLayout);
         this.click_event_start  = null;
         this.double_click_start = null;
         if('double_click_time' in params){
@@ -666,7 +702,7 @@ export class GzzListFileRow extends St.BoxLayout {
             }else{
                 throw { name: 'GzzListFileRow::set_owner_error', message: 'owner cannot be null' };
             }
-        }else if(_owner instanceof GzzFileDialog){
+        }else if(_owner instanceof Object && _owner.get_className() === 'GzzFileDialog'){
             this._owner = _owner;
             this.notify('owner');
         }else{
@@ -729,11 +765,11 @@ export class GzzPromptDialog extends ModalDialog.ModalDialog {
         });
         this._edit = new St.Entry({style_class: 'gzzpromptdialog-edit'});
 
+        this.contentLayout.add_child(messageLayout);
+
         if('text' in params){
             this.set_text(params.text);
         }
-
-        this.contentLayout.add_child(messageLayout);
 
         this._result = false;
 
@@ -798,85 +834,132 @@ export class GzzPromptDialog extends ModalDialog.ModalDialog {
 
 } // export class GzzPromptDialog extends ModalDialog.ModalDialog //
 
-export class GzzDialogType {
-  static Open = new GzzDialogType('Open');
-  static Save = new GzzDialogType('Save');
-  static SelectDir = new GzzDialogType('SelectDir');
-
-  constructor(name) {
-    this.name = name;
-  }
-  toString() {
-    return `GzzDialogType.${this.name}`;
-  }
-}
-
 export class GzzFileDialog extends ModalDialog.ModalDialog {
     static {
         GObject.registerClass(this);
     }
 
     constructor(params) {
-        super({ styleClass: 'gzzextension-dialog' }, 
-        ...params,
-        );
+        super({ styleClass: 'gzzextension-dialog' });
+
+        if('dialogtype' in params){
+            const dialogtype = params.dialogtype;
+            if(dialogtype instanceof GzzDialogType){
+                if(dialogtype.toString() === GzzDialogType.Open.toString()
+                                    || dialogtype.toString() === GzzDialogType.Save.toString()
+                                                                || dialogtype.toString() === GzzDialogType.SelectDir.toString()){
+                    this._dialog_type = dialogtype;
+                }else{
+                    throw { name: "dialog_type_error", message: "Unkown GzzDialogType instance in set_dialog_type(dialogtype)." };
+                }
+            }else{
+                throw { name: "dialog_type_error", message: "dialog_type must be an instance of GzzDialogType." };
+            }
+        }else{
+            this._dialog_type = GzzDialogType.Save;
+        }
+
+        this._list_section = new GzzListFileSection({
+            title:      params.title,
+            dialogtype: this._dialogtype, 
+        });
+
+        let icon = new St.Icon({icon_name: 'inode-directory'});
+
+        this.contentLayout.add(icon);
+
+        this.contentLayout.add_child(this._list_section);
 
         if('errorhandler' in params){
-            this.set_error_handler(params.errorhandler);
+            this._error_handler = params.errorhandler;
         }else{
-            this.set_error_handler(null);
+            this._error_handler = this.default_error_handler;
         }
 
         if('dir' in params){
-            this.set_dir(params.dir);
+            const _dir = params.dir;
+            if(_dir instanceof Gio.File){
+                this.path = _dir;
+            }else if((_dir instanceof String || typeof _dir == 'string') && _dir.trim() != ''){
+                this._dir = Gio.File.new_for_path(GLib.build_filenamev([_dir.trim()]));
+            }else{
+                this._dir = Gio.File.new_for_path(GLib.build_filenamev([GLib.get_home_dir()]));
+            }
         }else{
-            this.set_dir(Gio.File.new_for_path(GLib.build_filenamev([GLib.get_home_dir()])));
+            this._dir = Gio.File.new_for_path(GLib.build_filenamev([GLib.get_home_dir()]));
         }
 
         if('file_name' in params){
-            this.set_file_name(params.file_name);
+            const _file_name = params.file_name;
+            if(_file_name instanceof String || typeof _file_name == 'string'){
+                this._file_name = _file_name.trim();
+                this._list_section.set_file_name(this._file_name);
+            }else{
+                this._file_name = 'notes.txt';
+                this._list_section.set_file_name(this._file_name);
+            }
         }else{
-            this.set_file_name('notes.txt');
-        }
-
-        if('dialogtype' in params){
-            this.set_dialog_type(params.dialogtype);
-        }else{
-            this.set_dialog_type(GzzDialogType.Save);
+            this._file_name = 'notes.txt';
         }
          
         if('contents' in params){
-            this.set_contents(params.contents);
+            const _contents = params.contents;
+            if(_contents instanceof GLib.Bytes){
+                this._contents = _contents;
+            }else if(_contents instanceof String || typeof _contents == 'string'){
+                this._contents = new GLib.Bytes(_contents);
+            }else if(_contents == null){
+                this._contents = _contents;
+            }else{
+                this._contents = null;
+            }
         }else{
-            this.set_contents(null);
+            this._contents = null;
         }
 
         if('filter' in params){
-            this.set_filter(params.filter);
+            const _filter = params.filter;
+            if(!_filter){
+                this._filter = new RegExp('^.*$');
+            }else if(_filter instanceof RegExp){
+                this._filter = _filter;
+            }else if(_filter instanceof String || typeof _filter === 'string'){
+                this._filter = new RegExp(_filter, "i");
+            }else{
+                const t = typeof _filter;
+                throw {
+                    name:    'GzzListFileRow::set_filter_error',
+                    message: `regex must be of type RegExp or /.../ or String you supplied ${_filter} of type ${t}`
+                };
+            }
         }else{
-            this.set_filter(new RegExp('^.*$'));
+            this._filter = new RegExp('^.*$');
         }
 
         if('double_click_time' in params){
-            this.set_double_click_time(params.double_click_time);
+            const dbl_click_time = params.double_click_time;
+            if(isNaN(Number(dbl_click_time))){
+                throw {
+                    name:    'GzzFileDialog::set_double_click_time_error',
+                    message: `bad value expected integer or date got ${dbl_click_time}`
+                };
+            }else if(dbl_click_time instanceof Date){
+                this._double_click_time = dbl_click_time.getTime();
+            }else if(Number(dbl_click_time).isInteger){
+                this._double_click_time = Number(dbl_click_time);
+            }else{
+                throw {
+                    name:    'GzzFileDialog::set_double_click_time_error',
+                    message: `bad number type expected integer or Date ${dbl_click_time}`
+                };
+            }
         }else{
             this._double_click_time = 400;
         }
 
-        let icon = new St.Icon({icon_name: 'dialog-information'});
-
-        this.contentLayout.add(icon);
-
-        this._list_section = new GzzListFileSection({
-            owner:      this, 
-            title:      params.title,
-            dialogtype: this._dialogtype, 
-        });
-        this.contentLayout.add_child(this._list_section);
-
         let _label = _('Save');
         let _icon_name = 'stock_save';
-        if(this._dialog_type !== GzzDialogType.Save){
+        if(this._dialog_type.toString() !== GzzDialogType.Save.toString()){
             _label     = _('Open');
             _icon_name = _('folder-open');
         }
@@ -900,11 +983,19 @@ export class GzzFileDialog extends ModalDialog.ModalDialog {
                 },
             }
         ]);
+    } // constructor(_title, _text) //
+    
+    initialise(){
+        this._list_section.initialise(this);
 
         this._list_section._edit.connect('key-release-event', (_actor, _event) => {
             this._file_name = this._list_section._edit.get_text();
         });
-    } // constructor(_title, _text) //
+    }
+
+    get className(){
+        return 'GzzFileDialog';
+    }
 
     get result(){
         return this._result;
@@ -967,6 +1058,18 @@ export class GzzFileDialog extends ModalDialog.ModalDialog {
         return this._contents;
     }
 
+    set contents(_contents){
+        if(_contents instanceof GLib.Bytes){
+            this._contents = _contents;
+        }else if(_contents instanceof String || typeof _contents == 'string'){
+            this._contents = new GLib.Bytes(_contents);
+        }else if(_contents == null){
+            this._contents = _contents;
+        }else{
+            this._contents = null;
+        }
+    } // set contents(_contents) //
+
     default_error_handler(_error_owner, _name, msg){
         //throw { name: _name, message: msg };
         const dlg = new GzzMessageDialog(_name, msg, 'dialog-error');
@@ -979,7 +1082,9 @@ export class GzzFileDialog extends ModalDialog.ModalDialog {
 
     set dialog_type(dialogtype){
         if(dialogtype instanceof GzzDialogType){
-            if(dialogtype === GzzDialogType.Open || dialogtype === GzzDialogType.Save || dialogtype === GzzDialogType.SelectDir){
+            if(dialogtype.toString() === GzzDialogType.Open.toString()
+                || dialogtype.toString() === GzzDialogType.Save.toString()
+                    || dialogtype.toString() === GzzDialogType.SelectDir.toString()){
                 this._dialog_type = dialogtype;
             }else{
                 this._error_handler(this, "dialog_type_error", "Unkown GzzDialogType instance in set_dialog_type(dialogtype).");
@@ -988,18 +1093,6 @@ export class GzzFileDialog extends ModalDialog.ModalDialog {
             this._error_handler(this, "dialog_type_error", "dialog_type must be an instance of GzzDialogType.");
         }
     } // set dialog_type(dialogtype) //
-
-    set contents(_contents){
-        if(_contents instanceof GLib.Bytes){
-            this._contents = _contents;
-        }else if(_contents instanceof String || typeof _contents == 'string'){
-            this._contents = new GLib.Bytes(_contents);
-        }else if(_contents == null){
-            this._contents = _contents;
-        }else{
-            this._contents = null;
-        }
-    } // set contents(_contents) //
 
     get filter(){
         return this._filter.toString;
@@ -1101,7 +1194,7 @@ export class GzzFileDialog extends ModalDialog.ModalDialog {
             enumerator = filename.enumerate_children(attributes, Gio.FileQueryInfoFlags.NONE, null);
             let info;
             while ((info = enumerator.next_file(null))) {
-                if (this._dialog_type === GzzDialogType.SelectDir && info.get_file_type() !== Gio.FileType.DIRETORY) {
+                if (this._dialog_type.toString() === GzzDialogType.SelectDir.toString() && info.get_file_type() !== Gio.FileType.DIRETORY) {
                     continue;
                 }
                 const matches = info.get_name().match(this._filter);
@@ -1137,13 +1230,13 @@ export class GzzFileDialog extends ModalDialog.ModalDialog {
     } // display_dir(filename) //
 
     do_open_save(){
-        if(this._dialog_type === GzzDialogType.Open){
+        if(this._dialog_type.toString() === GzzDialogType.Open.toString()){
             const filename = Gio.File.new_for_path(GLib.build_filenamev([this._dir.get_path(), this._file_name]));
             this._result = !!filename;
             return filename.get_path();
-        }else if(this._dialog_type === GzzDialogType.Save){
+        }else if(this._dialog_type.toString() === GzzDialogType.Save.toString()){
             return this.save_file();
-        }else if(this._dialog_type === GzzDialogType.SelectDir){
+        }else if(this._dialog_type.toString() === GzzDialogType.SelectDir.toString()){
             const filename = this._dir.get_path().trim();
             this._result = !!filename;
             return filename;

@@ -26,6 +26,38 @@ import Gdk from 'gi://Gdk';
 
 import * as Config from 'resource:///org/gnome/Shell/Extensions/js/misc/config.js';
 
+class PageBase extends Adw.PreferencesPage {
+    static {
+        GObject.registerClass(this);
+    }
+
+    constructor(caller, _title, _name, _icon_name) {
+        super({
+            title: _title,
+        });
+        this._caller = caller;
+        this.set_name(_name);
+        this.set_icon_name(_icon_name);
+    } // constructor(caller, _title, _name, _icon_name) //
+
+    _close_row(){
+        const title = "";
+        const row = new Adw.ActionRow({ title });
+        row.set_subtitle("");
+        const close_button = new Gtk.Button({
+                                                        label: _("Exit Settings"),
+                                                         css_classes: ["suggested-action"],
+                                                         valign: Gtk.Align.CENTER,
+                                                    });
+        row.add_suffix(close_button);
+        row.activatable_widget = close_button;
+        close_button.connect("clicked", () => { this._caller._close_request(this._caller._window); });
+
+        return row;
+    } // _close_row() //
+
+} // class PageBase extends Adw.PreferencesPage //
+
 class AboutPage extends Adw.PreferencesPage {
     static {
         GObject.registerClass(this);
@@ -167,38 +199,6 @@ class AboutPage extends Adw.PreferencesPage {
 
 } // class AboutPage extends Adw.PreferencesPage //
 
-
-class PageBase extends Adw.PreferencesPage {
-    static {
-        GObject.registerClass(this);
-    }
-
-    constructor(caller, _title, _name, _icon_name) {
-        super({
-            title: _title,
-        });
-        this._caller = caller;
-        this.set_name(_name);
-        this.set_icon_name(_icon_name);
-    } // constructor(caller, _title, _name, _icon_name) //
-
-    _close_row(){
-        const title = "";
-        const row = new Adw.ActionRow({ title });
-        row.set_subtitle("");
-        const close_button = new Gtk.Button({
-                                                        label: _("Exit Settings"),
-                                                         css_classes: ["suggested-action"],
-                                                         valign: Gtk.Align.CENTER,
-                                                    });
-        row.add_suffix(close_button);
-        row.activatable_widget = close_button;
-        close_button.connect("clicked", () => { this._caller._close_request(this._caller._window); });
-
-        return row;
-    } // _close_row() //
-
-} // class PageBase extends Adw.PreferencesPage //
 
 class NotesPreferencesSettings extends PageBase {
     static {
@@ -625,7 +625,6 @@ export default class MyPreferences extends ExtensionPreferences {
         this.notes             = this._window._settings.get_strv("notes");
         this.max_note_length   = this._window._settings.get_int("max-note-length");
         this.edit_note         = this._window._settings.get_boolean("edit-note");
-        this.note_edited       = this._window._settings.get_boolean("note-edited");
 
         this._pageNotesPreferencesSettings = NotesPreferencesSettings.new(this, _('Settings'), _("settings"), 'preferences-system-symbolic');
         this._NotesScroller                = NotesScroller.new(this, _("Notes"), _("notes"), 'notes-app');

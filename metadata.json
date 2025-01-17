@@ -1,9 +1,11 @@
 {
   "name": "Notes With History",
-  "description": "A cross between sticky notes and a text file full of notes",
+  "description": "A cross between sticky notes and a menu full of notes 🤠.",
   "uuid": "notes-with-history@grizzlysmit.smit.id.au",
-  "gettext-domain": "noteswithhistory",
-  "settings-schema": "notes-with-history",
+  "credits": "(C) Francis Grizzly Smit 🤠\n\nLicence GPL v3+",
+  "gettext-domain":  "notes-with-history",
+  "settings-schema": "org.gnome.shell.extensions.notes-with-history",
+  "url": "https://github.com/grizzlysmit/notes-with-history",
   "shell-version": [
     "46",
     "47"
