@@ -487,7 +487,8 @@ class Indicator extends PanelMenu.Button {
 
         this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
 
-        for(let i = 0; i < this._caller.notes.length; i++){
+        const length = Math.min(this._caller.settings.get_int('show-messages'), this._caller.notes.length);
+        for(let i = 0; i < length; i++){
             submenu = new PopupMenu.PopupSubMenuMenuItem(this._caller.notes[i], true, this, 0);
             item         = new ApplicationMenuItem(this, { text: 'Edit...', index: i, type: 'note', subtype: 'edit', });
             //item.connect('activate', (event) => { item.activate(event); });
@@ -558,7 +559,7 @@ export default class IndicatorExampleExtension extends Extension {
         this.settings.set_enum('area', this.settings.get_enum('area'));
         if(this.settings.get_int("position") < 0 || this.settings.get_int("position") > 25) this.settings.set_int("position", 0);
         this.settings.set_int('max-note-length', this.max_note_length);
-        this.settings.set_int('show-messages', this.settings.show_messages);
+        this.settings.set_int('show-messages', this.settings.get_int('show-messages'));
         this._indicator       = new Indicator(this);
         const area            = this.areas[this.settings.get_enum("area")];
         console.log(`notes: area == ${area}`);
