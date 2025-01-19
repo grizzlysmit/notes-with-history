@@ -126,13 +126,14 @@ class ApplicationMenuItem extends PopupMenu.PopupBaseMenuItem {
     }
 
     activate(event) {
+        let t        = typeof event;
+        console.log(`notes: event: ‷${event}‴ of type ‷${t}‴.`);
         super.activate(event);
         let dlg      = null;
         let new_note = null;
         let index    = null;
         let txt      = null;
-        let t        = typeof event;
-        console.log(`notes: event: ‷${event}‴ of type ‷${t}‴.`);
+        let thisline = null;
         /*
         dlg          = new Gzz.GzzMessageDialog('ApplicationMenuItem::activate(event)', `Proccessing event: ‷${event}‴.`);
         console.log(`notes: dlg: ‷${dlg}‴.`);
@@ -148,23 +149,24 @@ class ApplicationMenuItem extends PopupMenu.PopupBaseMenuItem {
                         case 'edit':
                             index    = this._item.index;
                             txt = this._button._caller.notes[index];
-                            console.log(`notes: edit: index: ‷${index}‴, txt: ‷${txt}‴.`);
+                            thisline = new Error().lineNumber;
+                            console.log(`[${thisline}]notes: edit: index: ‷${index}‴, txt: ‷${txt}‴.`);
                             dlg = new Gzz.GzzPromptDialog({
                                             title:       _('Edit Note'), 
                                             description: _('Edit or view Note.'), 
-                                            ok_button:   _('Save'), 
-                                            ok_icon_name:  'stock_save', 
                                             icon_name:   'notes-app', 
                                             text:        txt,
-                            });
-                            dlg.setButtons(
-                                            [
+                                            buttons:     [
                                                 {
                                                     label:   _('Cancel'),
                                                     icon_name: 'stock_calc-cancel', 
                                                     action: () => {
                                                         dlg.set_result(false);
-                                                        dlg.close();
+                                                        const thisfile = new Error().fileName;
+                                                        const thisline = new Error().lineNumber;
+                                                        console.log(`${thisfile}:${thisline + 1}: Callback Save: dlg.result: ${dlg.result}`);
+                                                        console.log(`${thisfile}:${thisline + 2}: Callback Save: dlg.text: ${dlg.text}`);
+                                                        dlg.destroy();
                                                     },
                                                 },
                                                 {
@@ -172,9 +174,17 @@ class ApplicationMenuItem extends PopupMenu.PopupBaseMenuItem {
                                                     icon_name: 'stock_delete', 
                                                     isDefault: true,
                                                     action: () => {
-                                                        dlg.set_edit.text('');
+                                                        dlg.set_text('');
                                                         dlg.set_result(true);
-                                                        dlg.close();
+                                                        const thisfile = new Error().fileName;
+                                                        const thisline = new Error().lineNumber;
+                                                        console.log(`${thisfile}:${thisline + 1}: Callback Save: dlg.result: ${dlg.result}`);
+                                                        console.log(`${thisfile}:${thisline + 2}: Callback Save: dlg.text: ${dlg.text}`);
+                                                        this._button._caller.notes.splice(index, 1);
+                                                        console.log(`notes: ApplicationMenuItem::activate: ${thisline + 4}:`
+                                                            + ` case note sub case edit: notes: ‷${JSON.stringify(this._button._caller.notes)}‴.`);
+                                                        this._button._caller.settings.set_strv('notes', this._button._caller.notes);
+                                                        dlg.destroy();
                                                     },
                                                 }, 
                                                 {
@@ -183,23 +193,23 @@ class ApplicationMenuItem extends PopupMenu.PopupBaseMenuItem {
                                                     isDefault: true,
                                                     action: () => {
                                                         dlg.set_result(true);
-                                                        dlg.close();
+                                                        const thisfile = new Error().fileName;
+                                                        const thisline = new Error().lineNumber;
+                                                        console.log(`${thisfile}:${thisline + 1}: Callback Save: dlg.result: ${dlg.result}`);
+                                                        console.log(`${thisfile}:${thisline + 2}: Callback Save: dlg.text: ${dlg.text}`);
+                                                        new_note = dlg.text;
+                                                        if(new_note.trim() != ''){
+                                                            this._button._caller.notes[index] = new_note;
+                                                            console.log(`notes: ApplicationMenuItem::activate: ${thisline + 6}:`
+                                                                + ` case note sub case edit: notes: ‷${JSON.stringify(this._button._caller.notes)}‴.`);
+                                                            this._button._caller.settings.set_strv('notes', this._button._caller.notes);
+                                                        }
+                                                        dlg.destroy();
                                                     },
                                                 }
-                                            ] 
-                            );
+                                            ], 
+                            });
                             dlg.open();
-                            new_note = dlg.text;
-                            if(dlg.result){
-                                if(new_note.trim() !== ''){
-                                    this._button._caller.notes[index] = new_note;
-                                }else{
-                                    this._button._caller.notes.splice(index, 1);
-                                }
-                                this._button._caller.settings_change_self = true;
-                                this._button._caller.settings.set_strv('notes', this._button._caller.notes);
-                            }
-                            dlg.destroy();
                             break;
                         case 'delete':
                             index    = this._item.index;
@@ -216,7 +226,9 @@ class ApplicationMenuItem extends PopupMenu.PopupBaseMenuItem {
                                         icon_name: 'stock_yes', 
                                         action: () => {
                                             dlg.set_result(true);
-                                            dlg.close();
+                                            this._button._caller.notes.splice(index, 1);
+                                            this._button._caller.settings.set_strv('notes', this._button._caller.notes);
+                                            dlg.destroy();
                                         }, 
                                     }, 
                                     {
@@ -224,18 +236,12 @@ class ApplicationMenuItem extends PopupMenu.PopupBaseMenuItem {
                                         icon_name: 'stock_no', 
                                         action: () => {
                                             dlg.set_result(false);
-                                            dlg.close();
+                                            dlg.destroy();
                                         }, 
                                     }, 
                                 ]
                             );
                             dlg.open();
-                            if(dlg.result){
-                                this._button._caller.notes.splice(index, 1);
-                                this._button._caller.settings_change_self = true;
-                                this._button._caller.settings.set_strv('notes', this._button._caller.notes);
-                            }
-                            dlg.destroy();
                             break;
                         case "edit-delete-in-prefs":
                             index    = this._item.index;
@@ -248,7 +254,7 @@ class ApplicationMenuItem extends PopupMenu.PopupBaseMenuItem {
                     break;
                 case "addnote":
                     index    = this._item.index;
-                    console.log(`notes: activate : case addnote: index: ‷${index}‴.`);
+                    console.log(`notes::activate : case addnote: index: ‷${index}‴.`);
                     dlg = new Gzz.GzzPromptDialog({
                         title:       _('Edit Note'), 
                         description: _('Edit or view Note.'), 
@@ -257,8 +263,8 @@ class ApplicationMenuItem extends PopupMenu.PopupBaseMenuItem {
                         ok_call_back: () => {
                             const result   = dlg.get_result();
                             const new_note = dlg.get_text();
-                            console.log(`notes: ApplicationMenuItem::addnote: new_note: ‷${new_note}‴.`);
-                            console.log(`notes: ApplicationMenuItem::addnote: dlg.result: ‷${result}‴.`);
+                            console.log(`notes: ApplicationMenuItem::activate: case addnote: new_note: ‷${new_note}‴.`);
+                            console.log(`notes: ApplicationMenuItem::activate: case addnote: dlg.result: ‷${result}‴.`);
                             if(result){
                                 if(new_note.trim() !== ''){
                                     this._button._caller.notes.unshift(new_note);

@@ -23,6 +23,7 @@ import Gtk from 'gi://Gtk';
 //import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
 import Gdk from 'gi://Gdk';
+import Gio from 'gi://Gio';
 
 import * as Config from 'resource:///org/gnome/Shell/Extensions/js/misc/config.js';
 
@@ -272,26 +273,21 @@ class NotesPreferencesSettings extends PageBase {
 
     _show_messages() {
         // Show Messages
-        let showMessagesSpinButton = new Gtk.SpinButton({
-          adjustment: new Gtk.Adjustment({
-            lower: 0,
-            upper: 150,
-            step_increment: 1,
-            page_increment: 1,
-            page_size: 0,
-            value: this._caller._window._settings.get_int("show-messages"),
-          }),
-          climb_rate: 1,
-          digits: 0,
-          numeric: true,
-          valign: Gtk.Align.CENTER,
+        const showMessagesRow = new Adw.SpinRow({
+                    title:              _("Show Notes"),
+                    adjustment:         new Gtk.Adjustment({
+                        value:          this._caller._window._settings.get_int('show-messages'),
+                        lower:          10,
+                        upper:          150,
+                        step_increment: 1,
+                        page_increment: 10,
+                    }),
         });
-        let showMessagesRow = new Adw.ActionRow({
-                    title: _("Show Notes"),
-                    subtitle: _("The number of notes to show in the menu."),
-                    activatable_widget: showMessagesSpinButton,
-        });
-        showMessagesRow.add_suffix(showMessagesSpinButton);
+        showMessagesRow.set_numeric(true);
+        showMessagesRow.set_update_policy(Gtk.UPDATE_IF_VALID);
+        this._caller._window._settings.bind('show-messages', showMessagesRow,
+            'value', Gio.SettingsBindFlags.DEFAULT
+        );
         this.show_messages  = showMessagesRow;
         return showMessagesRow;
     } // _show_messages() //
