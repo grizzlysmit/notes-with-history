@@ -164,7 +164,7 @@ class ApplicationMenuItem extends PopupMenu.PopupBaseMenuItem {
                                                     icon_name: 'stock_calc-cancel', 
                                                     action: () => {
                                                         dlg.set_result(false);
-                                                        dlg.destroy();
+                                                        dlg.close();
                                                     },
                                                 },
                                                 {
@@ -174,7 +174,7 @@ class ApplicationMenuItem extends PopupMenu.PopupBaseMenuItem {
                                                     action: () => {
                                                         dlg.set_edit.text('');
                                                         dlg.set_result(true);
-                                                        dlg.destroy();
+                                                        dlg.close();
                                                     },
                                                 }, 
                                                 {
@@ -183,7 +183,7 @@ class ApplicationMenuItem extends PopupMenu.PopupBaseMenuItem {
                                                     isDefault: true,
                                                     action: () => {
                                                         dlg.set_result(true);
-                                                        dlg.destroy();
+                                                        dlg.close();
                                                     },
                                                 }
                                             ] 
@@ -199,6 +199,7 @@ class ApplicationMenuItem extends PopupMenu.PopupBaseMenuItem {
                                 this._button._caller.settings_change_self = true;
                                 this._button._caller.settings.set_strv('notes', this._button._caller.notes);
                             }
+                            dlg.destroy();
                             break;
                         case 'delete':
                             index    = this._item.index;
@@ -215,7 +216,7 @@ class ApplicationMenuItem extends PopupMenu.PopupBaseMenuItem {
                                         icon_name: 'stock_yes', 
                                         action: () => {
                                             dlg.set_result(true);
-                                            dlg.destroy();
+                                            dlg.close();
                                         }, 
                                     }, 
                                     {
@@ -223,7 +224,7 @@ class ApplicationMenuItem extends PopupMenu.PopupBaseMenuItem {
                                         icon_name: 'stock_no', 
                                         action: () => {
                                             dlg.set_result(false);
-                                            dlg.destroy();
+                                            dlg.close();
                                         }, 
                                     }, 
                                 ]
@@ -234,6 +235,7 @@ class ApplicationMenuItem extends PopupMenu.PopupBaseMenuItem {
                                 this._button._caller.settings_change_self = true;
                                 this._button._caller.settings.set_strv('notes', this._button._caller.notes);
                             }
+                            dlg.destroy();
                             break;
                         case "edit-delete-in-prefs":
                             index    = this._item.index;
