@@ -61,14 +61,18 @@ class ApplicationMenuItem extends PopupMenu.PopupBaseMenuItem {
 
         let textureCache = St.TextureCache.get_default();
         textureCache.connectObject('icon-theme-changed',
-            () => this._updateIcon(), this);
+                                        () => this._updateIcon(), this);
         this._updateIcon();
+
+        this.connectObject('activate', (event) => this.activate(event), this);
 
     } // constructor(button, item) //
 
     getIcon() {
         let icon         = null;
         let app          = null;
+        let gicon        = null;
+        let _icon_name    = null;
         switch (this._item.type) {
             case "note":
 
@@ -78,20 +82,38 @@ class ApplicationMenuItem extends PopupMenu.PopupBaseMenuItem {
                 });
                 break;
             case "settings":
-                app  = this._button.appSys.lookup_app('org.gnome.Settings');
+                app  = this._button._caller.appSys.lookup_app('org.gnome.settings');
+                if(!app){
+                    icon = new St.Icon({
+                        style_class: 'icon-dropshadow',
+                    });
+                    _icon_name = "notes-app";
+                    gicon = Gio.icon_new_for_string(_icon_name);
+                    icon.gicon = gicon;
+                    icon.icon_size = APPLICATION_ICON_SIZE;
+                    return icon;
+                }
                 icon = app.create_icon_texture(APPLICATION_ICON_SIZE);
                 break;
+            default:
+                icon = new St.Icon({
+                    style_class: 'icon-dropshadow',
+                });
+                _icon_name = "notes-app";
+                gicon = Gio.icon_new_for_string(_icon_name);
+                icon.gicon = gicon;
+                icon.icon_size = APPLICATION_ICON_SIZE; 
         } // switch (this.item.type) //
         if(!icon){
             icon = new St.Icon({
                 style_class: 'icon-dropshadow',
             });
             let gicon;
-            let icon_name = "question-symbolic";
-            gicon = Gio.icon_new_for_string(icon_name);
+            _icon_name = "notes-app";
+            gicon = Gio.icon_new_for_string(_icon_name);
             icon.gicon = gicon;
             icon.icon_size = APPLICATION_ICON_SIZE;
-        }
+       }
         return icon;
     }
 
@@ -104,136 +126,181 @@ class ApplicationMenuItem extends PopupMenu.PopupBaseMenuItem {
     }
 
     activate(event) {
+        super.activate(event);
         let dlg      = null;
         let new_note = null;
         let index    = null;
         let txt      = null;
-        switch (this._item.type) {
-            case "note":
-                switch(this._item.subtype){
-                    case 'edit':
-                        index    = this._item.index;
-                        txt = this._button._caller.notes[index];
-                        dlg = new Gzz.GzzPromptDialog({
-                                        title:       _('Edit Note'), 
-                                        description: _('Edit or view Note.'), 
-                                        ok_button:   _('Save'), 
-                                        ok_icon_name:  'stock_save', 
-                                        icon_name:   'notes-app', 
-                                        text:        txt,
-                        });
-                        dlg.setButtons(
-                                        [
-                                            {
-                                                label:   _('Cancel'),
-                                                icon_name: 'stock_calc-cancel', 
-                                                action: () => {
-                                                    dlg.set_result(false);
-                                                    dlg.destroy();
+        let t        = typeof event;
+        console.log(`notes: event: ‷${event}‴ of type ‷${t}‴.`);
+        /*
+        dlg          = new Gzz.GzzMessageDialog('ApplicationMenuItem::activate(event)', `Proccessing event: ‷${event}‴.`);
+        console.log(`notes: dlg: ‷${dlg}‴.`);
+        dlg.open();
+        dlg          = null;
+        // */
+        try {
+            t       = typeof this._item;
+            console.log(`notes: this._item: ‷${JSON.stringify(this._item)}‴ of type ‷${t}‴.`);
+            switch (this._item.type) {
+                case "note":
+                    switch(this._item.subtype){
+                        case 'edit':
+                            index    = this._item.index;
+                            txt = this._button._caller.notes[index];
+                            console.log(`notes: edit: index: ‷${index}‴, txt: ‷${txt}‴.`);
+                            dlg = new Gzz.GzzPromptDialog({
+                                            title:       _('Edit Note'), 
+                                            description: _('Edit or view Note.'), 
+                                            ok_button:   _('Save'), 
+                                            ok_icon_name:  'stock_save', 
+                                            icon_name:   'notes-app', 
+                                            text:        txt,
+                            });
+                            dlg.setButtons(
+                                            [
+                                                {
+                                                    label:   _('Cancel'),
+                                                    icon_name: 'stock_calc-cancel', 
+                                                    action: () => {
+                                                        dlg.set_result(false);
+                                                        dlg.destroy();
+                                                    },
                                                 },
-                                            },
-                                            {
-                                                label:   _('Delete'),
-                                                icon_name: 'stock_delete', 
-                                                isDefault: true,
-                                                action: () => {
-                                                    dlg.set_edit.text('');
-                                                    dlg.set_result(true);
-                                                    dlg.destroy();
-                                                },
-                                            }, 
-                                            {
-                                                label:   _('Save'),
-                                                icon_name: 'stock_save', 
-                                                isDefault: true,
-                                                action: () => {
-                                                    dlg.set_result(true);
-                                                    dlg.destroy();
-                                                },
-                                            }
-                                        ] 
-                        );
-                        dlg.open();
-                        new_note = dlg.get_text();
-                        if(dlg.result){
-                            if(new_note.trim() !== ''){
-                                this._button._caller.notes[index] = new_note;
-                            }else{
-                                this._button._caller.notes.splice(index, 1);
+                                                {
+                                                    label:   _('Delete'),
+                                                    icon_name: 'stock_delete', 
+                                                    isDefault: true,
+                                                    action: () => {
+                                                        dlg.set_edit.text('');
+                                                        dlg.set_result(true);
+                                                        dlg.destroy();
+                                                    },
+                                                }, 
+                                                {
+                                                    label:   _('Save'),
+                                                    icon_name: 'stock_save', 
+                                                    isDefault: true,
+                                                    action: () => {
+                                                        dlg.set_result(true);
+                                                        dlg.destroy();
+                                                    },
+                                                }
+                                            ] 
+                            );
+                            dlg.open();
+                            new_note = dlg.text;
+                            if(dlg.result){
+                                if(new_note.trim() !== ''){
+                                    this._button._caller.notes[index] = new_note;
+                                }else{
+                                    this._button._caller.notes.splice(index, 1);
+                                }
+                                this._button._caller.settings_change_self = true;
+                                this._button._caller.settings.set_strv('notes', this._button._caller.notes);
                             }
-                            this._button._caller.settings_change_self = true;
-                            this._button._caller.settings.set_strv('notes', this._button._caller.notes);
-                        }
-                        break;
-                    case 'delete':
-                        index    = this._item.index;
-                        dlg = new Gzz.GzzMessageDialog(
-                            _('Are you sure'),
-                            _(`Are you sure you want to delete note: ‷${this._button._caller.notes[index]}⁗.`),
-                            'emblem-dialog-question');
-                        dlg.setButtons(
-                            [
-                                {
-                                    label:   _('Yes'), 
-                                    icon_name: 'stock_yes', 
-                                    action: () => {
-                                        dlg.set_result(true);
-                                        dlg.destroy();
+                            break;
+                        case 'delete':
+                            index    = this._item.index;
+                            console.log(`notes: delete: index: ‷${index}‴.`);
+                            dlg = new Gzz.GzzMessageDialog(
+                                _('Are you sure'),
+                                _(`Are you sure you want to delete note: ‷${this._button._caller.notes[index]}⁗.`),
+                                'emblem-dialog-question'
+                            );
+                            dlg.setButtons(
+                                [
+                                    {
+                                        label:   _('Yes'), 
+                                        icon_name: 'stock_yes', 
+                                        action: () => {
+                                            dlg.set_result(true);
+                                            dlg.destroy();
+                                        }, 
                                     }, 
-                                }, 
-                                {
-                                    label:   _('No'), 
-                                    icon_name: 'stock_no', 
-                                    action: () => {
-                                        dlg.set_result(false);
-                                        dlg.destroy();
+                                    {
+                                        label:   _('No'), 
+                                        icon_name: 'stock_no', 
+                                        action: () => {
+                                            dlg.set_result(false);
+                                            dlg.destroy();
+                                        }, 
                                     }, 
-                                }, 
-                            ]
-                        );
-                        dlg.open();
-                        if(dlg.result){
-                            this._button._caller.notes.splice(index, 1);
-                            this._button._caller.settings_change_self = true;
-                            this._button._caller.settings.set_strv('notes', this._button._caller.notes);
-                        }
-                        break;
-                } // switch(this._item.subtype) //
-                break;
-            case "addnote":
-                dlg = new Gzz.GzzPromptDialog({
-                                title:       _('Edit Note'), 
-                                description: _('Edit or view Note.'), 
-                                ok_button:   _('Add Note'), 
-                                ok_icon_name:  'list-add', 
-                                icon_name:   'notes-app', 
-                                text:        '',
-                });
-                dlg.open();
-                new_note = dlg.get_text();
-                if(dlg.result){
-                    if(new_note.trim() !== ''){
-                        this._button._caller.notes.unshift(new_note);
-                    }
-                    this._button._caller.settings_change_self = true;
-                    this._button._caller.settings.set_strv('notes', this._button._caller.notes);
-                }
-                break;
-            case  "savefile":
-                this._button.save_to_file();
-                break;
-            case "loadfile":
-                this._button.get_file_contents();
-                break;
-            case "settings":
-            case "notesScroller":
-            case "aboutPage":
-            case "credits":
-                this._button.settings.set_enum("page", this._item.type);
-                this._button._caller.openPreferences();
-                break;
-        } // switch (this._item.type) //
-        super.activate(event);
+                                ]
+                            );
+                            dlg.open();
+                            if(dlg.result){
+                                this._button._caller.notes.splice(index, 1);
+                                this._button._caller.settings_change_self = true;
+                                this._button._caller.settings.set_strv('notes', this._button._caller.notes);
+                            }
+                            break;
+                        case "edit-delete-in-prefs":
+                            index    = this._item.index;
+                            console.log(`notes: edit-delete-in-prefs: index: ‷${index}‴.`);
+                            this._button._caller.settings.set_int('index', index);
+                            this._button._caller.settings.set_boolean('page', 'editNote');
+                            this._button._caller.openPreferences();
+                            break;
+                    } // switch(this._item.subtype) //
+                    break;
+                case "addnote":
+                    index    = this._item.index;
+                    console.log(`notes: activate : case addnote: index: ‷${index}‴.`);
+                    dlg = new Gzz.GzzPromptDialog({
+                        title:       _('Edit Note'), 
+                        description: _('Edit or view Note.'), 
+                        ok_button:   _('Add Note'), 
+                        ok_icon_name:  'list-add', 
+                        ok_call_back: () => {
+                            const result   = dlg.get_result();
+                            const new_note = dlg.get_text();
+                            console.log(`notes: ApplicationMenuItem::addnote: new_note: ‷${new_note}‴.`);
+                            console.log(`notes: ApplicationMenuItem::addnote: dlg.result: ‷${result}‴.`);
+                            if(result){
+                                if(new_note.trim() !== ''){
+                                    this._button._caller.notes.unshift(new_note);
+                                    const thisline = new Error().lineNumber;
+                                    console.log(`notes: ApplicationMenuItem::addnote:${thisline + 1}:`
+                                                    + ' this._button._caller.notes: '
+                                                    + `‷${JSON.stringify(this._button._caller.notes)}‴.`);
+                                    this._button._caller.settings_change_self = true;
+                                    this._button._caller.settings.set_strv('notes', this._button._caller.notes);
+                                } // if(new_note.trim() !== '') //
+                            } // if(result) //
+                        },
+                        icon_name:   'notes-app', 
+                        text:        '',
+                    });
+                    dlg.open();
+                    break;
+                case  "savefile":
+                    console.log(`notes: savefile: index: ‷${index}‴.`);
+                    this._button.save_to_file();
+                    break;
+                case "loadfile":
+                    console.log(`notes: savefile: index: ‷${index}‴.`);
+                    this._button.get_file_contents();
+                    break;
+                case "settings":
+                case "notesScroller":
+                case "aboutPage":
+                case "credits":
+                    console.log(`notes: settings, etc: this._item.type: ‷${this._item.type}‴.`);
+                    this._button._caller.settings.set_boolean("edit-note", true);
+                    this._button._caller.settings.set_enum("page", this._item.type);
+                    this._button._caller.openPreferences();
+                    break;
+            } // switch (this._item.type) //
+        }
+        catch(e){
+            console.log(e.stack);
+            console.log(`Exception ‷${e}‴, ${e.fileName}:${e.lineNumber}:${e.columnNumber}.`);
+            this._button._caller.display_error_msg(
+                'ApplicationMenuItem::activate',
+                `Exception ‷${e}‴, ${e.fileName}:${e.lineNumber}:${e.columnNumber}.`
+            );
+        }
     } // activate(event) //
 
 } // class ApplicationMenuItem extends PopupMenu.PopupBaseMenuItem //
@@ -256,16 +323,17 @@ class Indicator extends PanelMenu.Button {
         const tmp = this._caller.settings.get_string("notespath").trim();
 
         const notespath = ((tmp == '') ?
-            Gio.File.new_for_path(GLib.build_filenamev([GLib.get_home_dir()])) :
-                                    Gio.File.new_for_path(GLib.build_filenamev([tmp])));
+            GLib.build_filenamev([GLib.get_home_dir()]) :
+                                    GLib.build_filenamev([tmp]));
 
         this.dir_path = Gio.File.new_for_path(notespath);
+        this._caller.settings.set_boolean('edit-note', this._caller.edit_note);
 
         const file_name = this._caller.notesname.trim();
         
         this._caller.notesname     = ((file_name == '') ? 'notes.txt' : file_name);
 
-        //this.loadMesessages();
+        this.loadMesessages();
 
     } // constructor(caller) //
 
@@ -283,7 +351,6 @@ class Indicator extends PanelMenu.Button {
             filter:            new RegExp('^.*\\.txt$', 'i'), 
             double_click_time: 400, 
         });
-        dlg.initialise();
         let _dir  = null;
         let _name = null;
         [_dir, _name] = dlg.save_to_file();
@@ -317,7 +384,6 @@ class Indicator extends PanelMenu.Button {
                 filter:            new RegExp('^(?:.*\\.txt)$', 'i'), 
                 double_click_time: 400, 
             });
-            dlg.initialise();
             dlg.open();
             if(!dlg.result){
                 return null;
@@ -365,8 +431,13 @@ class Indicator extends PanelMenu.Button {
                     }
                 }
             }
-        }catch(_e){
-            console.log(`Error: in get_file_contents() ${_e}`);
+        }catch(e){
+            console.log(e.stack);
+            console.log(`Error: in Indicator::get_file_contents() ${e}: ${e.fileName}:${e.lineNumber}:${e.columnNumber}`);
+            this._caller.display_error_msg(
+                'Indicator::get_file_contents_error',
+                `Error: in Indicator::get_file_contents() ${e}: ${e.fileName}:${e.lineNumber}:${e.columnNumber}`
+            );
         }
     }  // get_file_contents() //
     
@@ -374,27 +445,35 @@ class Indicator extends PanelMenu.Button {
         let item = null;
         let submenu = null;
         submenu = new PopupMenu.PopupSubMenuMenuItem('Actions & About', true, this, 0);
-        submenu.addMenuItem(item);
 
-        item = new ApplicationMenuItem(this, { text: _('Save to file...'), type: 'savefile', action: [], alt: [], });
-        submenu.addMenuItem(item);
+        item = new ApplicationMenuItem(this, { text: _('Save to file...'), type: 'savefile', index: 0, subtype: 'None', });
+        //item.connect('activate', (event) => { item.activate(event); });
+        submenu.menu.addMenuItem(item);
 
-        item = new ApplicationMenuItem(this, { text: _('Load from file...'), type: 'loadfile', action: [], alt: [], });
-        submenu.addMenuItem(item);
+        item = new ApplicationMenuItem(this, { text: _('Load from file...'), type: 'loadfile', index: 0, subtype: 'None', });
+        //item.connect('activate', (event) => { item.activate(event); });
+        submenu.menu.addMenuItem(item);
 
-        item = new ApplicationMenuItem(this, { text: _('Add Note...'), type: 'addnote', action: [], alt: [], });
-        submenu.addMenuItem(item);
+        item = new ApplicationMenuItem(this, { text: _('Add Note...'), type: 'addnote', index: 0, subtype: 'None', });
+        //item.connect('activate', (event) => { item.activate(event); });
+        submenu.menu.addMenuItem(item);
 
-        submenu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
+        submenu.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
 
-        item = new ApplicationMenuItem(this, { text: _('Settings...'), type: 'settings', action: [], alt: [], });
+        item = new ApplicationMenuItem(this, { text: _('Settings...'), type: 'settings', index: 0, subtype: 'None', });
         //item.connect('activate', () => { this._caller.openPreferences(); });
-        submenu.addMenuItem(item);
+        //item.connect('activate', (event) => { item.activate(event); });
+        submenu.menu.addMenuItem(item);
 
-        item = new ApplicationMenuItem(this, { text: _('Notes Scroller...'), type: 'notesScroller', action: [], alt: [], });
-        item = new ApplicationMenuItem(this, { text: _('About...'), type: 'aboutPage', action: [], alt: [], });
-        item = new ApplicationMenuItem(this, { text: _('Credits...'), type: 'credits', action: [], alt: [], });
-        submenu.addMenuItem(item);
+        item = new ApplicationMenuItem(this, { text: _('Notes Scroller...'), type: 'notesScroller', index: 0, subtype: 'None', });
+        //item.connect('activate', (event) => { item.activate(event); });
+        submenu.menu.addMenuItem(item);
+        item = new ApplicationMenuItem(this, { text: _('About...'), type: 'aboutPage', index: 0, subtype: 'None', });
+        //item.connect('activate', (event) => { item.activate(event); });
+        submenu.menu.addMenuItem(item);
+        item = new ApplicationMenuItem(this, { text: _('Credits...'), type: 'credits', index: 0, subtype: 'None', });
+        //item.connect('activate', (event) => { item.activate(event); });
+        submenu.menu.addMenuItem(item);
 
         this.menu.addMenuItem(submenu);
 
@@ -403,16 +482,23 @@ class Indicator extends PanelMenu.Button {
         for(let i = 0; i < this._caller.notes.length; i++){
             submenu = new PopupMenu.PopupSubMenuMenuItem(this._caller.notes[i], true, this, 0);
             item         = new ApplicationMenuItem(this, { text: 'Edit...', index: i, type: 'note', subtype: 'edit', });
-            submenu.addMenuItem(item);
+            //item.connect('activate', (event) => { item.activate(event); });
+            submenu.menu.addMenuItem(item);
             item         = new ApplicationMenuItem(this, { text: 'Delete...', index: i, type: 'note', subtype: 'delete', });
-            submenu.addMenuItem(item);
+            //item.connect('activate', (event) => { item.activate(event); });
+            submenu.menu.addMenuItem(item);
+            item         = new ApplicationMenuItem(this, { text: 'Edit or Delete...', index: i, type: 'note', subtype: 'edit-delete-in-prefs', });
+            //item.connect('activate', (event) => { item.activate(event); });
+            submenu.menu.addMenuItem(item);
             this.menu.addMenuItem(submenu);
         } // for(let i = 0; i < this._caller.notes.length; i++) //
     } // loadMesessages() //
 
     refesh_menu(){
+        console.log("notes: Indicator: starting.");
         this.menu.destroy_all_children();
         this.loadMesessages();
+        console.log("notes: Indicator: done.");
     }
 
 } // class Indicator extends PanelMenu.Button //
@@ -428,6 +514,7 @@ export default class IndicatorExampleExtension extends Extension {
         const indx                = id.indexOf('@');
         this._name                = id.substr(0, indx);
         this.settings_change_self = false;
+        this.areas                = ["left", "center", "right"];
     }
 
     enable() {
@@ -460,23 +547,23 @@ export default class IndicatorExampleExtension extends Extension {
             }
         }
         
-        this.settings.set_int("position", 100);
         this.settings.set_enum('area', this.settings.get_enum('area'));
         if(this.settings.get_int("position") < 0 || this.settings.get_int("position") > 25) this.settings.set_int("position", 0);
         this.settings.set_int('max-note-length', this.max_note_length);
-        this._indicator    = new Indicator(this);
-        this.settings.set_boolean('edit-note', this.edit_note);
-        this._indicator.loadMesessages();
-        Main.panel.addToStatusArea(this._name, this._indicator, this.settings.get_int("position"), this.settings.get_enum("area"));
+        this.settings.set_int('show-messages', this.settings.show_messages);
+        this._indicator       = new Indicator(this);
+        const area            = this.areas[this.settings.get_enum("area")];
+        console.log(`notes: area == ${area}`);
+        Main.panel.addToStatusArea(this._name, this._indicator, this.settings.get_int("position"), area);
 
-        this.settingsID_show = this.settings.connect("changed::show-messages", () => {
-            this.show_messages     = this.settings.get_int("show-messages");
+        this.settingsID_show     = this.settings.connect("changed::show-messages", () => {
+            this.show_messages   = this.settings.get_int("show-messages");
         }); 
-        this.settingsID_area  = this.settings.connect("changed::area", this.onPositionChanged.bind(this)); 
-        this.settingsID_pos   = this.settings.connect("changed::position", this.onPositionChanged.bind(this)); 
-        this.settingsID_notes = this.settings.connect("changed::notes", this.onNotesChanged.bind(this)); 
-        this.settingsID_max  = this.settings.connect("changed::max-note-length", () => {
-            this.max_note_length   = this.settings.get_int("max-note-length");
+        this.settingsID_area     = this.settings.connect("changed::area", this.onPositionChanged.bind(this)); 
+        this.settingsID_pos      = this.settings.connect("changed::position", this.onPositionChanged.bind(this)); 
+        this.settingsID_notes    = this.settings.connect("changed::notes", this.onNotesChanged.bind(this)); 
+        this.settingsID_max      = this.settings.connect("changed::max-note-length", () => {
+            this.max_note_length = this.settings.get_int("max-note-length");
         }); 
     }
 
@@ -498,19 +585,22 @@ export default class IndicatorExampleExtension extends Extension {
     }
 
     onPositionChanged(){
-        Main.panel.menuManager.removeMenu(this._ext.menu);
+        Main.panel.menuManager.removeMenu(this._indicator.menu);
         Main.panel.statusArea[this._name] = null;
-        const area      = this.settings.get_enum("area");
+        const area      = this.areas[this.settings.get_enum("area")];
+        console.log(`notes: area == ${area}`);
         const position  = this.settings.get_int("position");
         Main.panel.addToStatusArea(this._name, this._indicator, position, area);
     }
 
     onNotesChanged(){
         if(this.settings_change_self){
-            this._caller.settings_change_self = false;
+            this.settings_change_self = false;
         }else{
             this.notes                        = this.settings.get_strv("notes");
+            console.log(`notes: IndicatorExampleExtension::onNotesChanged: this.notes: ${this.notes}`);
             this._indicator.refesh_menu();
+            console.log(`notes: IndicatorExampleExtension::onNotesChanged: this.notes: ${this.notes}`);
         }
     }
 

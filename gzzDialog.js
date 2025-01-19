@@ -88,11 +88,17 @@ export class GzzMessageDialog extends ModalDialog.ModalDialog {
         GObject.registerClass(this);
     }
 
-    constructor(_title, _text, _icon_name = null, buttons = null) {
+    constructor(_title, _text, icon_name = null, buttons = null) {
         super({ styleClass: 'extension-dialog' });
 
-        const icon = new St.Icon({icon_name: (_icon_name ? _icon_name : 'dialog-information')});
-        this.contentLayout.add(icon);
+        let _icon_name = icon_name;
+        if(!_icon_name){
+            _icon_name = 'dialog-information';
+            console.log(`notes: _icon_name: ‷${_icon_name}‴.`);
+        }
+        console.log(`notes: _icon_name: ‷${_icon_name}‴.`);
+        const icon = new St.Icon({icon_name: _icon_name });
+        this.contentLayout.add_child(icon);
 
         const messageLayout = new Dialog.MessageDialogContent({
             title: _title,
@@ -127,7 +133,8 @@ export class GzzMessageDialog extends ModalDialog.ModalDialog {
                 },
             });
         }
-    } // constructor(_title, _text) //
+        console.log(`notes: end constructor(_title, _text, _icon_name = null, buttons = null): ‷${_icon_name}‴.`);
+    } // constructor(_title, _text, _icon_name = null, buttons = null) //
 
     get result(){
         return this._result;
@@ -155,6 +162,133 @@ export class GzzDialogType {
 
 }
 
+export class GzzFileDialogBase extends ModalDialog.ModalDialog {
+    static {
+        GObject.registerClass(this);
+    }
+
+    constructor(params) {
+        super({ styleClass: 'gzzextension-dialog' });
+
+        if('dialogtype' in params){
+            const dialogtype = params.dialogtype;
+            if(dialogtype instanceof GzzDialogType){
+                if(dialogtype.toString() === GzzDialogType.Open.toString()
+                                    || dialogtype.toString() === GzzDialogType.Save.toString()
+                                                                || dialogtype.toString() === GzzDialogType.SelectDir.toString()){
+                    this._dialog_type = dialogtype;
+                }else{
+                    const dlg = new GzzMessageDialog(
+                        'GzzFileDialogBase::dialog_type_error',
+                        "Unkown GzzDialogType instance in GzzFileDialogBase(dialogtype).",
+                        'dialog-error'
+                    );
+                    dlg.open();
+                }
+            }else{
+                const dlg = new GzzMessageDialog(
+                    'GzzFileDialogBase::dialog_type_error',
+                    "dialog_type must be an instance of GzzDialogType.",
+                    'dialog-error'
+                );
+                dlg.open();
+            }
+        }else{
+            this._dialog_type = GzzDialogType.Save;
+        }
+
+        if('errorhandler' in params){
+            this._error_handler = params.errorhandler;
+        }else{
+            this._error_handler = this.default_error_handler;
+        }
+
+        this._double_click_time = 400;
+
+        if(this.constructor === GzzFileDialogBase){
+            throw new Error('error GzzFileDialogBase is an abstract class create a derived class to use.');
+        }
+
+    } // constructor(params) //
+
+    get className(){
+        return 'GzzFileDialogBase';
+    }
+
+    get dialog_type(){
+        return this._dialog_type;
+    }
+
+    set dialog_type(dialogtype){
+        if(dialogtype instanceof GzzDialogType){
+            if(dialogtype.toString() === GzzDialogType.Open.toString()
+                || dialogtype.toString() === GzzDialogType.Save.toString()
+                    || dialogtype.toString() === GzzDialogType.SelectDir.toString()){
+                this._dialog_type = dialogtype;
+            }else{
+                this._error_handler(this, "dialog_type_error", "Unkown GzzDialogType instance in set_dialog_type(dialogtype).");
+            }
+        }else{
+            this._error_handler(this, "dialog_type_error", "dialog_type must be an instance of GzzDialogType.");
+        }
+    } // set dialog_type(dialogtype) //
+
+    get double_click_time(){
+        return this._double_click_time;
+    }
+
+    set double_click_time(dbl_click_time){
+        if(isNaN(Number(dbl_click_time))){
+            this._owner.apply_error_handler(this, 'GzzListFileRow::set_double_click_time_error', `bad value expected integer or date got ${dbl_click_time}`);
+        }else if(dbl_click_time instanceof Date){
+            this._double_click_time = dbl_click_time.getTime();
+        }else if(Number.isInteger(dbl_click_time)){
+            this._double_click_time = Number(dbl_click_time);
+        }else{
+            this._owner.apply_error_handler(this, 'GzzListFileRow::set_double_click_time_error', `bad number type expected integer or Date ${dbl_click_time}`);
+        }
+    } // set double_click_time(dbl_click_time) //
+
+    create_new_dir(){
+        throw new Error('GzzFileDialogBase::create_new_dir_error: Cannot create an instace of a virtual class.');
+    }
+
+    default_error_handler(_error_owner, _name, msg){
+        const dlg = new GzzMessageDialog(_name, msg, 'dialog-error');
+        dlg.open();
+    }
+
+    get error_handler(){
+        return this._error_handler;
+    }
+
+    set error_handler(handler){
+        if(handler == null || typeof handler !== 'function'){
+            this._error_handler = this.default_error_handler;
+        }else{
+            this._error_handler = handler;
+        }
+    }
+
+    apply_error_handler(_error_owner, _name, msg){
+        if(this._error_handler)
+            this._error_handler(_error_owner, _name, msg);
+    }
+
+    display_dir(_dirname){
+        throw new Error('GzzFileDialogBase::display_dir_error: Cannot create an instace of a virtual class.');
+    }
+
+    double_clicked(_error_owner, _title){
+        throw new Error('GzzFileDialogBase::double_clicked_error: Cannot create an instace of a virtual class.');
+    }
+
+    clicked(_error_owner, _title){
+        throw new Error('GzzFileDialogBase::clicked_error: Cannot create an instace of a virtual class.');
+    }
+
+} // export class GzzFileDialogBase extends ModalDialog.ModalDialog  //
+
 export class GzzHeader extends St.BoxLayout {
       static {
             GObject.registerClass(this);
@@ -168,33 +302,31 @@ export class GzzHeader extends St.BoxLayout {
             ...params,
         });
 
-        /*
         if('owner' in params){
             const _owner = params.owner;
             if(!_owner){
-                throw { name: 'GzzHeader::set_owner_error', message: 'owner cannot be null' };
-            }else if(_owner instanceof GzzFileDialog){
+                throw new Error('GzzHeader::owner_error: owner cannot be null' );
+            }else if(_owner instanceof GzzFileDialogBase){
                 this._owner = _owner;
                 this.notify('owner');
             }else{
-                throw { name: 'GzzHeader::set_owner_error', message: 'owner must be a GzzFileDialog' };
+                throw new Error('GzzHeader::owner_error: owner must be a GzzFileDialogBase');
             }
         }else{
-            throw "owner must be supplied";
+            throw new Error('GzzHeader::owner_error: owner must be supplied');
         }
-        // */
 
         let ok = null;
         let result = null;
         if('filename' in params){
             [ok, result] = splitFile(params.filename);
             if(!ok){
-                throw { name: 'GzzHeader::constructor_error', message: `splitFile error: ${result}` };
+                throw new Error(`GzzHeader::constructor_error: splitFile error: ${result}`);
             }else{
                 this._array = this._current_array = result;
             }
         }else{
-            throw { name: 'GzzHeader::constructor_error', message: "filename must be supplied" };
+            throw new Error('GzzHeader::constructor_error: filename must be supplied');
         }
 
         this._show_root = false;
@@ -208,18 +340,19 @@ export class GzzHeader extends St.BoxLayout {
     set owner(_owner) {
         if(!_owner){
             if(this._owner){
-                this._owner._error_handler(this, 'GzzHeader::set_owner_error', "owner cannot be null");
+                this._owner.apply_error_handler(this, 'GzzHeader::set_owner_error', "owner cannot be null");
             }else{
-                throw { name: 'GzzHeader::set_owner_error', message: 'owner cannot be null' };
+                const dlg = new GzzMessageDialog('GzzHeader::set_owner_error', "owner cannot be null", 'dialog-error');
+                dlg.open();
             }
-        }else if(_owner instanceof Object && _owner.get_className() === 'GzzFileDialog'){
+        }else if(_owner instanceof GzzFileDialogBase){
             this._owner = _owner;
             this.notify('owner');
         }else{
             if(this._owner){
-                this._owner._error_handler(this, 'GzzHeader::set_owner_error', "owner must be a GzzFileDialog");
+                this._owner.apply_error_handler(this, 'GzzHeader::set_owner_error', "owner must be a GzzFileDialogBase");
             }else{
-                throw { name: 'GzzHeader::set_owner_error', message: 'owner must be a GzzFileDialog' };
+                throw new Error('GzzHeader::set_owner_error: owner must be a GzzFileDialogBase');
             }
         }
     } // set owner(_owner) //
@@ -236,10 +369,10 @@ export class GzzHeader extends St.BoxLayout {
         }
     }
 
-    display_dir(dirname){
-        const [ok, array] = splitFile(dirname);
+    display_dir(_dirname){
+        const [ok, array] = splitFile(_dirname);
         if(!ok){
-            this._owner._error_handler(this, 'GzzHeader::display_dir_error', `splitFile Error: ${array}`);
+            this._owner.apply_error_handler(this, 'GzzHeader::display_dir_error', `splitFile Error: ${array}`);
             return null;
         }
         const length = Math.min(array.length, this._array.length);
@@ -252,7 +385,7 @@ export class GzzHeader extends St.BoxLayout {
         this.destroy_all_children();
         this.add_buttons()
         return true;
-    } // display_dir(dirname) //
+    } // display_dir(_dirname) //
 
     add_buttons(){
         for(let i = 1; i <= this._array.length; i++){
@@ -263,7 +396,7 @@ export class GzzHeader extends St.BoxLayout {
     add_button(array){
         const [ok, home]   = splitFile(Gio.File.new_for_path(GLib.build_filenamev([GLib.get_home_dir()])));
         if(!ok){
-            this._owner._error_handler(this, 'GzzHeader::add_button_error', `splitFile Error: ${home}`);
+            this._owner.apply_error_handler(this, 'GzzHeader::add_button_error', `splitFile Error: ${home}`);
             return;
         }
         if(!this._show_root && this.part_of_path(array, home)){
@@ -306,7 +439,7 @@ export class GzzHeader extends St.BoxLayout {
     set path(file){
         const [ok, array] = splitFile(file);
         if(!ok){
-            this._owner._error_handler(this, 'GzzHeader::add_button_error', `splitFile Error: ${array}`);
+            this._owner.apply_error_handler(this, 'GzzHeader::add_button_error', `splitFile Error: ${array}`);
             return;
         }
         this._current_array = array;
@@ -359,21 +492,19 @@ export  class GzzListFileSection extends St.BoxLayout {
 
         this.label_actor = this.list;
 
-        /*
         if('owner' in params){
             const _owner = params.owner;
-            if(_owner === null){
-                throw { name: 'GzzListFileSection::set_owner_error', message: 'owner cannot be null' };
-            }else if(_owner instanceof GzzFileDialog){
+            if(!_owner){
+                throw new Error('GzzListFileSection::owner_error: owner cannot be null');
+            }else if(_owner instanceof GzzFileDialogBase){
                 this._owner = _owner;
                 this.notify('owner');
             }else{
-                throw { name: 'GzzListFileSection::set_owner_error', message: 'owner must be a GzzFileDialog' };
+                throw new Error('GzzListFileSection::owner_error: owner must be a GzzFileDialogBase');
             }
         }else{
-            throw "owner must be supplied";
+            throw new Error('GzzListFileSection::owner_error: owner must be supplied');
         }
-        // */
 
         this.file_name_box = new St.BoxLayout({
             style_class: 'gzzdialog-header-box',
@@ -415,6 +546,7 @@ export  class GzzListFileSection extends St.BoxLayout {
         });
 
         this.header = new GzzHeader({
+            owner:      this._owner, 
             style_class: 'gzzdialog-header-box',
         });
 
@@ -429,11 +561,6 @@ export  class GzzListFileSection extends St.BoxLayout {
         this.add_child(this._listScrollView);
     } // constructor(params) //
 
-    initialise(owner){
-        this.set_owner(owner);
-        this.header.set_owner(owner);
-    }
-
     get owner() {
         return this._owner;
     }
@@ -441,18 +568,19 @@ export  class GzzListFileSection extends St.BoxLayout {
     set owner(_owner) {
         if(_owner === null){
             if(this._owner){
-                this._owner._error_handler(this, 'GzzListFileSection::set_owner_error', "owner cannot be null");
+                this._owner.apply_error_handler(this, 'GzzListFileSection::set_owner_error', "owner cannot be null");
             }else{
-                throw { name: 'GzzListFileSection::set_owner_error', message: 'owner cannot be null' };
+                const dlg = new GzzMessageDialog('GzzListFileSection::set_owner_error', "owner cannot be null", 'dialog-error');
+                dlg.open();
             }
-        }else if(_owner instanceof Object && _owner.get_className() === 'GzzFileDialog'){
+        }else if(_owner instanceof GzzFileDialogBase){
             this._owner = _owner;
             this.notify('owner');
         }else{
             if(this._owner){
-                this._owner._error_handler(this, 'GzzListFileSection::set_owner_error', "owner must be a GzzFileDialog");
+                this._owner.apply_error_handler(this, 'GzzListFileSection::set_owner_error', "owner must be a GzzFileDialogBase");
             }else{
-                throw { name: 'GzzListFileSection::set_owner_error', message: 'owner must be a GzzFileDialog' };
+                throw new Error('GzzListFileSection::set_owner_error: owner must be a GzzFileDialogBase');
             }
         }
     } // set owner(_owner) //
@@ -491,15 +619,27 @@ export class GzzHeaderItem extends St.Button {
         });
 
         if('owner' in params){
-            this.set_owner(params.owner);
+            const _owner = params.owner;
+            if(_owner === null){
+                if(this._owner){
+                    this._owner.apply_error_handler(this, 'GzzHeaderItem::owner_error', "owner cannot be null");
+                }else{
+                    throw new Error('GzzHeaderItem::owner_error: owner cannot be null');
+                }
+            }else if(_owner instanceof GzzFileDialogBase){
+                this._owner = _owner;
+                this.notify('owner');
+            }else{
+                throw new Error('GzzHeaderItem::owner_error: owner must be a GzzFileDialogBase');
+            }
         }else{
-            throw "owner must be supplied";
+            throw new Error('GzzHeaderItem::owner_error: owner must be supplied');
         }
 
         if('array' in params){
             this.set_array(params.array);
         }else{
-            this._owner._error_handler(this, 'GzzHeaderItem::constructor_error', 'Error: Property array is required.');
+            this._owner.apply_error_handler(this, 'GzzHeaderItem::constructor_error', 'Error: Property array is required.');
         }
 
     } // constructor(params) //
@@ -520,18 +660,18 @@ export class GzzHeaderItem extends St.Button {
     set owner(_owner) {
         if(_owner === null){
             if(this._owner){
-                this._owner._error_handler(this, 'GzzHeader::set_owner_error', "owner cannot be null");
+                this._owner.apply_error_handler(this, 'GzzHeaderItem::set_owner_error', "owner cannot be null");
             }else{
-                throw { name: 'GzzHeader::set_owner_error', message: 'owner cannot be null' };
+                throw new Error('GzzHeaderItem::set_owner_error: owner cannot be null');
             }
-        }else if(_owner instanceof Object && _owner.get_className() === 'GzzFileDialog'){
+        }else if(_owner instanceof GzzFileDialogBase){
             this._owner = _owner;
             this.notify('owner');
         }else{
             if(this._owner){
-                this._owner._error_handler(this, 'GzzHeader::set_owner_error', "owner must be a GzzFileDialog");
+                this._owner.apply_error_handler(this, 'GzzHeaderItem::set_owner_error', "owner must be a GzzFileDialogBase");
             }else{
-                throw { name: 'GzzHeader::set_owner_error', message: 'owner must be a GzzFileDialog' };
+                throw new Error('GzzHeaderItem::set_owner_error: owner must be a GzzFileDialogBase');
             }
         }
     } // set owner(_owner) //
@@ -542,7 +682,7 @@ export class GzzHeaderItem extends St.Button {
 
     set array(arr){
         if(!arr){
-            this._owner._error_handler(this, 'GzzHeaderItem::set_array_error', 'array cannot be empty or null');
+            this._owner.apply_error_handler(this, 'GzzHeaderItem::set_array_error', 'array cannot be empty or null');
         }else{
             this._array = arr;
             const title = this.array.at(-1);
@@ -573,7 +713,6 @@ export class GzzListFileRow extends St.BoxLayout {
     constructor(params) {
         super({
             style_class: 'gzzdialog-label-item',
-            ...params,
         });
 
         let icon = new St.Icon({icon_name: (this._is_dir ? 'inode-directory' : 'emblem-dialog-question')});
@@ -595,15 +734,15 @@ export class GzzListFileRow extends St.BoxLayout {
         if('owner' in params){
             const _owner = params.owner;
             if(!_owner){
-                throw { name: 'GzzListFileRow::set_owner_error', message: 'owner cannot be null' };
-            }else if(_owner instanceof Object && _owner.get_className() === 'GzzFileDialog'){
+                throw new Error('GzzListFileRow::owner_error: owner cannot be null');
+            }else if(_owner instanceof GzzFileDialogBase){
                 this._owner = _owner;
                 this.notify('owner');
             }else{
-                throw { name: 'GzzListFileRow::set_owner_error', message: 'owner must be a GzzFileDialog' };
+                throw new Error('GzzListFileRow::owner_error: owner must be a GzzFileDialogBase');
             }
         }else{
-            throw { name: 'GzzListFileRow::set_owner_error', message: 'owner must be supplied' };
+            throw new Error('GzzListFileRow::owner_error: owner must be supplied');
         }
 
         if('is_dir' in params){
@@ -648,7 +787,11 @@ export class GzzListFileRow extends St.BoxLayout {
         let now = 0
         switch(event.get_button()){
             case(1):
-                if(!this.click_event_start)  this._owner(this, 'GzzListFileRow::handle_button_release_event_error', "lost button press event");
+                if(!this.click_event_start)  this._owner.apply_error_handler(
+                    this,
+                    'GzzListFileRow::handle_button_release_event_error',
+                    "lost button press event"
+                );
                 now = Date().getTime();
                 button_time = now - this.click_event_start;
                 button_double_time = now - this.double_click_start;
@@ -698,18 +841,18 @@ export class GzzListFileRow extends St.BoxLayout {
     set owner(_owner) {
         if(_owner === null){
             if(this._owner){
-                this._owner._error_handler(this, 'GzzListFileRow::set_owner_error', "owner cannot be null");
+                this._owner.apply_error_handler(this, 'GzzListFileRow::set_owner_error', "owner cannot be null");
             }else{
-                throw { name: 'GzzListFileRow::set_owner_error', message: 'owner cannot be null' };
+                throw new Error('GzzListFileRow::set_owner_error: owner cannot be null');
             }
-        }else if(_owner instanceof Object && _owner.get_className() === 'GzzFileDialog'){
+        }else if(_owner instanceof GzzFileDialogBase){
             this._owner = _owner;
             this.notify('owner');
         }else{
             if(this._owner){
-                this._owner._error_handler(this, 'GzzListFileRow::set_owner_error', "owner must be a GzzFileDialog");
+                this._owner.apply_error_handler(this, 'GzzListFileRow::set_owner_error', "owner must be a GzzFileDialogBase");
             }else{
-                throw { name: 'GzzListFileRow::set_owner_error', message: 'owner must be a GzzFileDialog' };
+                throw new Error('GzzListFileRow::set_owner_error: owner must be a GzzFileDialogBase');
             }
         }
     } // set owner(_owner) //
@@ -720,13 +863,13 @@ export class GzzListFileRow extends St.BoxLayout {
 
     set double_click_time(dbl_click_time){
         if(isNaN(Number(dbl_click_time))){
-            this._owner._error_handler(this, 'GzzListFileRow::set_double_click_time_error', `bad value expected integer or date got ${dbl_click_time}`);
+            this._owner.apply_error_handler(this, 'GzzListFileRow::set_double_click_time_error', `bad value expected integer or date got ${dbl_click_time}`);
         }else if(dbl_click_time instanceof Date){
             this._double_click_time = dbl_click_time.getTime();
         }else if(Number(dbl_click_time).isInteger){
             this._double_click_time = Number(dbl_click_time);
         }else{
-            this._owner._error_handler(this, 'GzzListFileRow::set_double_click_time_error', `bad number type expected integer or Date ${dbl_click_time}`);
+            this._owner.apply_error_handler(this, 'GzzListFileRow::set_double_click_time_error', `bad number type expected integer or Date ${dbl_click_time}`);
         }
     } // set double_click_time(dbl_click_time) //
 
@@ -746,9 +889,7 @@ export class GzzPromptDialog extends ModalDialog.ModalDialog {
     }
 
     constructor(params) {
-        super({ styleClass: 'gzzextension-dialog' }, 
-            ...params, 
-        );
+        super({ styleClass: 'gzzextension-dialog' });
 
         let _icon_name = null;
 
@@ -757,7 +898,7 @@ export class GzzPromptDialog extends ModalDialog.ModalDialog {
         }
 
         let icon = new St.Icon({icon_name: (_icon_name ? _icon_name : 'notes-app')});
-        this.contentLayout.add(icon);
+        this.contentLayout.add_child(icon);
 
         let messageLayout = new Dialog.MessageDialogContent({
             title: params.title,
@@ -768,8 +909,13 @@ export class GzzPromptDialog extends ModalDialog.ModalDialog {
         this.contentLayout.add_child(messageLayout);
 
         if('text' in params){
-            this.set_text(params.text);
+            const _text = params.text;
+            if(_text instanceof String || typeof _text === 'string'){
+                this._edit.set_text(_text);
+            }
         }
+
+        this.contentLayout.add_child(this._edit);
 
         this._result = false;
 
@@ -785,8 +931,10 @@ export class GzzPromptDialog extends ModalDialog.ModalDialog {
             ok_icon_name = params.ok_icon_name;
         }
 
-        if('text' in params){
-            this.set_text(params.text);
+        this._ok_call_back = () => { this.distroy(); };
+
+        if('ok_call_back' in params && params.ok_call_back instanceof Function){
+            this._ok_call_back = params.ok_call_back;
         }
                 
         if('buttons' in params && Array.isArray(params.buttons)){
@@ -806,6 +954,7 @@ export class GzzPromptDialog extends ModalDialog.ModalDialog {
                     isDefault: true,
                     action: () => {
                         this._result = true;
+                        this._ok_call_back(/*this._result, this._edit.text*/);
                         this.destroy();
                     },
                 }
@@ -814,67 +963,78 @@ export class GzzPromptDialog extends ModalDialog.ModalDialog {
 
     } // constructor(params) //
 
-    get result(){
+    get_result(){
         return this._result;
     }
 
-    set result(res){
-        this._result = res;
+    set_result(res){
+        this._result = !!res;
     }
 
-    get text(){
+    get result(){
+        return this.get_result();
+    }
+
+    set result(res){
+        this.set_result(res);
+    }
+
+    get_text(){
         return this._edit.get_text();
     }
 
-    set text(_text){
+    set_text(_text){
         if(_text instanceof String || typeof _text === 'string'){
             this._edit.set_text(_text);
         }
     }
 
+    get text(){
+        return this.get_text();
+    }
+
+    set text(_text){
+        this.set_text(_text);
+    }
+
+    get_ok_call_back(){
+        return this._ok_call_back;
+    }
+    set_ok_call_back(cb){
+        if(cb instanceof Function){
+            this._ok_call_back = cb;
+        }
+    }
+
+    get ok_call_back(){
+        return this.get_ok_call_back();
+    }
+
+    set ok_call_back(cb){
+        this.set_ok_call_back(cb);
+    }
+
 } // export class GzzPromptDialog extends ModalDialog.ModalDialog //
 
-export class GzzFileDialog extends ModalDialog.ModalDialog {
+export class GzzFileDialog extends GzzFileDialogBase {
     static {
         GObject.registerClass(this);
     }
 
     constructor(params) {
-        super({ styleClass: 'gzzextension-dialog' });
-
-        if('dialogtype' in params){
-            const dialogtype = params.dialogtype;
-            if(dialogtype instanceof GzzDialogType){
-                if(dialogtype.toString() === GzzDialogType.Open.toString()
-                                    || dialogtype.toString() === GzzDialogType.Save.toString()
-                                                                || dialogtype.toString() === GzzDialogType.SelectDir.toString()){
-                    this._dialog_type = dialogtype;
-                }else{
-                    throw { name: "dialog_type_error", message: "Unkown GzzDialogType instance in set_dialog_type(dialogtype)." };
-                }
-            }else{
-                throw { name: "dialog_type_error", message: "dialog_type must be an instance of GzzDialogType." };
-            }
-        }else{
-            this._dialog_type = GzzDialogType.Save;
-        }
+        super(params);
 
         this._list_section = new GzzListFileSection({
+            owner:      this, 
             title:      params.title,
             dialogtype: this._dialogtype, 
         });
 
         let icon = new St.Icon({icon_name: 'inode-directory'});
 
-        this.contentLayout.add(icon);
+        this.contentLayout.add_child(icon);
 
         this.contentLayout.add_child(this._list_section);
-
-        if('errorhandler' in params){
-            this._error_handler = params.errorhandler;
-        }else{
-            this._error_handler = this.default_error_handler;
-        }
 
         if('dir' in params){
             const _dir = params.dir;
@@ -927,10 +1087,11 @@ export class GzzFileDialog extends ModalDialog.ModalDialog {
                 this._filter = new RegExp(_filter, "i");
             }else{
                 const t = typeof _filter;
-                throw {
-                    name:    'GzzListFileRow::set_filter_error',
-                    message: `regex must be of type RegExp or /.../ or String you supplied ${_filter} of type ${t}`
-                };
+                this.apply_error_handler(
+                    this,
+                    'GzzListFileRow::set_filter_error', 
+                    `regex must be of type RegExp or /.../ or String you supplied ${_filter} of type ${t}`
+                );
             }
         }else{
             this._filter = new RegExp('^.*$');
@@ -939,19 +1100,21 @@ export class GzzFileDialog extends ModalDialog.ModalDialog {
         if('double_click_time' in params){
             const dbl_click_time = params.double_click_time;
             if(isNaN(Number(dbl_click_time))){
-                throw {
-                    name:    'GzzFileDialog::set_double_click_time_error',
-                    message: `bad value expected integer or date got ${dbl_click_time}`
-                };
+                this.apply_error_handler(
+                    this, 
+                    'GzzFileDialog::set_double_click_time_error',
+                    `bad value expected integer or date got ${dbl_click_time}`
+                );
             }else if(dbl_click_time instanceof Date){
                 this._double_click_time = dbl_click_time.getTime();
             }else if(Number(dbl_click_time).isInteger){
                 this._double_click_time = Number(dbl_click_time);
             }else{
-                throw {
-                    name:    'GzzFileDialog::set_double_click_time_error',
-                    message: `bad number type expected integer or Date ${dbl_click_time}`
-                };
+                this.apply_error_handler(
+                    this, 
+                    'GzzFileDialog::set_double_click_time_error',
+                    `bad number type expected integer or Date ${dbl_click_time}`
+                );
             }
         }else{
             this._double_click_time = 400;
@@ -983,15 +1146,12 @@ export class GzzFileDialog extends ModalDialog.ModalDialog {
                 },
             }
         ]);
-    } // constructor(_title, _text) //
-    
-    initialise(){
-        this._list_section.initialise(this);
 
         this._list_section._edit.connect('key-release-event', (_actor, _event) => {
             this._file_name = this._list_section._edit.get_text();
         });
-    }
+
+    } // constructor(_title, _text) //
 
     get className(){
         return 'GzzFileDialog';
@@ -999,23 +1159,6 @@ export class GzzFileDialog extends ModalDialog.ModalDialog {
 
     get result(){
         return this._result;
-    }
-
-    get error_handler(){
-        return this._error_handler;
-    }
-
-    set error_handler(handler){
-        if(handler == null || typeof handler !== 'function'){
-            this._error_handler = this.default_error_handler;
-        }else{
-            this._error_handler = handler;
-        }
-    }
-
-    apply_error_handler(_error_owner, _name, msg){
-        if(this._error_handler)
-            this._error_handler(_error_owner, _name, msg);
     }
 
     get dir(){
@@ -1070,30 +1213,6 @@ export class GzzFileDialog extends ModalDialog.ModalDialog {
         }
     } // set contents(_contents) //
 
-    default_error_handler(_error_owner, _name, msg){
-        //throw { name: _name, message: msg };
-        const dlg = new GzzMessageDialog(_name, msg, 'dialog-error');
-        dlg.open();
-    }
-
-    get dialog_type(){
-        return this._dialog_type;
-    }
-
-    set dialog_type(dialogtype){
-        if(dialogtype instanceof GzzDialogType){
-            if(dialogtype.toString() === GzzDialogType.Open.toString()
-                || dialogtype.toString() === GzzDialogType.Save.toString()
-                    || dialogtype.toString() === GzzDialogType.SelectDir.toString()){
-                this._dialog_type = dialogtype;
-            }else{
-                this._error_handler(this, "dialog_type_error", "Unkown GzzDialogType instance in set_dialog_type(dialogtype).");
-            }
-        }else{
-            this._error_handler(this, "dialog_type_error", "dialog_type must be an instance of GzzDialogType.");
-        }
-    } // set dialog_type(dialogtype) //
-
     get filter(){
         return this._filter.toString;
     }
@@ -1107,7 +1226,7 @@ export class GzzFileDialog extends ModalDialog.ModalDialog {
             this._filter = new RegExp(regex);
         }else{
             const t = typeof regex;
-            this._owner._error_handler(this,
+            this._owner.apply_error_handler(this,
                 'GzzListFileRow::set_filter_error',
                 `regex must be of type RegExp or /.../ or String you supplied ${regex} of type ${t}`);
         }
@@ -1132,7 +1251,7 @@ export class GzzFileDialog extends ModalDialog.ModalDialog {
 
     set double_click_time(dbl_click_time){
         if(isNaN(Number(dbl_click_time))){
-            this._owner._error_handler(this,
+            this._owner.apply_error_handler(this,
                 'GzzFileDialog::set_double_click_time_error',
                 `bad value expected integer or date got ${dbl_click_time}`);
         }else if(dbl_click_time instanceof Date){
@@ -1140,7 +1259,7 @@ export class GzzFileDialog extends ModalDialog.ModalDialog {
         }else if(Number(dbl_click_time).isInteger){
             this._double_click_time = Number(dbl_click_time);
         }else{
-            this._owner._error_handler(this,
+            this._owner.apply_error_handler(this,
                 'GzzFileDialog::set_double_click_time_error',
                 `bad number type expected integer or Date ${dbl_click_time}`);
         }
@@ -1225,7 +1344,13 @@ export class GzzFileDialog extends ModalDialog.ModalDialog {
                 this.add_row(row);
             }
         } catch(e){
-            this.apply_error_handler(this, 'GzzFileDialog::display_dir_error', `Exception caught: ${e}`);
+            console.log(e.stack);
+            console.log(`GzzFileDialog::display_dir_error: Exception caught: ${e}: ${e.fileName}:${e.lineNumber}:${e.columnNumber}`);
+            this.apply_error_handler(
+                this,
+                'GzzFileDialog::display_dir_error',
+                `Exception caught: ${e}: ${e.fileName}:${e.lineNumber}:${e.columnNumber}`
+            );
         }
     } // display_dir(filename) //
 
@@ -1259,8 +1384,9 @@ export class GzzFileDialog extends ModalDialog.ModalDialog {
             if(ret == -1){
                 console.log(`Error Glib.mkdir_with_parents('${this._dir.get_path()}', 0o755) failed`);
             }
-        }catch(_e){
-            console.log(`Error Exception: ${_e}`)
+        }catch(e){
+            console.log(e.stack);
+            console.log(`Error Exception: ${e}: ${e.fileName}:${e.lineNumber}:${e.columnNumber}`)
             return this._result;
         }
         try {
@@ -1271,8 +1397,9 @@ export class GzzFileDialog extends ModalDialog.ModalDialog {
                 this._result = (bytesWritten == this._contents.get_size());
                 return this._result;
             }
-        }catch(_e){
-            console.log(`Error: ${_e}`);
+        }catch(e){
+            console.log(e.stack);
+            console.log(`Error: ${e}: ${e.fileName}:${e.lineNumber}:${e.columnNumber}`);
             this.destroy();
             return this._result;
         }
@@ -1320,9 +1447,18 @@ export class GzzFileDialog extends ModalDialog.ModalDialog {
                     this.apply_error_handler(this, 'GzzFileDialog::create_new_dir_error', `make_directory Error: ${new_dir}`);
                 }
             }catch(e){
-                this.apply_error_handler(this, 'GzzFileDialog::create_new_dir_error', `make_directory Exception: ${e}: ${new_dir}`);
+                console.log(e.stack);
+                console.log(
+                    'GzzFileDialog::create_new_dir_error: '
+                    + `make_directory Exception: ${e}: ${new_dir}: ${e.fileName}:${e.lineNumber}:${e.columnNumber}`
+                );
+                this.apply_error_handler(
+                    this,
+                    'GzzFileDialog::create_new_dir_error',
+                    `make_directory Exception: ${e}: ${new_dir}: ${e.fileName}:${e.lineNumber}:${e.columnNumber}`
+                );
             }
         } // if(dlg.result && new_dir.trim() !== '') //
     } // create_new_dir() //
 
-} // export class GzzFileDialog extends ModalDialog.ModalDialog //
+} // export class GzzFileDialog extends GzzFileDialogBase //

@@ -37,7 +37,9 @@ class PageBase extends Adw.PreferencesPage {
         });
         this._caller = caller;
         this.set_name(_name);
-        this.set_icon_name(_icon_name);
+        if(_icon_name){
+            this.set_icon_name(_icon_name);
+        }
     } // constructor(caller, _title, _name, _icon_name) //
 
     _close_row(){
@@ -211,7 +213,7 @@ class NotesPreferencesSettings extends PageBase {
         this.position_input = null;
         this.show_messages  = null;
 
-        this.group = Adw.PreferencesGroup.new();
+        this.group = new Adw.PreferencesGroup();
         this.group.set_title(_title);
         this.group.set_name(_name);
         this.add(this.group);
@@ -229,7 +231,6 @@ class NotesPreferencesSettings extends PageBase {
     _area_token_box(){
         const title = _("Area in the panel");
         const panelAreas = new Gtk.StringList();
-        let _areas = ["left", "center", "right"];
         let areas = [_("Left"), _("Center"), _("Right")];
         for (let i = 0; i < areas.length; i++){
             panelAreas.append(areas[i]);
@@ -259,8 +260,8 @@ class NotesPreferencesSettings extends PageBase {
             halign: Gtk.Align.END
         });
         slider.set_draw_value(true);
-        slider.set_value(this._window._settings.get_int("position"));
-        slider.connect('value-changed', (_sw) => { this._window._settings.set_int("position", slider.get_value()); });
+        slider.set_value(this._caller._window._settings.get_int("position"));
+        slider.connect('value-changed', (_sw) => { this._caller._window._settings.set_int("position", slider.get_value()); });
         slider.set_size_request(400, 15);
         row.add_suffix(slider);
         row.activatable_widget = slider;
@@ -286,9 +287,9 @@ class NotesPreferencesSettings extends PageBase {
           valign: Gtk.Align.CENTER,
         });
         let showMessagesRow = new Adw.ActionRow({
-          title: _("Show Notes"),
-          subtitle: _("The number of notes to show in the menu."),
-          activatable_widget: showMessagesSpinButton,
+                    title: _("Show Notes"),
+                    subtitle: _("The number of notes to show in the menu."),
+                    activatable_widget: showMessagesSpinButton,
         });
         showMessagesRow.add_suffix(showMessagesSpinButton);
         this.show_messages  = showMessagesRow;
@@ -337,13 +338,29 @@ class NotesScroller extends PageBase {
 
     constructor(caller, _title, _name, _icon_name) {
         super(caller, _title, _name, _icon_name);
-        this.controlsGroup = Adw.PreferencesGroup.new();
+        this.controlsGroup = new Adw.PreferencesGroup();
+        /*
         this._addButton = new Adw.ButtonRow({
             title: _("Insert Note..."), 
         });
-        this._addButton.connect('activated', () => { this._caller.editNote(-1); });
+        // */
+        const insbutton = new Gtk.Button({
+                                label:      _("Insert Note..."),
+                                css_classes: ['add-note-label'],
+                                hexpand:     true,
+                                vexpand:     false,
+                                valign:      Gtk.Align.CENTER,
+        });
+        insbutton.connect("clicked", () => { this._caller.editNote(-1); });
+        //this._addButton.connect('activated', () => { this._caller.editNote(-1); });
+        this._addButton = new Adw.ActionRow({
+            title:               _("Insert Note..."), 
+            activatable_widget:  insbutton, 
+        });
         this.controlsGroup.add(this._addButton);
-        this.notesGroup    = Adw.PreferencesGroup.new();
+        this.add(this.controlsGroup);
+
+        this.notesGroup    = new Adw.PreferencesGroup();
         this.notesGroup.set_title(_title);
         this.notesGroup.set_name(_name);
         this.add(this.notesGroup);
@@ -352,7 +369,7 @@ class NotesScroller extends PageBase {
             _index++;
             const button = new Gtk.Button({
                                 label: ">...",
-                                css_classes: ['note_label'],
+                                css_classes: ['note-label'],
                                 hexpand: false,
                                 vexpand: false,
                                 valign: Gtk.Align.END,
@@ -365,6 +382,7 @@ class NotesScroller extends PageBase {
             });
             this.notesGroup.add(row);
         } // for(const note of this._caller.notes) //
+        this.notesGroup.add(this._close_row());
         this.add(this.notesGroup);
     } // constructor(caller, _title, _name, _icon_name) //
     
@@ -404,16 +422,18 @@ class EditNote extends PageBase {
     constructor(caller, _title, _name, _icon_name) {
         super(caller, _title, _name, _icon_name);
         this.index = this._caller._window._settings.get_int("index");
-        this.note         = null;
+        this.note         = '';
         this.calling_page = null;
         if(0 <= this.index && this.index < this._caller.notes.length){
             this.note = this._caller.notes[this.index];
         }
-        this.group          = Adw.PreferencesGroup.new();
-        this.edit           = Adw.EntryRow.new({ 
+        this.group          = new Adw.PreferencesGroup();
+        this.edit           = new Adw.EntryRow({ 
                                 title:      _("Add text"), 
-                                max_length: this._caller.max_note_length, 
                                 text:       (this.note ? this.note : ''), 
+                                hexpand:     true,
+                                vexpand:     true,
+                                valign:      Gtk.Align.CENTER,
         });
         this.button_box     = new Gtk.Box({orientation: Gtk.Orientation.HORIZONTAL, vexpand: false, hexpand: true, });
         this.cancel_button  = new Gtk.Button({
@@ -456,7 +476,14 @@ class EditNote extends PageBase {
         this.button_box.append(this.restart_button);
         this.button_box.append(this.delete_button);
         this.button_box.append(this.save_button);
-        this.group.add(this.button_box);
+        this.buttonRow = new Adw.PreferencesRow({
+                            title: "",
+        });
+        this.buttonRow.set_child(this.button_box);
+        this.group.add(this.buttonRow);
+        this.group.add(this.edit);
+        this.group.add(this._close_row());
+        this.add(this.group);
     } // constructor(caller, _title, _name, _icon_name) //
 
     get_text(){
@@ -534,6 +561,7 @@ class EditNote extends PageBase {
 
     save(_exit){
         this.note = this.get_text();
+        console.log(`notes: EditNote::save: this.note: ‷${this.note}‴.`);
         if(0 <= this.index && this.index < this._caller.notes.length){
             if(this.note && this.note.trim() != ''){
                 this._caller.notes[this.index] = this.note;
@@ -561,8 +589,10 @@ class EditNote extends PageBase {
                 this._caller._close_request(this._caller._window);
             }
         }else{ //if(0 <= this.index && this.index < this._caller.notes.length) //
+            console.log(`notes: EditNote::save: this.note: ‷${this.note}‴.`);
             if(this.note && this.note.trim() != ''){
                 this._caller.notes.unshift(this.note);
+                console.log(`notes: EditNote::save: this._caller.notes: ‷${this._caller.notes}‴.`);
                 this.index = 0;
                 this._caller._settings.set_strv("notes", this._caller.notes);
                 this._caller._settings.set_int("index", this.index);
@@ -595,6 +625,29 @@ class CreditsPage extends PageBase {
 
     constructor(caller, _title, _name, _icon_name) {
         super(caller, _title, _name, _icon_name);
+        const group_credits = new Adw.PreferencesGroup();
+        group_credits.set_title('Authors');
+        group_credits.set_name('notes_Credits');
+        let title    = null;
+        title = _("Copyright") + ": ©2022, ©2023 &amp; ©2024 Francis Grizzly Smit:";
+        const cr_row = new Adw.ActionRow({ title });
+        const licence = new Gtk.LinkButton({uri: "https://www.gnu.org/licenses/gpl-2.0.en.html", label: "Licence GPL v2+" });
+        licence.set_use_underline(true);
+        licence.set_halign(Gtk.Align.START);
+        cr_row.add_suffix(licence);
+        cr_row.activatable_widget = licence;
+        group_credits.add(cr_row);
+        this.add(group_credits);
+        title = _("Author") + ": Francis Grizzly Smit©";
+        const row_auth = new Adw.ActionRow({ title });
+        const link_auth = new Gtk.LinkButton({uri: "https://github.com/grizzlysmit", label: "https://github.com/grizzlysmit" });
+        link_auth.set_use_underline(true);
+        link_auth.set_halign(Gtk.Align.START);
+        row_auth.add_suffix(link_auth);
+        row_auth.activatable_widget = link_auth;
+        group_credits.add(row_auth);
+        group_credits.add(this._close_row());
+        this.add(group_credits);
     } // constructor(caller, _title, _name, _icon_name) //
 
 } // class CreditsPage extends PageBase //
@@ -626,11 +679,11 @@ export default class MyPreferences extends ExtensionPreferences {
         this.max_note_length   = this._window._settings.get_int("max-note-length");
         this.edit_note         = this._window._settings.get_boolean("edit-note");
 
-        this._pageNotesPreferencesSettings = NotesPreferencesSettings.new(this, _('Settings'), _("settings"), 'preferences-system-symbolic');
-        this._NotesScroller                = NotesScroller.new(this, _("Notes"), _("notes"), 'notes-app');
-        this._EditNote                     = EditNote.new(this, _("Edit note"), _("editNotes"), 'notes-app');
-        this.aboutPage                     = AboutPage.new(this, this.metadata);
-        this.creditsPage                   = CreditsPage.new(this, _("Edit note"), _("editNotes"), 'notes-app');
+        this._pageNotesPreferencesSettings = new NotesPreferencesSettings(this, _('Settings'), _("settings"), 'preferences-system-symbolic');
+        this._NotesScroller                = new NotesScroller(this, _("Notes"), _("notes"), 'notes-app');
+        this._EditNote                     = new EditNote(this, _("Edit note"), _("editNotes"), 'notes-app');
+        this.aboutPage                     = new AboutPage(this, this.metadata);
+        this.creditsPage                   = new CreditsPage(this, _("Credits"), _("editNotes"), 'copyright-symbolic');
         window.connect("close-request", (_win) => {
             const width  = window.default_width;
             const height = window.default_height;
@@ -651,31 +704,35 @@ export default class MyPreferences extends ExtensionPreferences {
         window.add(this.aboutPage);
         window.add(this.creditsPage);
         window.set_default_size(this.window_width, this.window_height);
-        switch(this.page_name){
-            case("settings"):
-                this.page = this._pageNotesPreferencesSettings;
-                window.set_visible_page(this.page);
-                break;
-            case("notesScroller"):
-                this.page = this._NotesScroller;
-                window.set_visible_page(this.page);
-                break;
-            case("editNote"):
-                this.page = this._EditNote;
-                this.editNote(this.index);
-                break;
-            case("aboutPage"):
-                this.page = this.aboutPage;
-                window.set_visible_page(this.page);
-                break;
-            case("credits"):
-                this.page = this.creditsPage;
-                window.set_visible_page(this.page);
-                break;
-            default:
-                this.page = this._pageNotesPreferencesSettings;
-                window.set_visible_page(this.page);
-        }  // switch(this.page_name) //
+        if(this.edit_note){
+            this.edit_note = false;
+            this._window._settings.set_boolean('edit-note', false);
+            switch(this.page_name){
+                case("settings"):
+                    this.page = this._pageNotesPreferencesSettings;
+                    window.set_visible_page(this.page);
+                    break;
+                case("notesScroller"):
+                    this.page = this._NotesScroller;
+                    window.set_visible_page(this.page);
+                    break;
+                case("editNote"):
+                    this.page = this._EditNote;
+                    this.editNote(this.index);
+                    break;
+                case("aboutPage"):
+                    this.page = this.aboutPage;
+                    window.set_visible_page(this.page);
+                    break;
+                case("credits"):
+                    this.page = this.creditsPage;
+                    window.set_visible_page(this.page);
+                    break;
+                default:
+                    this.page = this._pageNotesPreferencesSettings;
+                    window.set_visible_page(this.page);
+            }  // switch(this.page_name) //
+        } // if(this.edit_note) //
         this.settingsID_area  = this._window._settings.connect("changed::page", this.onPageChanged.bind(this));
 
     } // fillPreferencesWindow(window) //
@@ -693,31 +750,36 @@ export default class MyPreferences extends ExtensionPreferences {
 
     onPageChanged(){
         this.page_name         = this._window._settings.get_enum("page");
-        switch(this.page_name){
-            case("settings"):
-                this.page = this._pageNotesPreferencesSettings;
-                window.set_visible_page(this.page);
-                break;
-            case("notesScroller"):
-                this.page = this._NotesScroller;
-                window.set_visible_page(this.page);
-                break;
-            case("editNote"):
-                this.page = this._EditNote;
-                this.editNote(this.index);
-                break;
-            case("aboutPage"):
-                this.page = this.aboutPage;
-                window.set_visible_page(this.page);
-                break;
-            case("credits"):
-                this.page = this.creditsPage;
-                window.set_visible_page(this.page);
-                break;
-            default:
-                this.page = this._pageNotesPreferencesSettings;
-                window.set_visible_page(this.page);
-        }  // switch(this.page_name) //
+        this.edit_note         = this._window._settings.get_boolean('edit-note');
+        if(this.edit_note){
+            this.edit_note = false;
+            this._window._settings.set_boolean('edit-note', false);
+            switch(this.page_name){
+                case("settings"):
+                    this.page = this._pageNotesPreferencesSettings;
+                    window.set_visible_page(this.page);
+                    break;
+                case("notesScroller"):
+                    this.page = this._NotesScroller;
+                    window.set_visible_page(this.page);
+                    break;
+                case("editNote"):
+                    this.page = this._EditNote;
+                    this.editNote(this.index);
+                    break;
+                case("aboutPage"):
+                    this.page = this.aboutPage;
+                    window.set_visible_page(this.page);
+                    break;
+                case("credits"):
+                    this.page = this.creditsPage;
+                    window.set_visible_page(this.page);
+                    break;
+                default:
+                    this.page = this._pageNotesPreferencesSettings;
+                    window.set_visible_page(this.page);
+            }  // switch(this.page_name) //
+        } // if(this.edit_note) //
     }
 
 }
