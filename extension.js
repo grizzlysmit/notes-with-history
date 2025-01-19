@@ -495,10 +495,10 @@ class Indicator extends PanelMenu.Button {
     } // loadMesessages() //
 
     refesh_menu(){
-        console.log("notes: Indicator: starting.");
-        this.menu.destroy_all_children();
+        console.log("notes: Indicator::refesh_menu: starting.");
+        this.menu.box.destroy_all_children();
         this.loadMesessages();
-        console.log("notes: Indicator: done.");
+        console.log("notes::refesh_menu: Indicator: done.");
     }
 
 } // class Indicator extends PanelMenu.Button //
@@ -598,9 +598,9 @@ export default class IndicatorExampleExtension extends Extension {
             this.settings_change_self = false;
         }else{
             this.notes                        = this.settings.get_strv("notes");
-            console.log(`notes: IndicatorExampleExtension::onNotesChanged: this.notes: ${this.notes}`);
+            console.log(`notes: IndicatorExampleExtension::onNotesChanged: this.notes: ${JSON.stringify(this.notes)}`);
             this._indicator.refesh_menu();
-            console.log(`notes: IndicatorExampleExtension::onNotesChanged: this.notes: ${this.notes}`);
+            console.log(`notes: IndicatorExampleExtension::onNotesChanged: this.notes: ${JSON.stringify(this.notes)}`);
         }
     }
 
