@@ -264,7 +264,7 @@ class ApplicationMenuItem extends PopupMenu.PopupBaseMenuItem {
                                     console.log(`notes: ApplicationMenuItem::addnote:${thisline + 1}:`
                                                     + ' this._button._caller.notes: '
                                                     + `‷${JSON.stringify(this._button._caller.notes)}‴.`);
-                                    this._button._caller.settings_change_self = true;
+                                    //this._button._caller.settings_change_self = true;
                                     this._button._caller.settings.set_strv('notes', this._button._caller.notes);
                                 } // if(new_note.trim() !== '') //
                             } // if(result) //
