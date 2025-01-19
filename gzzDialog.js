@@ -136,12 +136,20 @@ export class GzzMessageDialog extends ModalDialog.ModalDialog {
         console.log(`notes: end constructor(_title, _text, _icon_name = null, buttons = null): ‷${_icon_name}‴.`);
     } // constructor(_title, _text, _icon_name = null, buttons = null) //
 
-    get result(){
+    get_result(){
         return this._result;
     }
 
-    set result(res){
+    set_result(res){
         this._result = !!res;
+    }
+
+    get result(){
+        return this.get_result();
+    }
+
+    set result(res){
+        this.set_result(res);
     }
 
 } // export class GzzMessageDialog extends ModalDialog.ModalDialog //

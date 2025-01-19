@@ -217,9 +217,7 @@ class ApplicationMenuItem extends PopupMenu.PopupBaseMenuItem {
                             dlg = new Gzz.GzzMessageDialog(
                                 _('Are you sure'),
                                 _(`Are you sure you want to delete note: ‷${this._button._caller.notes[index]}⁗.`),
-                                'emblem-dialog-question'
-                            );
-                            dlg.setButtons(
+                                'emblem-dialog-question', 
                                 [
                                     {
                                         label:   _('Yes'), 
@@ -573,6 +571,7 @@ export default class IndicatorExampleExtension extends Extension {
         this.settingsID_notes    = this.settings.connect("changed::notes", this.onNotesChanged.bind(this)); 
         this.settingsID_max      = this.settings.connect("changed::max-note-length", () => {
             this.max_note_length = this.settings.get_int("max-note-length");
+            this._indicator.refesh_menu();
         }); 
     }
 
