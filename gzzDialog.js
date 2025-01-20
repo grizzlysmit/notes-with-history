@@ -1276,8 +1276,10 @@ export class GzzFileDialog extends GzzFileDialogBase {
             const _dir = params.dir;
             const e    = new Error();
             console.log(`notes: GzzFileDialog::constructor _dir === ${_dir}: ${e.fileName}:${e.lineNumber}`);
-            if(_dir instanceof Gio.File){
-                this.path = _dir;
+            if(!_dir){
+                this._dir = Gio.File.new_for_path(GLib.build_filenamev([GLib.get_home_dir()]));
+            }else if(_dir instanceof Gio.File){
+                this._dir = _dir;
             }else if((_dir instanceof String || typeof _dir == 'string') && _dir.trim() != ''){
                 this._dir = Gio.File.new_for_path(GLib.build_filenamev([_dir.trim()]));
             }else{
@@ -1427,8 +1429,10 @@ export class GzzFileDialog extends GzzFileDialogBase {
     }
 
     set_dir(dir_){
-        if(dir_ instanceof Gio.File){
-            this.path = dir_;
+        if(!dir_){
+            this._dir = Gio.File.new_for_path(GLib.build_filenamev([GLib.get_home_dir()]));
+        }else if(dir_ instanceof Gio.File){
+            this._dir = dir_;
         }else if((dir_ instanceof String || typeof dir_ == 'string') && dir_.trim() != ''){
             this._dir = Gio.File.new_for_path(GLib.build_filenamev([dir_.trim()]));
         }else{
