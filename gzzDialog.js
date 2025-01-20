@@ -67,17 +67,24 @@ export function RegExp2glob(regex){
 export function splitFile(file){
     let result = [];
     try {
+        console.log(`notes: file: ‷${file}‴.`);
         if(file instanceof String || typeof file === 'string') file = Gio.File.new_for_path(GLib.build_filenamev([file]));
         const attributes = 'standard::name,standard::type,standard::display_name,standard::icon';
         let info     = file.query_info(attributes, Gio.FileQueryInfoFlags.NONE, null);
         let filename = info.get_display_name();
+        console.log(`notes: filename: ‷${filename}‴.`);
         result.unshift(filename);
+        console.log(`notes: result: ‷${JSON.stringify(result)}‴.`);
         while((file = file.get_parent())){
             info     = file.query_info(attributes, Gio.FileQueryInfoFlags.NONE, null);
             filename = info.get_display_name();
+            console.log(`notes: filename: ‷${filename}‴.`);
             result.unshift(filename);
+            console.log(`notes: result: ‷${JSON.stringify(result)}‴.`);
         }
+        console.log(`notes: result: ‷${JSON.stringify(result)}‴.`);
     }catch(e){
+        console.log(`notes: splitFile: ${e}: ${e.fileName}:${e.lineNumber}:${e.columnNumber}`);
         return [null, e];
     }
     return [true, result];
