@@ -959,6 +959,7 @@ export  class GzzListFileSection extends St.BoxLayout {
         this.header = new GzzHeader({
             owner:      this._owner, 
             style_class: 'gzzdialog-header-box',
+            filename:    this._owner.get_dir(),
         });
 
         this._header_box.add_child(this.show_root_button);
