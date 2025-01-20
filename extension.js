@@ -165,8 +165,8 @@ class ApplicationMenuItem extends PopupMenu.PopupBaseMenuItem {
                                                         dlg.set_result(false);
                                                         const thisfile = new Error().fileName;
                                                         const thisline = new Error().lineNumber;
-                                                        console.log(`${thisfile}:${thisline + 1}: Callback Save: dlg.result: ${dlg.result}`);
-                                                        console.log(`${thisfile}:${thisline + 2}: Callback Save: dlg.text: ${dlg.text}`);
+                                                        console.log(`notes: ${thisfile}:${thisline + 1}: Callback Save: dlg.result: ${dlg.result}`);
+                                                        console.log(`notes: ${thisfile}:${thisline + 2}: Callback Save: dlg.text: ${dlg.text}`);
                                                         dlg.destroy();
                                                     },
                                                 },
@@ -179,8 +179,8 @@ class ApplicationMenuItem extends PopupMenu.PopupBaseMenuItem {
                                                         dlg.set_result(true);
                                                         const thisfile = new Error().fileName;
                                                         const thisline = new Error().lineNumber;
-                                                        console.log(`${thisfile}:${thisline + 1}: Callback Save: dlg.result: ${dlg.result}`);
-                                                        console.log(`${thisfile}:${thisline + 2}: Callback Save: dlg.text: ${dlg.text}`);
+                                                        console.log(`notes: ${thisfile}:${thisline + 1}: Callback Save: dlg.result: ${dlg.result}`);
+                                                        console.log(`notes: ${thisfile}:${thisline + 2}: Callback Save: dlg.text: ${dlg.text}`);
                                                         this._button._caller.notes.splice(index, 1);
                                                         console.log(`notes: ApplicationMenuItem::activate: ${thisline + 4}:`
                                                             + ` case note sub case edit: notes: ‷${JSON.stringify(this._button._caller.notes)}‴.`);
@@ -196,8 +196,8 @@ class ApplicationMenuItem extends PopupMenu.PopupBaseMenuItem {
                                                         dlg.set_result(true);
                                                         const thisfile = new Error().fileName;
                                                         const thisline = new Error().lineNumber;
-                                                        console.log(`${thisfile}:${thisline + 1}: Callback Save: dlg.result: ${dlg.result}`);
-                                                        console.log(`${thisfile}:${thisline + 2}: Callback Save: dlg.text: ${dlg.text}`);
+                                                        console.log(`notes: ${thisfile}:${thisline + 1}: Callback Save: dlg.result: ${dlg.result}`);
+                                                        console.log(`notes: ${thisfile}:${thisline + 2}: Callback Save: dlg.text: ${dlg.text}`);
                                                         new_note = dlg.text;
                                                         if(new_note.trim() != ''){
                                                             this._button._caller.notes[index] = new_note;
@@ -303,8 +303,8 @@ class ApplicationMenuItem extends PopupMenu.PopupBaseMenuItem {
             } // switch (this._item.type) //
         }
         catch(e){
-            console.log(e.stack);
-            console.log(`Exception ‷${e}‴, ${e.fileName}:${e.lineNumber}:${e.columnNumber}.`);
+            console.log(`notes: ${e.stack}`);
+            console.log(`notes: Exception ‷${e}‴, ${e.fileName}:${e.lineNumber}:${e.columnNumber}.`);
             this._button._caller.display_error_msg(
                 'ApplicationMenuItem::activate',
                 `Exception ‷${e}‴, ${e.fileName}:${e.lineNumber}:${e.columnNumber}.`
@@ -442,8 +442,8 @@ class Indicator extends PanelMenu.Button {
             });
             dlg.open();
         }catch(e){
-            console.log(e.stack);
-            console.log(`Error: in Indicator::get_file_contents() ${e}: ${e.fileName}:${e.lineNumber}:${e.columnNumber}`);
+            console.log(`notes: ${e.stack}`);
+            console.log(`notes: Error: in Indicator::get_file_contents() ${e}: ${e.fileName}:${e.lineNumber}:${e.columnNumber}`);
             this._caller.display_error_msg(
                 'Indicator::get_file_contents_error',
                 `Error: in Indicator::get_file_contents() ${e}: ${e.fileName}:${e.lineNumber}:${e.columnNumber}`
@@ -579,7 +579,7 @@ export default class IndicatorExampleExtension extends Extension {
             }else{
                 const e = new Error();
                 console.log(
-                    `IndicatorExampleExtension::set_notespath_error: bad value for path: ${path}: `
+                    `notes: IndicatorExampleExtension::set_notespath_error: bad value for path: ${path}: `
                     + `genrated from path_: ${path_}: ${e.fileName}:${e.lineNumber}:${e.columnNumber}`
                 );
                 this.display_error_msg(
@@ -595,7 +595,7 @@ export default class IndicatorExampleExtension extends Extension {
             }else{
                 const e = new Error();
                 console.log(
-                    `IndicatorExampleExtension::set_notespath_error: bad value for path: ${path}: `
+                    `notes: IndicatorExampleExtension::set_notespath_error: bad value for path: ${path}: `
                     + `genrated from path_: ${path_}: ${e.fileName}:${e.lineNumber}:${e.columnNumber}`
                 );
                 this.display_error_msg(

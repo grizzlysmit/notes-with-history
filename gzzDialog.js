@@ -1267,6 +1267,8 @@ export class GzzFileDialog extends GzzFileDialogBase {
 
         if('dir' in params){
             const _dir = params.dir;
+            const e    = new Error();
+            console.log(`notes: GzzFileDialog::constructor _dir === ${_dir}: ${e.fileName}:${e.lineNumber}`);
             if(_dir instanceof Gio.File){
                 this.path = _dir;
             }else if((_dir instanceof String || typeof _dir == 'string') && _dir.trim() != ''){
@@ -1664,8 +1666,8 @@ export class GzzFileDialog extends GzzFileDialogBase {
                 this.add_row(row);
             }
         } catch(e){
-            console.log(e.stack);
-            console.log(`GzzFileDialog::display_dir_error: Exception caught: ${e}: ${e.fileName}:${e.lineNumber}:${e.columnNumber}`);
+            console.log(`notes: ${e.stack}`);
+            console.log(`notes: GzzFileDialog::display_dir_error: Exception caught: ${e}: ${e.fileName}:${e.lineNumber}:${e.columnNumber}`);
             this.apply_error_handler(
                 this,
                 'GzzFileDialog::display_dir_error',
@@ -1710,7 +1712,7 @@ export class GzzFileDialog extends GzzFileDialogBase {
             if(ret == -1){
                 const e = new Error();
                 console.log(
-                    `Error Glib.mkdir_with_parents('${this._dir.get_path()}', 0o755) failed`
+                    `notes: Error Glib.mkdir_with_parents('${this._dir.get_path()}', 0o755) failed`
                          + `: ${e.fileName}:${e.lineNumber}:${e.columnNumber}`
                 );
                 this.apply_error_handler(
@@ -1721,8 +1723,8 @@ export class GzzFileDialog extends GzzFileDialogBase {
                 );
             }
         }catch(e){
-            console.log(e.stack);
-            console.log(`Error Exception: ${e}: ${e.fileName}:${e.lineNumber}:${e.columnNumber}`)
+            console.log(`notes: ${e.stack}`);
+            console.log(`notes: Error Exception: ${e}: ${e.fileName}:${e.lineNumber}:${e.columnNumber}`)
             this.apply_error_handler(
                 this,
                 'GzzFileDialog::save_file',
@@ -1746,8 +1748,8 @@ export class GzzFileDialog extends GzzFileDialogBase {
                 );
             }
         }catch(e){
-            console.log(e.stack);
-            console.log(`Error: ‷${e}‴: ${e.fileName}:${e.lineNumber}:${e.columnNumber}`);
+            console.log(`notes: ${e.stack}`);
+            console.log(`notes: Error: ‷${e}‴: ${e.fileName}:${e.lineNumber}:${e.columnNumber}`);
             this.apply_error_handler(
                 this,
                 'GzzFileDialog::save_file',
@@ -1791,9 +1793,9 @@ export class GzzFileDialog extends GzzFileDialogBase {
                             this.apply_error_handler(this, 'GzzFileDialog::create_new_dir_error', `make_directory Error: ${new_dir}`);
                         }
                     }catch(e){
-                        console.log(e.stack);
+                        console.log(`notes: ${e.stack}`);
                         console.log(
-                            'GzzFileDialog::create_new_dir_error: '
+                            'notes: GzzFileDialog::create_new_dir_error: '
                             + `make_directory Exception: ${e}: ${new_dir}: ${e.fileName}:${e.lineNumber}:${e.columnNumber}`
                         );
                         this.apply_error_handler(
