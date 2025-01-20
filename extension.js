@@ -351,6 +351,10 @@ class Indicator extends PanelMenu.Button {
         const path      = this._caller.notespath;
         const cont      = this._caller.notes.join("\r\n");
         const _dialogtype = Gzz.GzzDialogType.Save;
+        console.log(`notes: path: ‷${file_name}‴.`);
+        console.log(`notes: path: ‷${path}‴.`);
+        console.log(`notes: cont: ‷${cont}‴.`);
+        console.log(`notes: _dialogtype: ‷${JSON.stringify(_dialogtype)}‴.`);
         const dlg       = new Gzz.GzzFileDialog({
             title:             _("Save messages as file"),
             dialogtype:        _dialogtype,
