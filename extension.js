@@ -573,6 +573,8 @@ export default class IndicatorExampleExtension extends Extension {
     }
 
     set_notespath(path_){
+        const e = new Error();
+        console.log(`notes: IndicatorExampleExtension::set_notespath: path_: ${path_} ${e.fileName}:${e.lineNumber + 1}`);
         if(!path_){
             this.notespath = Gio.File.new_for_path(GLib.build_filenamev([GLib.get_home_dir()]));
             this.settings.set_string("notespath", this.notespath.get_path());
