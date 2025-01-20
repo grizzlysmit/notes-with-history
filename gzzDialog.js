@@ -1036,7 +1036,59 @@ export class GzzPromptDialog extends ModalDialog.ModalDialog {
             title: params.title,
             description: params.description,
         });
-        this._edit = new St.Entry({style_class: 'gzzpromptdialog-edit'});
+
+        let hint_text_ = _('start typing text here.');
+
+        if('hint_text' in params && (params.hint_text instanceof String || typeof params.hint_text === 'string')){
+            hint_text_ = params.hint_text;
+        }
+
+        this._edit = new St.Entry({
+            style_class: 'gzzpromptdialog-edit', 
+            can_focus:   true,
+            x_expand:    true, 
+            y_expand:    true, 
+            hint_text:   hint_text_, 
+        });
+
+        let max_length = 100;
+
+        if('max_length' in params && params.max_length instanceof Number){
+            max_length = params.max_length.toFixed(0);
+        }
+
+        this._edit.clutter_text.set_line_wrap(true);
+        this._edit.clutter_text.set_max_length(max_length);
+        this._edit.clutter_text.set_single_line_mode(false);
+        this._edit.clutter_text.set_use_markup(true);
+        /*
+        this._edit.clutter_text.connect('key-press-event', (_actor, event) => {
+        });
+        // */
+        this._edit.clutter_text.connect('key-release-event', (actor, event) => {
+            const symbol = event.get_key_symbol();
+            let state  = event.get_state();
+            //*
+            state     &= ~Clutter.ModifierType.LOCK_MASK;
+            state     &= ~Clutter.ModifierType.MOD2_MASK;
+            state     &= Clutter.ModifierType.MODIFIER_MASK;
+            // */
+            if(symbol === Clutter.KEY_Return || symbol === Clutter.KEY_KP_Enter || symbol === Clutter.KEY_ISO_Enter){
+                if(state &  Clutter.ModifierType.SHIFT_MASK){
+                    const pos = actor.get_cursor_position();
+                    actor.insert_text("\n", pos);
+                    return Clutter.EVENT_STOP;
+                }else{
+                    this.triggerDefaultButton();
+                    return Clutter.EVENT_STOP;
+                }
+            }else if(symbol === Clutter.KEY_Escape){
+                this._result = false;
+                this.destroy();
+            }else{
+                return Clutter.EVENT_PROPAGATE;
+            }
+        });
 
         this.contentLayout.add_child(messageLayout);
 
@@ -1093,7 +1145,24 @@ export class GzzPromptDialog extends ModalDialog.ModalDialog {
             ]);
         }
 
+        this._default_action = null;
+
     } // constructor(params) //
+
+    triggerDefaultButton(){
+        if(this._default_action){
+            this._default_action();
+        }
+    }
+
+    addButton(buttonInfo){
+        super.addButton(buttonInfo);
+        if('isDefault' in buttonInfo && buttonInfo.isDefault){
+            if('action' in buttonInfo && buttonInfo.action instanceof Function){
+                this._default_action = buttonInfo.action;
+            }
+        }
+    }
 
     get_result(){
         return this._result;
@@ -1144,6 +1213,22 @@ export class GzzPromptDialog extends ModalDialog.ModalDialog {
 
     set ok_call_back(cb){
         this.set_ok_call_back(cb);
+    }
+
+    get_hint_text(){
+        return this._edit.get_hint_text();
+    }
+
+    set_hint_text(txt){
+        this._edit.set_hint_text(txt);
+    }
+
+    get hint_text(){
+        return this.get_hint_text();
+    }
+
+    set hint_text(txt){
+        this.set_hint_text(txt);
     }
 
 } // export class GzzPromptDialog extends ModalDialog.ModalDialog //

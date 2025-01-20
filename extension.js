@@ -267,10 +267,11 @@ class ApplicationMenuItem extends PopupMenu.PopupBaseMenuItem {
                                 if(new_note.trim() !== ''){
                                     this._button._caller.notes.unshift(new_note);
                                     const thisline = new Error().lineNumber;
-                                    console.log(`notes: ApplicationMenuItem::addnote:${thisline + 1}:`
+                                    console.log(
+                                        `notes: ApplicationMenuItem::addnote:${thisline + 1}:`
                                                     + ' this._button._caller.notes: '
-                                                    + `‷${JSON.stringify(this._button._caller.notes)}‴.`);
-                                    //this._button._caller.settings_change_self = true;
+                                                    + `‷${JSON.stringify(this._button._caller.notes)}‴.`
+                                    );
                                     this._button._caller.settings.set_strv('notes', this._button._caller.notes);
                                 } // if(new_note.trim() !== '') //
                             } // if(result) //
@@ -356,20 +357,18 @@ class Indicator extends PanelMenu.Button {
             contents:          cont, 
             filter:            new RegExp('^.*\\.txt$', 'i'), 
             double_click_time: 400, 
+            save_done:         (_dlg, result, dir_, file_name_) => {
+                if(result){
+                    if(dir_){
+                        this._caller.settings.set_string("notespath", dir_.get_path());
+                    }
+                    if(file_name_ && (file_name_ instanceof String || typeof file_name_ === 'string')){
+                        this._caller.settings.set_string("notesname", file_name_);
+                    }
+                } // if(result) //
+            }, 
         });
-        let _dir  = null;
-        let _name = null;
-        [_dir, _name] = dlg.save_to_file();
-        if(dlg.result){
-            if(_dir){
-                this._caller.notespath = Gio.File.new_for_path(GLib.build_filenamev([_dir]));
-                this._caller.settings.set_string("notespath", this._caller.notespath.get_path());
-            }
-            if(_name){
-                this._caller.notesname = _name;
-                this._caller.settings.set_string("notesname", this._caller.notesname);
-            }
-        } // if(dlg.result) //
+        dlg.open();
     } // save_to_file() //
 
     get_file_contents(){
@@ -389,54 +388,57 @@ class Indicator extends PanelMenu.Button {
                 dialogtype:        _dialogtype, 
                 filter:            new RegExp('^(?:.*\\.txt)$', 'i'), 
                 double_click_time: 400, 
+                save_done:         (dlg_, result, _dir, _file_name) => {
+                    if(result){
+                        notesfile = dlg_.get_path();
+                        if(notesfile){
+                            [ok, contents, _etag]  = this.notesfile.load_contents(null);            
+                            if(ok){
+                                let max_length = -1;
+                                let min_length = this._caller.max_note_length + 1;
+                                let notes      = []
+                                let cnt        = 0;
+                                const array_of_notes = contents.split("\r\n");
+                                for(const note of array_of_notes){
+                                    max_length = Math.max(max_length, note.length);
+                                    min_length = Math.min(min_length, note.length);
+                                    if(0 < note.length && note.length <= this._caller.max_note_length){
+                                        cnt++;
+                                        if(cnt > this._caller.show_messages){
+                                            continue;
+                                        }
+                                        notes.push(note);
+                                    }
+                                } // for(const note of array_of_notes) //
+                                this._caller.notesname = dlg.get_name();
+                                this._caller.notespath = dlg.get_dir();
+                                this._caller.settings.set_string("notesname", this._caller.notesname);
+                                this._caller.settings.set_string("notespath", this._caller.notespath.get_path());
+                                if(notes.length > 0){
+                                    this._caller.notes = notes;
+                                    this._caller.settings.set_strv(this._caller.notes);
+                                }else{
+                                    this._caller.display_error_msg(
+                                        'Indicator::get_file_contents',
+                                        'Error: bad file none of the notes where of a suitable size.'
+                                    );
+                                }
+                                if(min_length == 0){
+                                    this._caller.display_error_msg('Indicator::get_file_contents',
+                                        'Error: some of the notes where empty they were skipped.');
+                                }
+                                if(max_length > this._caller.max_note_length){
+                                    this._caller.display_error_msg('Indicator::get_file_contents',
+                                        "Error: some of the notes where too big they were skipped.\n"
+                                         + " THis can be caused by a change in the max_note_length property. "
+                                         + `currently set at ${this._caller.max_note_length}`);
+                                }
+                            } // if(ok) //
+                        } // if(notesfile) //
+                    } // if(result) //
+                }, 
             });
             dlg.open();
-            if(!dlg.result){
-                return null;
-            }
-            notesfile = dlg.get_path();
-            if(notesfile){
-                [ok, contents, _etag]  = this.notesfile.load_contents(null);            
-                if(ok){
-                    let max_length = -1;
-                    let min_length = this._caller.max_note_length + 1;
-                    let notes      = []
-                    let cnt        = 0;
-                    const array_of_notes = contents.split("\r\n");
-                    for(const note of array_of_notes){
-                        max_length = Math.max(max_length, note.length);
-                        min_length = Math.min(min_length, note.length);
-                        if(0 < note.length && note.length <= this._caller.max_note_length){
-                            cnt++;
-                            if(cnt > this._caller.show_messages){
-                                continue;
-                            }
-                            notes.push(note);
-                        }
-                    } // for(const note of array_of_notes) //
-                    this._caller.notesname = dlg.get_name();
-                    this._caller.notespath = dlg.get_dir();
-                    this._caller.settings.set_string("notesname", this._caller.notesname);
-                    this._caller.settings.set_string("notespath", this._caller.notespath.get_path());
-                    if(notes.length > 0){
-                        this._caller.notes = notes;
-                        this._caller.settings.set_strv(this._caller.notes);
-                    }else{
-                        this._caller.display_error_msg('Indicator::get_file_contents',
-                            'Error: bad file none of the notes where of a suitable size.');
-                    }
-                    if(min_length == 0){
-                        this._caller.display_error_msg('Indicator::get_file_contents',
-                            'Error: some of the notes where empty they were skipped.');
-                    }
-                    if(max_length > this._caller.max_note_length){
-                        this._caller.display_error_msg('Indicator::get_file_contents',
-                            "Error: some of the notes where too big they were skipped.\n"
-                             + " THis can be caused by a change in the max_note_length property. "
-                             + `currently set at ${this._caller.max_note_length}`);
-                    }
-                }
-            }
         }catch(e){
             console.log(e.stack);
             console.log(`Error: in Indicator::get_file_contents() ${e}: ${e.fileName}:${e.lineNumber}:${e.columnNumber}`);
@@ -535,24 +537,7 @@ export default class IndicatorExampleExtension extends Extension {
         this.edit_note         = this.settings.get_boolean("edit-note");
         this.notesname         = this.settings.get_string("notesname");
         const tmp_path         = this.settings.get_string("notespath").trim();
-        if(tmp_path === ''){
-            this.notespath = Gio.File.new_for_path(GLib.build_filenamev([GLib.get_home_dir()]));
-            this.settings.set_string("notespath", this.notespath.get_path());
-        }else if(tmp_path instanceof String){
-            const path = GLib.build_filenamev([tmp_path.toString()]);
-            if(path){
-                this.notespath = Gio.File.new_for_path(GLib.build_filenamev([tmp_path.toString()]));
-            }else{
-                this.display_error_msg('Error', `bad value for path: ${path}`);
-            }
-        }else{
-            const path = GLib.build_filenamev([tmp_path.toString()]);
-            if(path){
-                this.notespath = Gio.File.new_for_path(GLib.build_filenamev([tmp_path.toString()]));
-            }else{
-                this.display_error_msg('Error', `bad value for path: ${path}`);
-            }
-        }
+        this.set_notespath(tmp_path);
         
         this.settings.set_enum('area', this.settings.get_enum('area'));
         if(this.settings.get_int("position") < 0 || this.settings.get_int("position") > 25) this.settings.set_int("position", 0);
@@ -573,7 +558,52 @@ export default class IndicatorExampleExtension extends Extension {
             this.max_note_length = this.settings.get_int("max-note-length");
             this._indicator.refesh_menu();
         }); 
+        this.settingsID_dir      = this.settings.connect('notespath', () => {
+            this.set_notespath(this.settings.get_string("notespath").trim());
+        });
+        this.settingsID_filename = this.settings.connect('', () => {
+            this.notesname         = this.settings.get_string("notesname");
+        });
     }
+
+    set_notespath(path_){
+        if(!path_){
+            this.notespath = Gio.File.new_for_path(GLib.build_filenamev([GLib.get_home_dir()]));
+            this.settings.set_string("notespath", this.notespath.get_path());
+        }else if(path_ instanceof String){
+            const path = GLib.build_filenamev([path_.toString()]);
+            if(path){
+                this.notespath = Gio.File.new_for_path(path);
+            }else{
+                const e = new Error();
+                console.log(
+                    `IndicatorExampleExtension::set_notespath_error: bad value for path: ${path}: `
+                    + `genrated from path_: ${path_}: ${e.fileName}:${e.lineNumber}:${e.columnNumber}`
+                );
+                this.display_error_msg(
+                    'IndicatorExampleExtension::set_notespath',
+                    `IndicatorExampleExtension::set_notespath: bad value for path: ${path} genrated from path_: ${path_}: `
+                    + `${path}: ${e.fileName}:${e.lineNumber}:${e.columnNumber}`
+                );
+            }
+        }else{ // if(!path_) else if(path_ instanceof String) //
+            const path = GLib.build_filenamev([path_.toString()]);
+            if(path){
+                this.notespath = Gio.File.new_for_path(path);
+            }else{
+                const e = new Error();
+                console.log(
+                    `IndicatorExampleExtension::set_notespath_error: bad value for path: ${path}: `
+                    + `genrated from path_: ${path_}: ${e.fileName}:${e.lineNumber}:${e.columnNumber}`
+                );
+                this.display_error_msg(
+                    'IndicatorExampleExtension::set_notespath',
+                    `IndicatorExampleExtension::set_notespath: bad value for path: ${path} genrated from path_: ${path_}: `
+                    + `${path}: ${e.fileName}:${e.lineNumber}:${e.columnNumber}`
+                );
+            } // if(path) ... else ... //
+        } // if(!path_) else if(path_ instanceof String) ... else ... //
+    } // set_notespath(path_) //
 
     disable() {
         this._indicator.destroy();
