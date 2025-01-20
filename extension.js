@@ -348,10 +348,10 @@ class Indicator extends PanelMenu.Button {
 
     save_to_file(){
         const file_name = this._caller.notesname.trim();
-        const path      = this._caller.notespath;
+        const path      = this._caller.notespath.get_path();
         const cont      = this._caller.notes.join("\r\n");
         const _dialogtype = Gzz.GzzDialogType.Save;
-        console.log(`notes: path: ‷${file_name}‴.`);
+        console.log(`notes: file_name: ‷${file_name}‴.`);
         console.log(`notes: path: ‷${path}‴.`);
         console.log(`notes: cont: ‷${cont}‴.`);
         console.log(`notes: _dialogtype: ‷${JSON.stringify(_dialogtype)}‴.`);
