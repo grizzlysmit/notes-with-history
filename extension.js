@@ -485,7 +485,7 @@ class Indicator extends PanelMenu.Button {
 
         this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
 
-        const length = Math.min(this._caller.settings.get_int('show-messages'), this._caller.notes.length);
+        const length = Math.min(this._caller.settings.get_int('show-messages'), this._caller.settings.get_strv('notes').length);
         for(let i = 0; i < length; i++){
             submenu = new PopupMenu.PopupSubMenuMenuItem(this._caller.notes[i], true, this, 0);
             item         = new ApplicationMenuItem(this, { text: 'Edit...', index: i, type: 'note', subtype: 'edit', });
