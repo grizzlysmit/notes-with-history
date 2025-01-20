@@ -940,14 +940,14 @@ export  class GzzListFileSection extends St.BoxLayout {
             style_class: 'gzzdialog-list-item-button', 
             label:       "<", 
             checked:     true, 
-            action:      () => this.header.set_show_root(), 
         });
+        this.show_root_button.connectObject('clicked', () => this.header.set_show_root(), this.header)
 
         this.new_dir_button  = new St.Button({
             style_class: 'gzzdialog-list-item-button',
             icon_name:   'stock_new-dir', 
-            action:      () => this._owner.create_new_dir(), 
         });
+        this.new_dir_button.connectObject('clicked', () => this._owner.create_new_dir(), this._owner)
 
         this.file_name_box.add_child(this._edit);
 
