@@ -154,6 +154,226 @@ export class GzzMessageDialog extends ModalDialog.ModalDialog {
 
 } // export class GzzMessageDialog extends ModalDialog.ModalDialog //
 
+export class GzzPromptDialog extends ModalDialog.ModalDialog {
+    static {
+        GObject.registerClass(this);
+    }
+
+    constructor(params) {
+        super({ styleClass: 'gzzextension-dialog' });
+
+        let _icon_name = null;
+
+        if('icon_name' in params){
+            _icon_name = params.icon_name;
+        }
+
+        let icon = new St.Icon({icon_name: (_icon_name ? _icon_name : 'notes-app')});
+        this.contentLayout.add_child(icon);
+
+        let messageLayout = new Dialog.MessageDialogContent({
+            title: params.title,
+            description: params.description,
+        });
+
+        let hint_text_ = _('start typing text here.');
+
+        if('hint_text' in params && (params.hint_text instanceof String || typeof params.hint_text === 'string')){
+            hint_text_ = params.hint_text;
+        }
+
+        this._edit = new St.Entry({
+            style_class: 'gzzpromptdialog-edit', 
+            x_expand:    true, 
+            y_expand:    true, 
+            hint_text:   hint_text_, 
+        });
+
+        let max_length = 100;
+
+        if('max_length' in params && params.max_length instanceof Number){
+            max_length = params.max_length.toFixed(0);
+        }
+
+        this._edit.clutter_text.set_max_length(max_length);
+        /*
+        this._edit.clutter_text.set_line_wrap(true);
+        this._edit.clutter_text.set_single_line_mode(true);
+        this._edit.clutter_text.set_use_markup(true);
+        this._edit.clutter_text.set_editable(true);
+        // */
+        /*
+        this._edit.clutter_text.connect('key-press-event', (_actor, event) => {
+        });
+        // */
+        this.connect('key-release-event', (_actor, event) => {
+            const symbol = event.get_key_symbol();
+            let state  = event.get_state();
+            //*
+            state     &= ~Clutter.ModifierType.LOCK_MASK;
+            state     &= ~Clutter.ModifierType.MOD2_MASK;
+            state     &= Clutter.ModifierType.MODIFIER_MASK;
+            // */
+            if(symbol === Clutter.KEY_Return || symbol === Clutter.KEY_KP_Enter || symbol === Clutter.KEY_ISO_Enter){
+                if(state &  Clutter.ModifierType.SHIFT_MASK){
+                    const pos = this._edit.clutter_text.get_cursor_position();
+                    this._edit.clutter_text.insert_text("\n", pos);
+                    return Clutter.EVENT_STOP;
+                }else{
+                    this.triggerDefaultButton();
+                    return Clutter.EVENT_STOP;
+                }
+            }else if(symbol === Clutter.KEY_Escape){
+                this._result = false;
+                this.destroy();
+            }else{
+                return Clutter.EVENT_PROPAGATE;
+            }
+        });
+
+        this.contentLayout.add_child(messageLayout);
+
+        if('text' in params){
+            const _text = params.text;
+            if(_text instanceof String || typeof _text === 'string'){
+                this._edit.set_text(_text);
+            }
+        }
+
+        this.contentLayout.add_child(this._edit);
+
+        this._result = false;
+
+        let ok_button = _('OK');
+
+        if('ok_button' in params){
+            ok_button = params.ok_button;
+        }
+
+        let ok_icon_name ='dialog-ok';
+
+        if('ok_icon_name' in params){
+            ok_icon_name = params.ok_icon_name;
+        }
+
+        this._ok_call_back = () => { this.distroy(); };
+
+        if('ok_call_back' in params && params.ok_call_back instanceof Function){
+            this._ok_call_back = params.ok_call_back;
+        }
+                
+        if('buttons' in params && Array.isArray(params.buttons)){
+            this.setButtons(params.buttons);
+        }else{
+            this.setButtons([{
+                    label: _('Cancel'),
+                    icon_name: 'stock_calc-cancel', 
+                    action: () => {
+                        this._result = false;
+                        this.destroy();
+                    },
+                },
+                {
+                    label: ok_button,
+                    icon_name: ok_icon_name, 
+                    isDefault: true,
+                    action: () => {
+                        this._result = true;
+                        this._ok_call_back();
+                        this.destroy();
+                    },
+                }
+            ]);
+        }
+
+        this._default_action = null;
+
+    } // constructor(params) //
+
+    triggerDefaultButton(){
+        if(this._default_action){
+            this._default_action();
+        }
+    }
+
+    addButton(buttonInfo){
+        super.addButton(buttonInfo);
+        if('isDefault' in buttonInfo && buttonInfo.isDefault){
+            if('action' in buttonInfo && buttonInfo.action instanceof Function){
+                this._default_action = buttonInfo.action;
+            }
+        }
+    }
+
+    get_result(){
+        return this._result;
+    }
+
+    set_result(res){
+        this._result = !!res;
+    }
+
+    get result(){
+        return this.get_result();
+    }
+
+    set result(res){
+        this.set_result(res);
+    }
+
+    get_text(){
+        return this._edit.get_text();
+    }
+
+    set_text(_text){
+        if(_text instanceof String || typeof _text === 'string'){
+            this._edit.set_text(_text);
+        }
+    }
+
+    get text(){
+        return this.get_text();
+    }
+
+    set text(_text){
+        this.set_text(_text);
+    }
+
+    get_ok_call_back(){
+        return this._ok_call_back;
+    }
+    set_ok_call_back(cb){
+        if(cb instanceof Function){
+            this._ok_call_back = cb;
+        }
+    }
+
+    get ok_call_back(){
+        return this.get_ok_call_back();
+    }
+
+    set ok_call_back(cb){
+        this.set_ok_call_back(cb);
+    }
+
+    get_hint_text(){
+        return this._edit.get_hint_text();
+    }
+
+    set_hint_text(txt){
+        this._edit.set_hint_text(txt);
+    }
+
+    get hint_text(){
+        return this.get_hint_text();
+    }
+
+    set hint_text(txt){
+        this.set_hint_text(txt);
+    }
+
+} // export class GzzPromptDialog extends ModalDialog.ModalDialog //
+
 export class GzzDialogType {
 
   constructor(name) {
@@ -259,13 +479,13 @@ export class GzzFileDialogBase extends ModalDialog.ModalDialog {
 
     set_double_click_time(dbl_click_time){
         if(isNaN(Number(dbl_click_time))){
-            this._owner.apply_error_handler(this, 'GzzListFileRow::set_double_click_time_error', `bad value expected integer or date got ${dbl_click_time}`);
+            this._owner.apply_error_handler(this, 'GzzFileDialogBase::set_double_click_time_error', `bad value expected integer or date got ${dbl_click_time}`);
         }else if(dbl_click_time instanceof Date){
             this._double_click_time = dbl_click_time.getTime();
         }else if(Number.isInteger(dbl_click_time)){
             this._double_click_time = Number(dbl_click_time);
         }else{
-            this._owner.apply_error_handler(this, 'GzzListFileRow::set_double_click_time_error', `bad number type expected integer or Date ${dbl_click_time}`);
+            this._owner.apply_error_handler(this, 'GzzFileDialogBase::set_double_click_time_error', `bad number type expected integer or Date ${dbl_click_time}`);
         }
     } // set double_click_time(dbl_click_time) //
     
@@ -325,6 +545,131 @@ export class GzzFileDialogBase extends ModalDialog.ModalDialog {
 
 } // export class GzzFileDialogBase extends ModalDialog.ModalDialog  //
 
+export class GzzHeaderItem extends St.Button {
+    static {
+        GObject.registerClass({
+                            Properties: {
+                                'title': GObject.ParamSpec.string(
+                                    'title', null, null,
+                                    GObject.ParamFlags.READWRITE |
+                                    GObject.ParamFlags.CONSTRUCT,
+                                    null),
+                            },
+                        }, this);
+    }
+
+    constructor(params) {
+        super({
+            style_class: 'gzzdialog-header-item',
+            x_expand:    true, 
+            toggle_mode: true, 
+        });
+
+        this._owner = null;
+
+        if('owner' in params){
+            const _owner = params.owner;
+            if(_owner === null){
+                if(this._owner){
+                    this._owner.apply_error_handler(this, 'GzzHeaderItem::owner_error', "owner cannot be null");
+                }else{
+                    throw new Error('GzzHeaderItem::owner_error: owner cannot be null');
+                }
+            }else if(_owner instanceof GzzFileDialogBase){
+                this._owner = _owner;
+                this.notify('owner');
+            }else{
+                throw new Error('GzzHeaderItem::owner_error: owner must be a GzzFileDialogBase');
+            }
+        }else{
+            throw new Error('GzzHeaderItem::owner_error: owner must be supplied');
+        }
+
+        if('array' in params){
+            this.set_array(params.array);
+        }else{
+            this._owner.apply_error_handler(this, 'GzzHeaderItem::constructor_error', 'Error: Property array is required.');
+        }
+
+    } // constructor(params) //
+
+    get_title() {
+        return this.label.text;
+    }
+
+    set_title(ttl) {
+        _setLabel(this.label, ttl);
+        this.notify('title');
+    }
+
+    get title(){
+        return this.get_title();
+    }
+
+    set title(ttl){
+        this.set_title(ttl);
+    }
+
+    get_owner() {
+        return this._owner;
+    }
+
+    set_owner(_owner) {
+        if(_owner === null){
+            if(this._owner){
+                this._owner.apply_error_handler(this, 'GzzHeaderItem::set_owner_error', "owner cannot be null");
+            }else{
+                throw new Error('GzzHeaderItem::set_owner_error: owner cannot be null');
+            }
+        }else if(_owner instanceof GzzFileDialogBase){
+            this._owner = _owner;
+            this.notify('owner');
+        }else{
+            if(this._owner){
+                this._owner.apply_error_handler(this, 'GzzHeaderItem::set_owner_error', "owner must be a GzzFileDialogBase");
+            }else{
+                throw new Error('GzzHeaderItem::set_owner_error: owner must be a GzzFileDialogBase');
+            }
+        }
+    } // set owner(_owner) //
+
+    get owner(){
+        return this.get_owner();
+    }
+
+    set owner(_owner){
+        this.set_owner(_owner);
+    }
+
+    get_array(){
+        return this._array;
+    }
+
+    set_array(arr){
+        if(!arr){
+            this._owner.apply_error_handler(this, 'GzzHeaderItem::set_array_error', 'array cannot be empty or null');
+        }else{
+            this._array = arr;
+            const title = this.array.at(-1);
+            this.set_title(title);
+            const file = Gio.File.new_for_path(GLib.build_filenamev(this._array));
+            const home = Gio.File.new_for_path(GLib.build_filenamev([GLib.get_home_dir()]));
+            if(file.equal(home)){
+                this.set_icon_name('user-home');
+            }
+        }
+    } // set_array(arr) //
+
+    get array(){
+        return this.get_array();
+    }
+
+    set array(arr){
+        this.set_array(arr);
+    }
+
+} // export class GzzHeaderItem extends St.Button //
+
 export class GzzHeader extends St.BoxLayout {
       static {
             GObject.registerClass(this);
@@ -335,8 +680,9 @@ export class GzzHeader extends St.BoxLayout {
             style_class: 'gzzdialog-list',
             x_expand: true,
             vertical: false,
-            ...params,
         });
+
+        this._owner = null;
 
         if('owner' in params){
             const _owner = params.owner;
@@ -535,8 +881,8 @@ export  class GzzListFileSection extends St.BoxLayout {
         super({
             style_class: 'gzzdialog-header-box',
             x_expand: true,
+            y_expand: true,
             vertical: false,
-            ...params,
         });
 
         this.list = new St.BoxLayout({
@@ -551,6 +897,8 @@ export  class GzzListFileSection extends St.BoxLayout {
         });
 
         this.label_actor = this.list;
+
+        this._owner = null;
 
         if('owner' in params){
             const _owner = params.owner;
@@ -571,17 +919,20 @@ export  class GzzListFileSection extends St.BoxLayout {
             vertical: false,
         });
 
-        if('dialog_type' in params){
-            const _dialog_type = params.dialog_type;
+        if('dialog_type' in params && params.dialog_type instanceof GzzFileDialog 
+                    && (params.dialog_type.toString() === GzzDialogType.Open.toString()
+                                    || params.dialog_type.toString() === GzzDialogType.Save.toString()
+                                                                || params.dialog_type.toString() === GzzDialogType.SelectDir.toString())){
+            this._dialog_type = params.dialog_type;
         }else{
             this._dialog_type = GzzDialogType.Save;
         }
 
-        if(this.dialogtype.toString() === GzzDialogType.Open.toString()){
+        if(this._dialog_type.toString() === GzzDialogType.Open.toString()){
             this._edit = new St.Label({style_class: 'gzzdialog-list-item-edit'});
-        }else if(this.dialogtype.toString() === GzzDialogType.Save.toString()){
+        }else if(this._dialog_type.toString() === GzzDialogType.Save.toString()){
             this._edit = new St.Entry({style_class: 'gzzdialog-list-item-edit'});
-        }else if(this.dialogtype.toString() === GzzDialogType.SelectDir.toString()){
+        }else if(this._dialog_type.toString() === GzzDialogType.SelectDir.toString()){
             this._edit = new St.Label({style_class: 'gzzdialog-list-item-edit'});
         }
 
@@ -673,130 +1024,6 @@ export  class GzzListFileSection extends St.BoxLayout {
 
 } // export  class GzzListFileSection extends St.BoxLayout //
 
-export class GzzHeaderItem extends St.Button {
-    static {
-        GObject.registerClass({
-                            Properties: {
-                                'title': GObject.ParamSpec.string(
-                                    'title', null, null,
-                                    GObject.ParamFlags.READWRITE |
-                                    GObject.ParamFlags.CONSTRUCT,
-                                    null),
-                            },
-                        }, this);
-    }
-
-    constructor(params) {
-        super({
-            style_class: 'gzzdialog-header-item',
-            x_expand:    true, 
-            toggle_mode: true, 
-            ...params,
-        });
-
-        if('owner' in params){
-            const _owner = params.owner;
-            if(_owner === null){
-                if(this._owner){
-                    this._owner.apply_error_handler(this, 'GzzHeaderItem::owner_error', "owner cannot be null");
-                }else{
-                    throw new Error('GzzHeaderItem::owner_error: owner cannot be null');
-                }
-            }else if(_owner instanceof GzzFileDialogBase){
-                this._owner = _owner;
-                this.notify('owner');
-            }else{
-                throw new Error('GzzHeaderItem::owner_error: owner must be a GzzFileDialogBase');
-            }
-        }else{
-            throw new Error('GzzHeaderItem::owner_error: owner must be supplied');
-        }
-
-        if('array' in params){
-            this.set_array(params.array);
-        }else{
-            this._owner.apply_error_handler(this, 'GzzHeaderItem::constructor_error', 'Error: Property array is required.');
-        }
-
-    } // constructor(params) //
-
-    get_title() {
-        return this.label.text;
-    }
-
-    set_title(ttl) {
-        _setLabel(this.label, ttl);
-        this.notify('title');
-    }
-
-    get title(){
-        return this.get_title();
-    }
-
-    set title(ttl){
-        this.set_title(ttl);
-    }
-
-    get_owner() {
-        return this._owner;
-    }
-
-    set_owner(_owner) {
-        if(_owner === null){
-            if(this._owner){
-                this._owner.apply_error_handler(this, 'GzzHeaderItem::set_owner_error', "owner cannot be null");
-            }else{
-                throw new Error('GzzHeaderItem::set_owner_error: owner cannot be null');
-            }
-        }else if(_owner instanceof GzzFileDialogBase){
-            this._owner = _owner;
-            this.notify('owner');
-        }else{
-            if(this._owner){
-                this._owner.apply_error_handler(this, 'GzzHeaderItem::set_owner_error', "owner must be a GzzFileDialogBase");
-            }else{
-                throw new Error('GzzHeaderItem::set_owner_error: owner must be a GzzFileDialogBase');
-            }
-        }
-    } // set owner(_owner) //
-
-    get owner(){
-        return this.get_owner();
-    }
-
-    set owner(_owner){
-        this.set_owner(_owner);
-    }
-
-    get_array(){
-        return this._array;
-    }
-
-    set_array(arr){
-        if(!arr){
-            this._owner.apply_error_handler(this, 'GzzHeaderItem::set_array_error', 'array cannot be empty or null');
-        }else{
-            this._array = arr;
-            const title = this.array.at(-1);
-            this.set_title(title);
-            const file = Gio.File.new_for_path(GLib.build_filenamev(this._array));
-            const home = Gio.File.new_for_path(GLib.build_filenamev([GLib.get_home_dir()]));
-            if(file.equal(home)){
-                this.set_icon_name('user-home');
-            }
-        }
-    } // set_array(arr) //
-
-    get array(){
-        return this.get_array();
-    }
-
-    set array(arr){
-        this.set_array(arr);
-    }
-
-} // export class GzzHeaderItem extends St.Button //
-
 export class GzzListFileRow extends St.BoxLayout {
     static {
         GObject.registerClass({
@@ -830,6 +1057,8 @@ export class GzzListFileRow extends St.BoxLayout {
             y_expand: true,
             y_align: Clutter.ActorAlign.CENTER,
         });
+
+        this._owner = null;
 
         if('owner' in params){
             const _owner = params.owner;
@@ -1015,224 +1244,6 @@ export class GzzListFileRow extends St.BoxLayout {
 
 } // export class GzzListFileRow extends St.BoxLayout //
 
-export class GzzPromptDialog extends ModalDialog.ModalDialog {
-    static {
-        GObject.registerClass(this);
-    }
-
-    constructor(params) {
-        super({ styleClass: 'gzzextension-dialog' });
-
-        let _icon_name = null;
-
-        if('icon_name' in params){
-            _icon_name = params.icon_name;
-        }
-
-        let icon = new St.Icon({icon_name: (_icon_name ? _icon_name : 'notes-app')});
-        this.contentLayout.add_child(icon);
-
-        let messageLayout = new Dialog.MessageDialogContent({
-            title: params.title,
-            description: params.description,
-        });
-
-        let hint_text_ = _('start typing text here.');
-
-        if('hint_text' in params && (params.hint_text instanceof String || typeof params.hint_text === 'string')){
-            hint_text_ = params.hint_text;
-        }
-
-        this._edit = new St.Entry({
-            style_class: 'gzzpromptdialog-edit', 
-            can_focus:   true,
-            x_expand:    true, 
-            y_expand:    true, 
-            hint_text:   hint_text_, 
-        });
-
-        let max_length = 100;
-
-        if('max_length' in params && params.max_length instanceof Number){
-            max_length = params.max_length.toFixed(0);
-        }
-
-        this._edit.clutter_text.set_line_wrap(true);
-        this._edit.clutter_text.set_max_length(max_length);
-        this._edit.clutter_text.set_single_line_mode(false);
-        this._edit.clutter_text.set_use_markup(true);
-        /*
-        this._edit.clutter_text.connect('key-press-event', (_actor, event) => {
-        });
-        // */
-        this._edit.clutter_text.connect('key-release-event', (actor, event) => {
-            const symbol = event.get_key_symbol();
-            let state  = event.get_state();
-            //*
-            state     &= ~Clutter.ModifierType.LOCK_MASK;
-            state     &= ~Clutter.ModifierType.MOD2_MASK;
-            state     &= Clutter.ModifierType.MODIFIER_MASK;
-            // */
-            if(symbol === Clutter.KEY_Return || symbol === Clutter.KEY_KP_Enter || symbol === Clutter.KEY_ISO_Enter){
-                if(state &  Clutter.ModifierType.SHIFT_MASK){
-                    const pos = actor.get_cursor_position();
-                    actor.insert_text("\n", pos);
-                    return Clutter.EVENT_STOP;
-                }else{
-                    this.triggerDefaultButton();
-                    return Clutter.EVENT_STOP;
-                }
-            }else if(symbol === Clutter.KEY_Escape){
-                this._result = false;
-                this.destroy();
-            }else{
-                return Clutter.EVENT_PROPAGATE;
-            }
-        });
-
-        this.contentLayout.add_child(messageLayout);
-
-        if('text' in params){
-            const _text = params.text;
-            if(_text instanceof String || typeof _text === 'string'){
-                this._edit.set_text(_text);
-            }
-        }
-
-        this.contentLayout.add_child(this._edit);
-
-        this._result = false;
-
-        let ok_button = _('OK');
-
-        if('ok_button' in params){
-            ok_button = params.ok_button;
-        }
-
-        let ok_icon_name ='dialog-ok';
-
-        if('ok_icon_name' in params){
-            ok_icon_name = params.ok_icon_name;
-        }
-
-        this._ok_call_back = () => { this.distroy(); };
-
-        if('ok_call_back' in params && params.ok_call_back instanceof Function){
-            this._ok_call_back = params.ok_call_back;
-        }
-                
-        if('buttons' in params && Array.isArray(params.buttons)){
-            this.setButtons(params.buttons);
-        }else{
-            this.setButtons([{
-                    label: _('Cancel'),
-                    icon_name: 'stock_calc-cancel', 
-                    action: () => {
-                        this._result = false;
-                        this.destroy();
-                    },
-                },
-                {
-                    label: ok_button,
-                    icon_name: ok_icon_name, 
-                    isDefault: true,
-                    action: () => {
-                        this._result = true;
-                        this._ok_call_back();
-                        this.destroy();
-                    },
-                }
-            ]);
-        }
-
-        this._default_action = null;
-
-    } // constructor(params) //
-
-    triggerDefaultButton(){
-        if(this._default_action){
-            this._default_action();
-        }
-    }
-
-    addButton(buttonInfo){
-        super.addButton(buttonInfo);
-        if('isDefault' in buttonInfo && buttonInfo.isDefault){
-            if('action' in buttonInfo && buttonInfo.action instanceof Function){
-                this._default_action = buttonInfo.action;
-            }
-        }
-    }
-
-    get_result(){
-        return this._result;
-    }
-
-    set_result(res){
-        this._result = !!res;
-    }
-
-    get result(){
-        return this.get_result();
-    }
-
-    set result(res){
-        this.set_result(res);
-    }
-
-    get_text(){
-        return this._edit.get_text();
-    }
-
-    set_text(_text){
-        if(_text instanceof String || typeof _text === 'string'){
-            this._edit.set_text(_text);
-        }
-    }
-
-    get text(){
-        return this.get_text();
-    }
-
-    set text(_text){
-        this.set_text(_text);
-    }
-
-    get_ok_call_back(){
-        return this._ok_call_back;
-    }
-    set_ok_call_back(cb){
-        if(cb instanceof Function){
-            this._ok_call_back = cb;
-        }
-    }
-
-    get ok_call_back(){
-        return this.get_ok_call_back();
-    }
-
-    set ok_call_back(cb){
-        this.set_ok_call_back(cb);
-    }
-
-    get_hint_text(){
-        return this._edit.get_hint_text();
-    }
-
-    set_hint_text(txt){
-        this._edit.set_hint_text(txt);
-    }
-
-    get hint_text(){
-        return this.get_hint_text();
-    }
-
-    set hint_text(txt){
-        this.set_hint_text(txt);
-    }
-
-} // export class GzzPromptDialog extends ModalDialog.ModalDialog //
-
 export class GzzFileDialog extends GzzFileDialogBase {
     static {
         GObject.registerClass(this);
@@ -1244,7 +1255,7 @@ export class GzzFileDialog extends GzzFileDialogBase {
         this._list_section = new GzzListFileSection({
             owner:      this, 
             title:      params.title,
-            dialogtype: this._dialogtype, 
+            dialogtype: this._dialog_type, 
         });
 
         let icon = new St.Icon({icon_name: 'inode-directory'});
@@ -1306,7 +1317,7 @@ export class GzzFileDialog extends GzzFileDialogBase {
                 const t = typeof _filter;
                 this.apply_error_handler(
                     this,
-                    'GzzListFileRow::set_filter_error', 
+                    'GzzFileDialog::set_filter_error', 
                     `regex must be of type RegExp or /.../ or String you supplied ${_filter} of type ${t}`
                 );
             }
@@ -1487,7 +1498,7 @@ export class GzzFileDialog extends GzzFileDialogBase {
         }else{
             const t = typeof regex;
             this._owner.apply_error_handler(this,
-                'GzzListFileRow::set_filter_error',
+                'GzzFileDialog::set_filter_error',
                 `regex must be of type RegExp or /.../ or String you supplied ${regex} of type ${t}`);
         }
     } // set filter(regex) //

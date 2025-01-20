@@ -33,7 +33,7 @@ import * as PopupMenu from 'resource:///org/gnome/shell/ui/popupMenu.js';
 
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 
-const APPLICATION_ICON_SIZE = 32;
+const APPLICATION_ICON_SIZE = 16;
 
 class ApplicationMenuItem extends PopupMenu.PopupBaseMenuItem {
     static {
@@ -156,6 +156,7 @@ class ApplicationMenuItem extends PopupMenu.PopupBaseMenuItem {
                                             description: _('Edit or view Note.'), 
                                             icon_name:   'notes-app', 
                                             text:        txt,
+                                            max_length:    this._button._caller.settings.get_int('max-note-length'), 
                                             buttons:     [
                                                 {
                                                     label:   _('Cancel'),
@@ -258,6 +259,7 @@ class ApplicationMenuItem extends PopupMenu.PopupBaseMenuItem {
                         description: _('Edit or view Note.'), 
                         ok_button:   _('Add Note'), 
                         ok_icon_name:  'list-add', 
+                        max_length:    this._button._caller.settings.get_int('max-note-length'), 
                         ok_call_back: () => {
                             const result   = dlg.get_result();
                             const new_note = dlg.get_text();
@@ -558,10 +560,10 @@ export default class IndicatorExampleExtension extends Extension {
             this.max_note_length = this.settings.get_int("max-note-length");
             this._indicator.refesh_menu();
         }); 
-        this.settingsID_dir      = this.settings.connect('notespath', () => {
+        this.settingsID_dir      = this.settings.connect('changed::notespath', () => {
             this.set_notespath(this.settings.get_string("notespath").trim());
         });
-        this.settingsID_filename = this.settings.connect('', () => {
+        this.settingsID_filename = this.settings.connect('changed::notesname', () => {
             this.notesname         = this.settings.get_string("notesname");
         });
     }
@@ -612,6 +614,8 @@ export default class IndicatorExampleExtension extends Extension {
         this.settings.disconnect(this.settingsID_pos);
         this.settings.disconnect(this.settingsID_notes);
         this.settings.disconnect(this.settingsID_max);
+        this.settings.disconnect(this.settingsID_dir);
+        this.settings.disconnect(this.settingsID_filename);
         delete this.appSys;
         delete this.settings;
         this._indicator = null;
