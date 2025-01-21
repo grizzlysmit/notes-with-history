@@ -485,7 +485,7 @@ export class GzzFileDialogBase extends ModalDialog.ModalDialog {
     }
 
     set_double_click_time(dbl_click_time){
-        if(isNaN(Number(dbl_click_time))){
+        if(Number.isNaN(dbl_click_time)){
             this._owner.apply_error_handler(this, 'GzzFileDialogBase::set_double_click_time_error', `bad value expected integer or date got ${dbl_click_time}`);
         }else if(dbl_click_time instanceof Date){
             this._double_click_time = dbl_click_time.getTime();
@@ -554,15 +554,7 @@ export class GzzFileDialogBase extends ModalDialog.ModalDialog {
 
 export class GzzHeaderItem extends St.Button {
     static {
-        GObject.registerClass({
-                            Properties: {
-                                'title': GObject.ParamSpec.string(
-                                    'title', null, null,
-                                    GObject.ParamFlags.READWRITE |
-                                    GObject.ParamFlags.CONSTRUCT,
-                                    null),
-                            },
-                        }, this);
+        GObject.registerClass(this);
     }
 
     constructor(params) {
@@ -595,6 +587,9 @@ export class GzzHeaderItem extends St.Button {
         if('array' in params){
             this.set_array(params.array);
         }else{
+            const e = new Error();
+            console.log('notes: GzzHeaderItem::constructor_error: Property array is required:' 
+                + ` ${e.fileName}:${e.lineNumber + 1}:${e.columnNumber}`);
             this._owner.apply_error_handler(this, 'GzzHeaderItem::constructor_error', 'Error: Property array is required.');
         }
 
@@ -654,8 +649,11 @@ export class GzzHeaderItem extends St.Button {
 
     set_array(arr){
         if(!arr){
+            const e = new Error();
+            console.log('notes: GzzHeaderItem::set_array_error: array cannot be empty or null:' 
+                + ` ${e.fileName}:${e.lineNumber + 1}:${e.columnNumber}`);
             this._owner.apply_error_handler(this, 'GzzHeaderItem::set_array_error', 'array cannot be empty or null');
-        }else{
+        }else if(Array.isArray(arr)){
             this._array = arr;
             const title = this.array.at(-1);
             this.set_title(title);
@@ -664,6 +662,16 @@ export class GzzHeaderItem extends St.Button {
             if(file.equal(home)){
                 this.set_icon_name('user-home');
             }
+        }else{
+            const e = new Error();
+            console.log(`notes: GzzHeaderItem::set_array_error: array must be an array: you gave me ${JSON.stringify(this._array)}:` 
+                + ` ${e.fileName}:${e.lineNumber + 1}:${e.columnNumber}`);
+            this._owner.apply_error_handler(
+                this,
+                'GzzHeaderItem::set_array_error',
+                `notes: GzzHeaderItem::set_array_error: array must be an array: you gave me ${JSON.stringify(this._array)}:` 
+                + ` ${e.fileName}:${e.lineNumber + 2}:${e.columnNumber}`
+            );
         }
     } // set_array(arr) //
 
@@ -707,15 +715,98 @@ export class GzzHeader extends St.BoxLayout {
 
         let ok = null;
         let result = null;
-        if('filename' in params){
-            [ok, result] = splitFile(params.filename);
-            if(!ok){
-                throw new Error(`GzzHeader::constructor_error: splitFile error: ${result}`);
+        if('dir' in params){
+            let dir_   = params.dir;
+            if(!dir_){
+                const path = GLib.build_filenamev([GLib.get_home_dir()]);
+                if(path){
+                    dir_= Gio.File.new_for_path(path);
+                    if(dir_){
+                        [ok, result] = splitFile(dir_);
+                        if(ok){
+                            this._array = this._current_array = result;
+                        }else{
+                            const e = new Error();
+                            console.log(`notes: GzzHeader::constructor_error: splitFile error: ${result}:` 
+                                + ` ${e.fileName}:${e.lineNumber + 1}:${e.columnNumber}`);
+                            throw new Error(`GzzHeader::constructor_error: splitFile error: ${result}`);
+                        }
+                    }else{
+                        const e = new Error();
+                        console.log('notes: GzzHeader::constructor_error: could not get home dir:' 
+                            + ` ${e.fileName}:${e.lineNumber + 1}:${e.columnNumber}`);
+                        throw new Error('GzzHeader::constructor_error: could not get home dir');
+                    }
+                }else{
+                    const e = new Error();
+                    console.log('notes: GzzHeader::constructor_error: could not get home dir:' 
+                        + ` ${e.fileName}:${e.lineNumber + 1}:${e.columnNumber}`);
+                    throw new Error('GzzHeader::constructor_error: could not get home dir');
+                }
+            }else if(dir_ instanceof String || typeof dir_ === 'string' || dir_ instanceof Gio.File){
+                [ok, result] = splitFile(dir_);
+                if(!ok){
+                    const e = new Error();
+                    console.log(`notes: GzzHeader::constructor_error: splitFile error: ${result}:` 
+                        + ` ${e.fileName}:${e.lineNumber + 1}:${e.columnNumber}`);
+                    throw new Error(`GzzHeader::constructor_error: splitFile error: ${result}`);
+                }else{
+                    this._array = this._current_array = result;
+                }
             }else{
-                this._array = this._current_array = result;
+                const path = GLib.build_filenamev([GLib.get_home_dir()]);
+                if(path){
+                    dir_= Gio.File.new_for_path(path);
+                    if(dir_){
+                        [ok, result] = splitFile(dir_);
+                        if(ok){
+                            this._array = this._current_array = result;
+                        }else{
+                            const e = new Error();
+                            console.log(`notes: GzzHeader::constructor_error: splitFile error: ${result}:` 
+                                + ` ${e.fileName}:${e.lineNumber + 1}:${e.columnNumber}`);
+                            throw new Error(`GzzHeader::constructor_error: splitFile error: ${result}`);
+                        }
+                    }else{
+                        const e = new Error();
+                        console.log('notes: GzzHeader::constructor_error: could not get home dir:' 
+                            + ` ${e.fileName}:${e.lineNumber + 1}:${e.columnNumber}`);
+                        throw new Error('GzzHeader::constructor_error: could not get home dir');
+                    }
+                }else{
+                    const e = new Error();
+                    console.log('notes: GzzHeader::constructor_error: could not get home dir:' 
+                        + ` ${e.fileName}:${e.lineNumber + 1}:${e.columnNumber}`);
+                    throw new Error('notes: GzzHeader::constructor_error: could not get home dir:' 
+                        + ` ${e.fileName}:${e.lineNumber + 1}:${e.columnNumber}`);
+                }
             }
         }else{
-            throw new Error('GzzHeader::constructor_error: filename must be supplied');
+            const path = GLib.build_filenamev([GLib.get_home_dir()]);
+            if(path){
+                let dir_= Gio.File.new_for_path(path);
+                if(dir_){
+                    [ok, result] = splitFile(dir_);
+                    if(ok){
+                        this._array = this._current_array = result;
+                    }else{
+                        const e = new Error();
+                        console.log(`notes: GzzHeader::constructor_error: splitFile error: ${result}:` 
+                            + ` ${e.fileName}:${e.lineNumber + 1}:${e.columnNumber}`);
+                        throw new Error(`GzzHeader::constructor_error: splitFile error: ${result}`);
+                    }
+                }else{
+                    const e = new Error();
+                    console.log('GzzHeader::constructor_error: could not get home dir:' 
+                        + ` ${e.fileName}:${e.lineNumber + 1}:${e.columnNumber}`);
+                    throw new Error('GzzHeader::constructor_error: could not get home dir');
+                }
+            }else{
+                const e = new Error();
+                console.log('notes: GzzHeader::constructor_error: dir must be supplied:' 
+                    + ` ${e.fileName}:${e.lineNumber + 1}:${e.columnNumber}`);
+                throw new Error('GzzHeader::constructor_error: dir must be supplied');
+            }
         }
 
         this._show_root = false;
@@ -793,7 +884,7 @@ export class GzzHeader extends St.BoxLayout {
     } // display_dir(_dirname) //
 
     add_buttons(){
-        for(let i = 1; i <= this._array.length; i++){
+        for(let i = 0; i <= this._array.length; i++){
             this.add_button(this._array.slice(0, i));
         }
     }
@@ -842,17 +933,31 @@ export class GzzHeader extends St.BoxLayout {
     }
 
     set_path(file){
-        const [ok, array] = splitFile(file);
-        if(!ok){
-            this._owner.apply_error_handler(this, 'GzzHeader::add_button_error', `splitFile Error: ${array}`);
-            return;
-        }
-        this._current_array = array;
-        if(array.length <= this._array.length){
-            if(array === this._array.slice(0, array.length)){
-                this.refresh_button_states();
-                this._owner._list_section.list.destroy_all_children();
-                this._owner.display_dir(file);
+        const e = new Error();
+        console.log(`notes: GzzHeader::set_path file error: ${file}:` 
+            + ` ${e.fileName}:${e.lineNumber + 1}:${e.columnNumber}`);
+        if(file){
+            const [ok, array] = splitFile(file);
+            if(!ok){
+                const e = new Error();
+                console.log(`notes: GzzHeader::set_path file error: ${array}:` 
+                    + ` ${e.fileName}:${e.lineNumber + 1}:${e.columnNumber}`);
+                this._owner.apply_error_handler(this, 'GzzHeader::add_button_error', `splitFile Error: ${array}`);
+                return;
+            }
+            this._current_array = array;
+            if(array.length <= this._array.length){
+                if(array === this._array.slice(0, array.length)){
+                    this.refresh_button_states();
+                    this._owner._list_section.list.destroy_all_children();
+                    this._owner.display_dir(file);
+                }else{
+                    this.destroy_all_children();
+                    this._array = array;
+                    this.add_buttons();
+                    this._owner._list_section.list.destroy_all_children();
+                    this._owner.display_dir(file);
+                }
             }else{
                 this.destroy_all_children();
                 this._array = array;
@@ -861,13 +966,17 @@ export class GzzHeader extends St.BoxLayout {
                 this._owner.display_dir(file);
             }
         }else{
-            this.destroy_all_children();
-            this._array = array;
-            this.add_buttons();
-            this._owner._list_section.list.destroy_all_children();
-            this._owner.display_dir(file);
+            const e = new Error();
+            console.log('notes: GzzHeader::set_path file error: file must have a value:' 
+                + ` ${e.fileName}:${e.lineNumber + 1}:${e.columnNumber}`);
+            this._owner.apply_error_handler(
+                this,
+                'GzzHeader::add_button_error',
+                'notes: GzzHeader::set_path file error: file must have a value:' 
+                + ` ${e.fileName}:${e.lineNumber + 1}:${e.columnNumber}`
+            );
         }
-    }
+    } // set_path(file) //
 
     get path(){
         return this.get_path();
@@ -926,7 +1035,7 @@ export  class GzzListFileSection extends St.BoxLayout {
             vertical: false,
         });
 
-        if('dialog_type' in params && params.dialog_type instanceof GzzFileDialog 
+        if('dialog_type' in params && params.dialog_type instanceof GzzDialogType 
                     && (params.dialog_type.toString() === GzzDialogType.Open.toString()
                                     || params.dialog_type.toString() === GzzDialogType.Save.toString()
                                                                 || params.dialog_type.toString() === GzzDialogType.SelectDir.toString())){
@@ -966,7 +1075,7 @@ export  class GzzListFileSection extends St.BoxLayout {
         this.header = new GzzHeader({
             owner:      this._owner, 
             style_class: 'gzzdialog-header-box',
-            filename:    this._owner.get_dir(),
+            dir:    this._owner.get_dir(),
         });
 
         this._header_box.add_child(this.show_root_button);
@@ -1034,37 +1143,34 @@ export  class GzzListFileSection extends St.BoxLayout {
 
 export class GzzListFileRow extends St.BoxLayout {
     static {
-        GObject.registerClass({
-                            Properties: {
-                                'title': GObject.ParamSpec.string(
-                                    'title', null, null,
-                                    GObject.ParamFlags.READWRITE |
-                                    GObject.ParamFlags.CONSTRUCT,
-                                    null),
-                            },
-                        }, this);
+        GObject.registerClass(this);
     }
 
     constructor(params) {
         super({
             style_class: 'gzzdialog-label-item',
+            title:       params.title, 
         });
 
         let icon = new St.Icon({icon_name: (this._is_dir ? 'inode-directory' : 'emblem-dialog-question')});
 
-        this._title = new St.Label({style_class: 'dialog-list-item-title', reactive: true});
-
-        textLayout.add_child(icon);
-        textLayout.add_child(this._title);
-
-        this.label_actor = this._title;
-        this.add_child(textLayout);
+        this._title = new St.Label({
+            title:       params.title, 
+            style_class: 'dialog-list-item-title',
+            reactive:    true, 
+        });
 
         let textLayout = new St.BoxLayout({
             vertical: false,
             y_expand: true,
             y_align: Clutter.ActorAlign.CENTER,
         });
+
+        textLayout.add_child(icon);
+        textLayout.add_child(this._title);
+
+        this.label_actor = this._title;
+        this.add_child(textLayout);
 
         this._owner = null;
 
@@ -1215,11 +1321,11 @@ export class GzzListFileRow extends St.BoxLayout {
     }
 
     set_double_click_time(dbl_click_time){
-        if(isNaN(Number(dbl_click_time))){
+        if(Number.isNaN(dbl_click_time)){
             this._owner.apply_error_handler(this, 'GzzListFileRow::set_double_click_time_error', `bad value expected integer or date got ${dbl_click_time}`);
         }else if(dbl_click_time instanceof Date){
             this._double_click_time = dbl_click_time.getTime();
-        }else if(Number(dbl_click_time).isInteger){
+        }else if(Number.isInteger(dbl_click_time)){
             this._double_click_time = Number(dbl_click_time);
         }else{
             this._owner.apply_error_handler(this, 'GzzListFileRow::set_double_click_time_error', `bad number type expected integer or Date ${dbl_click_time}`);
@@ -1289,6 +1395,10 @@ export class GzzFileDialog extends GzzFileDialogBase {
             this._dir = Gio.File.new_for_path(GLib.build_filenamev([GLib.get_home_dir()]));
         }
 
+        const e = new Error();
+        console.log(`notes: GzzFileDialog::constructor: this._dir === ${this._dir.get_path()}:` 
+            + ` ${e.fileName}:${e.lineNumber + 1}:${e.columnNumber}`);
+
         if('file_name' in params){
             const _file_name = params.file_name;
             if(_file_name instanceof String || typeof _file_name == 'string'){
@@ -1339,7 +1449,7 @@ export class GzzFileDialog extends GzzFileDialogBase {
 
         if('double_click_time' in params){
             const dbl_click_time = params.double_click_time;
-            if(isNaN(Number(dbl_click_time))){
+            if(Number.isNaN(dbl_click_time)){
                 this.apply_error_handler(
                     this, 
                     'GzzFileDialog::set_double_click_time_error',
@@ -1347,7 +1457,7 @@ export class GzzFileDialog extends GzzFileDialogBase {
                 );
             }else if(dbl_click_time instanceof Date){
                 this._double_click_time = dbl_click_time.getTime();
-            }else if(Number(dbl_click_time).isInteger){
+            }else if(Number.isInteger(dbl_click_time)){
                 this._double_click_time = Number(dbl_click_time);
             }else{
                 this.apply_error_handler(
@@ -1429,6 +1539,8 @@ export class GzzFileDialog extends GzzFileDialogBase {
     }
 
     set_dir(dir_){
+        let e    = new Error();
+        console.log(`notes: GzzFileDialog::constructor dir_ === ${dir_}: ${e.fileName}:${e.lineNumber}`);
         if(!dir_){
             this._dir = Gio.File.new_for_path(GLib.build_filenamev([GLib.get_home_dir()]));
         }else if(dir_ instanceof Gio.File){
@@ -1438,6 +1550,9 @@ export class GzzFileDialog extends GzzFileDialogBase {
         }else{
             this._dir = Gio.File.new_for_path(GLib.build_filenamev([GLib.get_home_dir()]));
         }
+        e = new Error();
+        console.log(`notes: GzzFileDialog::set_dir: this._dir === ${this._dir.get_path()}:` 
+            + ` ${e.fileName}:${e.lineNumber + 1}:${e.columnNumber}`);
     }
 
     get dir(){
@@ -1551,13 +1666,13 @@ export class GzzFileDialog extends GzzFileDialogBase {
     }
 
     set_double_click_time(dbl_click_time){
-        if(isNaN(Number(dbl_click_time))){
+        if(Number.isNaN(dbl_click_time)){
             this._owner.apply_error_handler(this,
                 'GzzFileDialog::set_double_click_time_error',
                 `bad value expected integer or date got ${dbl_click_time}`);
         }else if(dbl_click_time instanceof Date){
             this._double_click_time = dbl_click_time.getTime();
-        }else if(Number(dbl_click_time).isInteger){
+        }else if(Number.isInteger(dbl_click_time)){
             this._double_click_time = Number(dbl_click_time);
         }else{
             this._owner.apply_error_handler(this,
@@ -1660,7 +1775,7 @@ export class GzzFileDialog extends GzzFileDialogBase {
 
                 const file     = enumerator.get_child(info);
 
-                if(file_type === Gio.FileType. SYMBOLIC_LINK){
+                if(file_type === Gio.FileType.SYMBOLIC_LINK){
                     is_dir_ = this.file_is_dir(file); // will identify symlink directories as directory //
                 }
 
