@@ -67,22 +67,24 @@ export function RegExp2glob(regex){
 export function splitFile(file){
     let result = [];
     try {
-        console.log(`notes: file: ‷${file}‴.`);
+        let e = new Error();
+        console.log(`notes: file: ‷${file}‴ ${e.fileName}:${e.lineNumber + 1}.`);
         if(file instanceof String || typeof file === 'string') file = Gio.File.new_for_path(GLib.build_filenamev([file]));
-        const attributes = 'standard::name,standard::type,standard::display_name,standard::icon';
-        let info     = file.query_info(attributes, Gio.FileQueryInfoFlags.NONE, null);
-        let filename = info.get_display_name();
-        console.log(`notes: filename: ‷${filename}‴.`);
+        console.log(`notes: file: ‷${file.get_path()}‴ ${e.fileName}:${e.lineNumber + 3}.`);
+        let filename = file.get_basename();
+        e = new Error();
+        console.log(`notes: filename: ‷${filename}‴ ${e.fileName}:${e.lineNumber + 1}.`);
         result.unshift(filename);
-        console.log(`notes: result: ‷${JSON.stringify(result)}‴.`);
+        console.log(`notes: result: ‷${JSON.stringify(result)}‴ ${e.fileName}:${e.lineNumber + 3}.`);
         while((file = file.get_parent())){
-            info     = file.query_info(attributes, Gio.FileQueryInfoFlags.NONE, null);
-            filename = info.get_display_name();
-            console.log(`notes: filename: ‷${filename}‴.`);
+            filename = file.get_basename();
+            e = new Error();
+            console.log(`notes: filename: ‷${filename}‴ ${e.fileName}:${e.lineNumber + 1}.`);
             result.unshift(filename);
-            console.log(`notes: result: ‷${JSON.stringify(result)}‴.`);
+            console.log(`notes: result: ‷${JSON.stringify(result)}‴ ${e.fileName}:${e.lineNumber + 3}.`);
         }
-        console.log(`notes: result: ‷${JSON.stringify(result)}‴.`);
+        e = new Error();
+        console.log(`notes: result: ‷${JSON.stringify(result)}‴ ${e.fileName}:${e.lineNumber}.`);
     }catch(e){
         console.log(`notes: splitFile: ${e}: ${e.fileName}:${e.lineNumber}:${e.columnNumber}`);
         return [null, e];
@@ -99,11 +101,12 @@ export class GzzMessageDialog extends ModalDialog.ModalDialog {
         super({ styleClass: 'extension-dialog' });
 
         let _icon_name = icon_name;
+        const e = new Error();
         if(!_icon_name){
             _icon_name = 'dialog-information';
-            console.log(`notes: _icon_name: ‷${_icon_name}‴.`);
+            console.log(`notes: _icon_name: ‷${_icon_name}‴ ${e.fileName}:${e.lineNumber + 3}.`);
         }
-        console.log(`notes: _icon_name: ‷${_icon_name}‴.`);
+        console.log(`notes: _icon_name: ‷${_icon_name}‴ ${e.fileName}:${e.lineNumber + 5}.`);
         const icon = new St.Icon({icon_name: _icon_name });
         this.contentLayout.add_child(icon);
 
@@ -729,19 +732,22 @@ export class GzzHeader extends St.BoxLayout {
                             const e = new Error();
                             console.log(`notes: GzzHeader::constructor_error: splitFile error: ${result}:` 
                                 + ` ${e.fileName}:${e.lineNumber + 1}:${e.columnNumber}`);
-                            throw new Error(`GzzHeader::constructor_error: splitFile error: ${result}`);
+                            this._array = this._current_array = [];
+                            //throw new Error(`GzzHeader::constructor_error: splitFile error: ${result}`);
                         }
                     }else{
                         const e = new Error();
                         console.log('notes: GzzHeader::constructor_error: could not get home dir:' 
                             + ` ${e.fileName}:${e.lineNumber + 1}:${e.columnNumber}`);
-                        throw new Error('GzzHeader::constructor_error: could not get home dir');
+                        this._array = this._current_array = [];
+                        //throw new Error('GzzHeader::constructor_error: could not get home dir');
                     }
                 }else{
                     const e = new Error();
                     console.log('notes: GzzHeader::constructor_error: could not get home dir:' 
                         + ` ${e.fileName}:${e.lineNumber + 1}:${e.columnNumber}`);
-                    throw new Error('GzzHeader::constructor_error: could not get home dir');
+                    this._array = this._current_array = [];
+                    //throw new Error('GzzHeader::constructor_error: could not get home dir');
                 }
             }else if(dir_ instanceof String || typeof dir_ === 'string' || dir_ instanceof Gio.File){
                 [ok, result] = splitFile(dir_);
@@ -749,7 +755,8 @@ export class GzzHeader extends St.BoxLayout {
                     const e = new Error();
                     console.log(`notes: GzzHeader::constructor_error: splitFile error: ${result}:` 
                         + ` ${e.fileName}:${e.lineNumber + 1}:${e.columnNumber}`);
-                    throw new Error(`GzzHeader::constructor_error: splitFile error: ${result}`);
+                    this._array = this._current_array = [];
+                    //throw new Error(`GzzHeader::constructor_error: splitFile error: ${result}`);
                 }else{
                     this._array = this._current_array = result;
                 }
@@ -765,20 +772,23 @@ export class GzzHeader extends St.BoxLayout {
                             const e = new Error();
                             console.log(`notes: GzzHeader::constructor_error: splitFile error: ${result}:` 
                                 + ` ${e.fileName}:${e.lineNumber + 1}:${e.columnNumber}`);
-                            throw new Error(`GzzHeader::constructor_error: splitFile error: ${result}`);
+                            this._array = this._current_array = [];
+                            //throw new Error(`GzzHeader::constructor_error: splitFile error: ${result}`);
                         }
                     }else{
                         const e = new Error();
                         console.log('notes: GzzHeader::constructor_error: could not get home dir:' 
                             + ` ${e.fileName}:${e.lineNumber + 1}:${e.columnNumber}`);
-                        throw new Error('GzzHeader::constructor_error: could not get home dir');
+                        this._array = this._current_array = [];
+                        //throw new Error('GzzHeader::constructor_error: could not get home dir');
                     }
                 }else{
                     const e = new Error();
                     console.log('notes: GzzHeader::constructor_error: could not get home dir:' 
                         + ` ${e.fileName}:${e.lineNumber + 1}:${e.columnNumber}`);
-                    throw new Error('notes: GzzHeader::constructor_error: could not get home dir:' 
-                        + ` ${e.fileName}:${e.lineNumber + 1}:${e.columnNumber}`);
+                    this._array = this._current_array = [];
+                    //throw new Error('notes: GzzHeader::constructor_error: could not get home dir:' 
+                    //    + ` ${e.fileName}:${e.lineNumber + 1}:${e.columnNumber}`);
                 }
             }
         }else{
@@ -793,19 +803,22 @@ export class GzzHeader extends St.BoxLayout {
                         const e = new Error();
                         console.log(`notes: GzzHeader::constructor_error: splitFile error: ${result}:` 
                             + ` ${e.fileName}:${e.lineNumber + 1}:${e.columnNumber}`);
-                        throw new Error(`GzzHeader::constructor_error: splitFile error: ${result}`);
+                        this._array = this._current_array = [];
+                        //throw new Error(`GzzHeader::constructor_error: splitFile error: ${result}`);
                     }
                 }else{
                     const e = new Error();
                     console.log('GzzHeader::constructor_error: could not get home dir:' 
                         + ` ${e.fileName}:${e.lineNumber + 1}:${e.columnNumber}`);
-                    throw new Error('GzzHeader::constructor_error: could not get home dir');
+                    this._array = this._current_array = [];
+                    //throw new Error('GzzHeader::constructor_error: could not get home dir');
                 }
             }else{
                 const e = new Error();
                 console.log('notes: GzzHeader::constructor_error: dir must be supplied:' 
                     + ` ${e.fileName}:${e.lineNumber + 1}:${e.columnNumber}`);
-                throw new Error('GzzHeader::constructor_error: dir must be supplied');
+                this._array = this._current_array = [];
+                //throw new Error('GzzHeader::constructor_error: dir must be supplied');
             }
         }
 
@@ -852,8 +865,10 @@ export class GzzHeader extends St.BoxLayout {
     set_show_root(showroot){
         if(this._show_root != !!showroot){
             this._show_root = !!showroot;
-            this.destroy_all_children();
-            this.add_buttons();
+            if(this._array && this._array.length > 0){
+                this.destroy_all_children();
+                this.add_buttons();
+            }
         }
     }
 
@@ -870,6 +885,9 @@ export class GzzHeader extends St.BoxLayout {
         if(!ok){
             this._owner.apply_error_handler(this, 'GzzHeader::display_dir_error', `splitFile Error: ${array}`);
             return null;
+        }
+        if(!this._array || this._array.length == 0){
+            this._array = array;
         }
         const length = Math.min(array.length, this._array.length);
         this._current_array = array;
@@ -891,11 +909,25 @@ export class GzzHeader extends St.BoxLayout {
 
     add_button(array){
         const [ok, home]   = splitFile(Gio.File.new_for_path(GLib.build_filenamev([GLib.get_home_dir()])));
+        let e    = new Error();
+        console.log(`notes: GzzHeader::add_button ok === ${ok}: ${e.fileName}:${e.lineNumber + 1}`);
+        console.log(`notes: GzzHeader::add_button home === ${home}: ${e.fileName}:${e.lineNumber + 2}`);
         if(!ok){
             this._owner.apply_error_handler(this, 'GzzHeader::add_button_error', `splitFile Error: ${home}`);
             return;
         }
-        if(!this._show_root && this.part_of_path(array, home)){
+        if(this._show_root){
+            const button_path  = Gio.File.new_for_path(GLib.build_filenamev(array));
+            const current_path = Gio.File.new_for_path(GLib.build_filenamev(this._array));
+            const current_button = current_path.equal(button_path);
+            this.add_child(new GzzHeaderItem({
+                owner: this._owner, 
+                array, 
+                checked: current_button, 
+                action: () => { this.set_path(button_path); }, 
+
+            }));
+        }else if(this.part_of_path(array, home)){
             const button_path  = Gio.File.new_for_path(GLib.build_filenamev(array));
             const current_path = Gio.File.new_for_path(GLib.build_filenamev(this._array));
             const current_button = current_path.equal(button_path);
@@ -919,8 +951,11 @@ export class GzzHeader extends St.BoxLayout {
     }
 
     part_of_path(array, home){
-        if(array.length <= home.get_parent().length){
-            const length = Math.min(this._array.length, home.length - 1);
+        const e    = new Error();
+        console.log(`notes: GzzHeader::part_of_path array === ${JSON.stringify(array)}: ${e.fileName}:${e.lineNumber + 1}`);
+        console.log(`notes: GzzHeader::part_of_path home === ${JSON.stringify(home)}: ${e.fileName}:${e.lineNumber + 1}`);
+        if(array.length <= home.length - 1){
+            const length = Math.min(array.length, home.length - 1);
             if(array === home.slice(0, length)){
                 return true;
             }
@@ -1381,7 +1416,7 @@ export class GzzFileDialog extends GzzFileDialogBase {
         if('dir' in params){
             const _dir = params.dir;
             const e    = new Error();
-            console.log(`notes: GzzFileDialog::constructor _dir === ${_dir}: ${e.fileName}:${e.lineNumber}`);
+            console.log(`notes: GzzFileDialog::constructor _dir === ${_dir}: ${e.fileName}:${e.lineNumber + 1}`);
             if(!_dir){
                 this._dir = Gio.File.new_for_path(GLib.build_filenamev([GLib.get_home_dir()]));
             }else if(_dir instanceof Gio.File){
@@ -1503,6 +1538,9 @@ export class GzzFileDialog extends GzzFileDialogBase {
                 },
             }
         ]);
+
+        this.display_dir(this._dir);
+        this.fixup_header(this._dir);
 
         this._list_section._edit.connect('key-release-event', (_actor, _event) => {
             this._file_name = this._list_section._edit.get_text();
@@ -1756,34 +1794,53 @@ export class GzzFileDialog extends GzzFileDialogBase {
     display_dir(filename){
         let enumerator = null;
         let is_dir_    = null;
+        let title_     = null;
+        let e    = new Error();
+        console.log(`notes: GzzFileDialog::display_dir filename === ${filename}: ${e.fileName}:${e.lineNumber + 1}`);
         const attributes = "standard::name,standard::type,standard::display_name,standard::icon";
         try {
             enumerator = filename.enumerate_children(attributes, Gio.FileQueryInfoFlags.NONE, null);
+            e    = new Error();
+            console.log(`notes: GzzFileDialog::display_dir enumerator === ${enumerator}: ${e.fileName}:${e.lineNumber + 1}`);
             let info;
             while ((info = enumerator.next_file(null))) {
+                e    = new Error();
+                console.log(`notes: GzzFileDialog::display_dir info === ${info}: ${e.fileName}:${e.lineNumber + 1}`);
                 if (this._dialog_type.toString() === GzzDialogType.SelectDir.toString() && info.get_file_type() !== Gio.FileType.DIRETORY) {
+                    console.log(`notes: GzzFileDialog::display_dir info === ${info}: ${e.fileName}:${e.lineNumber + 3}`);
                     continue;
                 }
+                console.log(`notes: GzzFileDialog::display_dir this._filter === ${this._filter}: ${e.fileName}:${e.lineNumber + 5}`);
                 const matches = info.get_name().match(this._filter);
                 if (!matches) {
+                    e    = new Error();
+                    console.log(`notes: GzzFileDialog::display_dir matches === ${matches}: ${e.fileName}:${e.lineNumber + 1}`);
                     continue;
                 }
 
                 const file_type = info.get_file_type();
 
                 is_dir_ = (file_type === Gio.FileType.DIRECTORY);
+                e    = new Error();
+                console.log(`notes: GzzFileDialog::display_dir file_type === ${file_type}: ${e.fileName}:${e.lineNumber + 1}`);
+                console.log(`notes: GzzFileDialog::display_dir is_dir_ === ${is_dir_}: ${e.fileName}:${e.lineNumber + 2}`);
 
                 const file     = enumerator.get_child(info);
+                console.log(`notes: GzzFileDialog::display_dir file === ${file}: ${e.fileName}:${e.lineNumber + 5}`);
 
                 if(file_type === Gio.FileType.SYMBOLIC_LINK){
                     is_dir_ = this.file_is_dir(file); // will identify symlink directories as directory //
-                }
+                        console.log(`notes: GzzFileDialog::display_dir is_dir_ === ${is_dir_}: ${e.fileName}:${e.lineNumber + 9}`);
+                    }
 
-                const query_info = file.query_info('standard::display_name', Gio.FileQueryInfoFlags.NONE, null)
+                    const query_info = file.query_info('standard::display_name', Gio.FileQueryInfoFlags.NONE, null)
+                    e    = new Error();
+                    console.log(`notes: GzzFileDialog::display_dir query_info === ${query_info}: ${e.fileName}:${e.lineNumber + 1}`);
+                    title_ = query_info.get_display_name();
 
                 const row = new GzzListFileRow({
                     owner:             this, 
-                    title:             query_info.get_display_name(),
+                    title:             title_,
                     is_dir:            is_dir_, 
                     icon:              info.get_icon(), 
                     double_click_time: this._double_click_time, 
