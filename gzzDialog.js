@@ -1821,13 +1821,6 @@ export class GzzFileDialog extends GzzFileDialogBase {
                     console.log(`notes: GzzFileDialog::display_dir info === ${info}: ${e.fileName}:${e.lineNumber + 3}`);
                     continue;
                 }
-                console.log(`notes: GzzFileDialog::display_dir this._filter === ${this._filter}: ${e.fileName}:${e.lineNumber + 5}`);
-                const matches = info.get_name().match(this._filter);
-                if (!matches) {
-                    e    = new Error();
-                    console.log(`notes: GzzFileDialog::display_dir matches === ${matches}: ${e.fileName}:${e.lineNumber + 1}`);
-                    continue;
-                }
 
                 const file_type = info.get_file_type();
 
@@ -1841,13 +1834,23 @@ export class GzzFileDialog extends GzzFileDialogBase {
 
                 if(file_type === Gio.FileType.SYMBOLIC_LINK){
                     is_dir_ = this.file_is_dir(file); // will identify symlink directories as directory //
-                        console.log(`notes: GzzFileDialog::display_dir is_dir_ === ${is_dir_}: ${e.fileName}:${e.lineNumber + 9}`);
-                    }
-
-                    const query_info = file.query_info('standard::display_name', Gio.FileQueryInfoFlags.NONE, null)
+                    console.log(`notes: GzzFileDialog::display_dir is_dir_ === ${is_dir_}: ${e.fileName}:${e.lineNumber + 9}`);
+                }
+                console.log(`notes: GzzFileDialog::display_dir this._filter === ${this._filter}: ${e.fileName}:${e.lineNumber + 11}`);
+                const matches = info.get_name().match(this._filter);
+                if (!matches && !is_dir_) {
                     e    = new Error();
-                    console.log(`notes: GzzFileDialog::display_dir query_info === ${query_info}: ${e.fileName}:${e.lineNumber + 1}`);
-                    title_ = query_info.get_display_name();
+                    console.log(`notes: GzzFileDialog::display_dir matches === ${matches}: ${e.fileName}:${e.lineNumber + 1}`);
+                    continue;
+                }
+
+                const query_info = file.query_info('standard::display_name', Gio.FileQueryInfoFlags.NONE, null)
+                e    = new Error();
+                console.log(`notes: GzzFileDialog::display_dir query_info === ${query_info}: ${e.fileName}:${e.lineNumber + 1}`);
+                title_ = query_info.get_display_name();
+                console.log(`notes: GzzFileDialog::display_dir title_ === ${title_}: ${e.fileName}:${e.lineNumber + 3}`);
+                if(!title_) title_ = info.get_name();
+                console.log(`notes: GzzFileDialog::display_dir title_ === ${title_}: ${e.fileName}:${e.lineNumber + 5}`);
 
                 const row = new GzzListFileRow({
                     owner:             this, 
