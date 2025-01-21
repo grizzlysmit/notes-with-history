@@ -912,10 +912,13 @@ export class GzzHeader extends St.BoxLayout {
         let e    = new Error();
         console.log(`notes: GzzHeader::add_button ok === ${ok}: ${e.fileName}:${e.lineNumber + 1}`);
         console.log(`notes: GzzHeader::add_button home === ${home}: ${e.fileName}:${e.lineNumber + 2}`);
+        console.log(`notes: GzzHeader::add_button array === ${JSON.stringify(array)}: ${e.fileName}:${e.lineNumber + 3}`);
+        console.log(`notes: GzzHeader::add_button home === ${JSON.stringify(home)}: ${e.fileName}:${e.lineNumber + 4}`);
         if(!ok){
             this._owner.apply_error_handler(this, 'GzzHeader::add_button_error', `splitFile Error: ${home}`);
             return;
         }
+        console.log(`notes: GzzHeader::add_button this._show_root === ${this._show_root}: ${e.fileName}:${e.lineNumber + 9}`);
         if(this._show_root){
             const button_path  = Gio.File.new_for_path(GLib.build_filenamev(array));
             const current_path = Gio.File.new_for_path(GLib.build_filenamev(this._array));
@@ -951,12 +954,20 @@ export class GzzHeader extends St.BoxLayout {
     }
 
     part_of_path(array, home){
-        const e    = new Error();
+        let e    = new Error();
         console.log(`notes: GzzHeader::part_of_path array === ${JSON.stringify(array)}: ${e.fileName}:${e.lineNumber + 1}`);
-        console.log(`notes: GzzHeader::part_of_path home === ${JSON.stringify(home)}: ${e.fileName}:${e.lineNumber + 1}`);
+        console.log(`notes: GzzHeader::part_of_path home === ${JSON.stringify(home)}: ${e.fileName}:${e.lineNumber + 2}`);
         if(array.length <= home.length - 1){
             const length = Math.min(array.length, home.length - 1);
+            e    = new Error();
+            console.log(`notes: GzzHeader::part_of_path array === ${JSON.stringify(array)}: ${e.fileName}:${e.lineNumber + 1}`);
+            console.log(`notes: GzzHeader::part_of_path length === ${length}: ${e.fileName}:${e.lineNumber + 2}`);
+            console.log(
+                `notes: GzzHeader::part_of_path home.slice(0, length) === ${JSON.stringify(home.slice(0, length))}:` 
+                + ` ${e.fileName}:${e.lineNumber + 5}`
+            );
             if(array === home.slice(0, length)){
+                console.log(`notes: GzzHeader::part_of_path return === ${true}: ${e.fileName}:${e.lineNumber + 8}`);
                 return true;
             }
         }
