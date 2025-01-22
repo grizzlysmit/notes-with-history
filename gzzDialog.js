@@ -92,6 +92,10 @@ export function splitFile(file){
     return [true, result];
 } // export function splitFile(file) //
 
+export function log_message(id, text, e = new Error()){
+    console.log(`${id}:${text}: ${e.fileName}:${e.lineNumber}:${e.columnNumber}`);
+} // export function log_message(text, e = new Error()) //
+
 export class GzzMessageDialog extends ModalDialog.ModalDialog {
     static {
         GObject.registerClass(this);
@@ -1172,6 +1176,7 @@ export  class GzzListFileSection extends St.BoxLayout {
     }
 
     set_file_name(filename){
+        log_message('notes', `GzzFileDialog::set_file_name: filename == ${filename}`);
         if(filename && (filename instanceof String || typeof filename == 'string')){
             this._edit.set_text(filename.trim());
         }
@@ -1195,13 +1200,20 @@ export class GzzListFileRow extends St.BoxLayout {
     constructor(params) {
         super({
             style_class: 'gzzdialog-label-item',
-            title:       params.title, 
         });
 
-        let icon = new St.Icon({icon_name: (this._is_dir ? 'inode-directory' : 'emblem-dialog-question')});
+        let icon_size_ = 16;
+        if('icon_size' in params && Number.isInteger(params.icon_size)){
+            icon_size_ = Number(params.icon_size);
+        }
+
+        let icon = new St.Icon({
+            icon_name: (this._is_dir ? 'inode-directory' : 'notes-app'), 
+            icon_size:  icon_size_, 
+        });
 
         this._title = new St.Label({
-            title:       params.title, 
+            text:       params.title, 
             style_class: 'dialog-list-item-title',
             reactive:    true, 
         });
@@ -1259,10 +1271,14 @@ export class GzzListFileRow extends St.BoxLayout {
     handle_button_press_event(actor, event){
         switch(event.get_button()){
             case(1):
-                this.press_event_start = Date().getTime();
+                log_message('notes', `GzzListFileRow::handle_button_press_event: button == ${event.get_button()}`);
+                this.press_event_start = new Date().getUTCSeconds();
+                log_message('notes', `GzzListFileRow::handle_button_press_event: this.press_event_start == ${this.press_event_start}`);
                 if(this.double_click_start === null){
                     this.double_click_start = this.click_event_start;
+                    log_message('notes', `GzzListFileRow::handle_button_press_event: this.double_click_start == ${this.double_click_start}`);
                     this.click_count = 0;
+                    log_message('notes', `GzzListFileRow::handle_button_press_event: this.click_count == ${this.click_count}`);
                 }
                 return true;
             default:
@@ -1276,17 +1292,26 @@ export class GzzListFileRow extends St.BoxLayout {
         let now = 0
         switch(event.get_button()){
             case(1):
-                if(!this.click_event_start)  this._owner.apply_error_handler(
-                    this,
-                    'GzzListFileRow::handle_button_release_event_error',
-                    "lost button press event"
-                );
-                now = Date().getTime();
+                log_message('notes', `GzzListFileRow::handle_button_release_event: button == ${event.get_button()}`);
+                now = new Date().getUTCSeconds();
                 button_time = now - this.click_event_start;
                 button_double_time = now - this.double_click_start;
+                log_message('notes', `GzzListFileRow::handle_button_release_event: now == ${now}`);
+                log_message('notes', `GzzListFileRow::handle_button_release_event: button_time == ${button_time}`);
+                log_message('notes', `GzzListFileRow::handle_button_release_event: button_double_time == ${button_double_time}`);
+                log_message('notes', `GzzListFileRow::handle_button_release_event: this._double_click_time == ${this._double_click_time}`);
+                log_message(
+                    'notes',
+                    'GzzListFileRow::handle_button_release_event:' 
+                    + ' button_time > 0 && button_double_time < this._double_click_time == ' 
+                    + `${button_time > 0 && button_double_time < this._double_click_time}`
+                );
                 if(button_time > 0 && button_double_time < this._double_click_time){
                     this.click_event_start = null;
-                    this.click++;
+                    this.click_count++;
+                    log_message('notes', `GzzListFileRow::handle_button_release_event: this.click_count == ${this.click_count}`);
+                    log_message('notes', `GzzListFileRow::handle_button_release_event: this._is_dir == ${this._is_dir}`);
+                    log_message('notes', `GzzListFileRow::handle_button_release_event: now == ${now}`);
                     if(this._is_dir){
                         if(this.click_count >= 2){
                             this.double_click_start = null;
@@ -1588,20 +1613,19 @@ export class GzzFileDialog extends GzzFileDialogBase {
     }
 
     set_dir(dir_){
-        let e    = new Error();
-        console.log(`notes: GzzFileDialog::constructor dir_ === ${dir_}: ${e.fileName}:${e.lineNumber}`);
+        log_message('notes', `GzzFileDialog::set_dir: dir_ == ${dir_}`);
         if(!dir_){
             this._dir = Gio.File.new_for_path(GLib.build_filenamev([GLib.get_home_dir()]));
         }else if(dir_ instanceof Gio.File){
+            log_message('notes', `GzzFileDialog::set_dir: dir_ == ${dir_.get_path()}`);
             this._dir = dir_;
         }else if((dir_ instanceof String || typeof dir_ == 'string') && dir_.trim() != ''){
+            log_message('notes', `GzzFileDialog::set_dir: dir_ == ${dir_}`);
             this._dir = Gio.File.new_for_path(GLib.build_filenamev([dir_.trim()]));
         }else{
             this._dir = Gio.File.new_for_path(GLib.build_filenamev([GLib.get_home_dir()]));
         }
-        e = new Error();
-        console.log(`notes: GzzFileDialog::set_dir: this._dir === ${this._dir.get_path()}:` 
-            + ` ${e.fileName}:${e.lineNumber + 1}:${e.columnNumber}`);
+        log_message('notes', `GzzFileDialog::set_dir: this._dir.get_path() == ${this._dir.get_path()}`);
     }
 
     get dir(){
@@ -1763,13 +1787,16 @@ export class GzzFileDialog extends GzzFileDialogBase {
     }
 
     clicked(_row, filename){
+        log_message('notes', `GzzFileDialog::clicked: filename == ${filename}`);
         this.set_file_name(filename);
     }
 
     double_clicked(_row, directory){
+        log_message('notes', `GzzFileDialog::double_clicked: directory == ${directory}`);
         if(directory){
             this._list_section.list.destroy_all_children();
             const current_dir = Gio.File.new_for_path(GLib.build_filenamev([this._file_name.get_path(), directory]));
+            log_message('notes', `GzzFileDialog::double_clicked: current_dir == ${current_dir.get_path()}`);
             this.set_dir(current_dir);
             this.display_dir(current_dir);
             this.fixup_header(current_dir);
