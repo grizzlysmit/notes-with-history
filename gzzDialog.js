@@ -694,7 +694,7 @@ export class GzzHeaderItem extends St.Button {
 
 export class GzzHeader extends St.BoxLayout {
     static {
-        GObject.regiterClass(this);
+        GObject.registerClass(this);
     }
 
     constructor(params) {
@@ -1066,7 +1066,6 @@ export  class GzzListFileSection extends St.BoxLayout {
 
         this._listScrollView = new St.ScrollView({
             style_class: 'gzzdialog-list-scrollview',
-            vertical: true,
             x_expand: true,
             y_expand: true,
             x_align: Clutter.ActorAlign.FILL,
@@ -1219,12 +1218,6 @@ export class GzzListFileRow extends St.BoxLayout {
             x_expand: true,
             y_align: Clutter.ActorAlign.FILL,
         });
-
-        textLayout.add_child(icon);
-        textLayout.add_child(this._title);
-
-        this.label_actor = this._title;
-        this.add_child(textLayout);
 
         this._owner = null;
 
