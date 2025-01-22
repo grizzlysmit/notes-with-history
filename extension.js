@@ -426,7 +426,7 @@ class Indicator extends PanelMenu.Button {
                                 this._caller.settings.set_string("notespath", this._caller.notespath.get_path());
                                 if(notes.length > 0){
                                     this._caller.notes = notes;
-                                    this._caller.settings.set_strv(this._caller.notes);
+                                    this._caller.settings.set_strv('notes', this._caller.notes);
                                 }else{
                                     this._caller.display_error_msg(
                                         'Indicator::get_file_contents',
