@@ -396,7 +396,7 @@ class Indicator extends PanelMenu.Button {
                 double_click_time: 1000, 
                 save_done:         (dlg_, result, _dir, _file_name) => {
                     if(result){
-                        notesfile = dlg_.get_path();
+                        notesfile = dlg_.get_full_path();
                         if(notesfile){
                             [ok, contents, _etag]  = this.notesfile.load_contents(null);            
                             if(ok){
