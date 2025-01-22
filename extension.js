@@ -398,7 +398,7 @@ class Indicator extends PanelMenu.Button {
                     if(result){
                         notesfile = dlg_.get_full_path();
                         if(notesfile){
-                            [ok, contents, _etag]  = this.notesfile.load_contents(null);            
+                            [ok, contents, _etag]  = notesfile.load_contents(null);            
                             if(ok){
                                 let max_length = -1;
                                 let min_length = this._caller.max_note_length + 1;
