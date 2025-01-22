@@ -1304,14 +1304,36 @@ export class GzzListFileRow extends St.BoxLayout {
     handle_button_press_event(actor, event){
         switch(event.get_button()){
             case(1):
-                log_message('notes', `GzzListFileRow::handle_button_press_event: button == ${event.get_button()}`,  new Error());
-                this.click_event_start = new Date().valueOf();
-                log_message('notes', `GzzListFileRow::handle_button_press_event: this.click_event_start == ${this.click_event_start}`,  new Error());
+                log_message('notes', `GzzListFileRow::handle_button_press_event: button == ${event.get_button()}`, new Error());
+                if(!this.click_event_start){
+                    this.click_event_start = new Date().valueOf();
+                    if(!this.time_out_id){
+                        this.time_out_id = GLib.timeout_add(GLib.PRIORITY_DEFAULT, this._double_click_time, () => {
+                            this.click_event_start = this.double_click_time = null;
+                            this.click_count = 0;
+                            this.time_out_id = 0;
+                            return GLib.SOURCE_REMOVE;
+                        });
+                    }
+                }
+                log_message(
+                    'notes',
+                    `GzzListFileRow::handle_button_press_event: this.click_event_start == ${this.click_event_start}`,
+                    new Error()
+                );
                 if(this.double_click_start == null){
                     this.double_click_start = this.click_event_start;
-                    log_message('notes', `GzzListFileRow::handle_button_press_event: this.double_click_start == ${this.double_click_start}`,  new Error());
+                    log_message(
+                        'notes',
+                        `GzzListFileRow::handle_button_press_event: this.double_click_start == ${this.double_click_start}`,
+                        new Error()
+                    );
                     this.click_count = 0;
-                    log_message('notes', `GzzListFileRow::handle_button_press_event: this.click_count == ${this.click_count}`,  new Error());
+                    log_message(
+                        'notes',
+                        `GzzListFileRow::handle_button_press_event: this.click_count == ${this.click_count}`,
+                        new Error()
+                    );
                 }
                 return Clutter.EVENT_STOP;
             default:
@@ -1325,25 +1347,45 @@ export class GzzListFileRow extends St.BoxLayout {
         let now = 0
         switch(event.get_button()){
             case(1):
-                log_message('notes', `GzzListFileRow::handle_button_release_event: button == ${event.get_button()}`,  new Error());
+                log_message(
+                    'notes',
+                    `GzzListFileRow::handle_button_release_event: button == ${event.get_button()}`,
+                    new Error()
+                );
                 now = new Date().valueOf();
                 button_time = now - this.click_event_start;
                 button_double_time = now - this.double_click_start;
                 log_message('notes', `GzzListFileRow::handle_button_release_event: now == ${now}`, new Error());
-                log_message('notes', `GzzListFileRow::handle_button_release_event: button_time == ${button_time}`, new Error());
-                log_message('notes', `GzzListFileRow::handle_button_release_event: button_double_time == ${button_double_time}`, new Error());
-                log_message('notes', `GzzListFileRow::handle_button_release_event: this._double_click_time == ${this._double_click_time}`, new Error());
+                log_message(
+                    'notes', `GzzListFileRow::handle_button_release_event: button_time == ${button_time}`, new Error()
+                );
+                log_message(
+                    'notes',
+                    `GzzListFileRow::handle_button_release_event: button_double_time == ${button_double_time}`,
+                    new Error()
+                );
+                log_message(
+                    'notes',
+                    `GzzListFileRow::handle_button_release_event: this._double_click_time == ${this._double_click_time}`,
+                    new Error()
+                );
                 log_message(
                     'notes',
                     'GzzListFileRow::handle_button_release_event:' 
-                    + ' button_time > 0 && button_double_time < this._double_click_time == ' 
-                    + `${button_time > 0 && button_double_time < this._double_click_time}`, 
+                        + ' button_time > 0 && button_double_time < this._double_click_time == ' 
+                            + `${button_time > 0 && button_double_time < this._double_click_time}`, 
                     new Error()
                 );
                 if(button_time > 0 && button_double_time < this._double_click_time){
-                    this.click_event_start = null;
                     this.click_count++;
-                    log_message('notes', `GzzListFileRow::handle_button_release_event: this.click_count == ${this.click_count}`, new Error());
+                    if(this.click_count >= 2){
+                        this.click_event_start = null;
+                    }
+                    log_message(
+                        'notes',
+                        `GzzListFileRow::handle_button_release_event: this.click_count == ${this.click_count}`,
+                        new Error()
+                    );
                     log_message('notes', `GzzListFileRow::handle_button_release_event: this._is_dir == ${this._is_dir}`, new Error());
                     log_message('notes', `GzzListFileRow::handle_button_release_event: now == ${now}`, new Error());
                     if(this._is_dir){
