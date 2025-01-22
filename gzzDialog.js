@@ -1704,7 +1704,9 @@ export class GzzFileDialog extends GzzFileDialogBase {
         this.fixup_header(this._dir);
 
         this._list_section._edit.connect('key-release-event', (_actor, _event) => {
+            log_message('notes', `GzzFileDialog::constructor: this._file_name == ${this._file_name}`, new Error());
             this._file_name = this._list_section._edit.get_text();
+            log_message('notes', `GzzFileDialog::constructor: this._file_name == ${this._file_name}`, new Error());
         });
 
     } // constructor(_title, _text) //

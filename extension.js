@@ -420,7 +420,7 @@ class Indicator extends PanelMenu.Button {
                                         notes.push(note);
                                     }
                                 } // for(const note of array_of_notes) //
-                                this._caller.notesname = dlg.get_name();
+                                this._caller.notesname = dlg.get_file_name();
                                 this._caller.notespath = dlg.get_dir();
                                 this._caller.settings.set_string("notesname", this._caller.notesname);
                                 this._caller.settings.set_string("notespath", this._caller.notespath.get_path());
