@@ -400,11 +400,15 @@ class Indicator extends PanelMenu.Button {
                         if(notesfile){
                             [ok, contents, _etag]  = notesfile.load_contents(null);            
                             if(ok){
+                                const contents_ = new TextDecoder().decode(contents);
                                 let max_length = -1;
                                 let min_length = this._caller.max_note_length + 1;
                                 let notes      = []
                                 let cnt        = 0;
-                                const array_of_notes = contents.split("\r\n");
+                                Gzz.log_message( 'notes', `Indicator::callback: contents_ == ${contents_}`, new Error());
+                                Gzz.log_message( 'notes', `Indicator::callback: typeof contents_ == ${typeof contents_}`, new Error());
+                                Gzz.log_message( 'notes', `Indicator::callback: contents_ == ${JSON.stringify(contents_)}`, new Error());
+                                const array_of_notes = contents_.split("\r\n");
                                 for(const note of array_of_notes){
                                     max_length = Math.max(max_length, note.length);
                                     min_length = Math.min(min_length, note.length);
