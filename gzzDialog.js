@@ -1340,7 +1340,7 @@ export class GzzListFileRow extends St.BoxLayout {
                     this.click_event_start = new Date().valueOf();
                     if(!this.time_out_id){
                         this.time_out_id = GLib.timeout_add(GLib.PRIORITY_DEFAULT, this._double_click_time, () => {
-                            this.click_event_start = this.double_click_time = null;
+                            this.click_event_start = this.double_click_start = null;
                             this.click_count = 0;
                             this.time_out_id = 0;
                             return GLib.SOURCE_REMOVE;
@@ -1421,7 +1421,7 @@ export class GzzListFileRow extends St.BoxLayout {
                     log_message('notes', `GzzListFileRow::handle_button_release_event: now == ${now}`, new Error());
                     if(this._is_dir){
                         if(this.click_count >= 2){
-                            this.double_click_start = null;
+                            this.click_event_start = this.double_click_start = null;
                             this.click_count = 0;
                             this._owner.double_clicked(this, this._title.text);
                             return Clutter.EVENT_STOP;
@@ -1431,7 +1431,7 @@ export class GzzListFileRow extends St.BoxLayout {
                         }
                     }else{ // if(this._is_dir) //
                         this.click_count = 0;
-                        this.double_click_start = null;
+                        this.click_event_start = this.double_click_start = null;
                         this._owner.clicked(this, this._title.text);
                         return Clutter.EVENT_STOP;
                     }
