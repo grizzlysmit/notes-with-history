@@ -102,6 +102,10 @@ export class GzzMessageDialog extends ModalDialog.ModalDialog {
     }
 
     constructor(_title, _text, icon_name = null, buttons = null) {
+        log_message('notes', `GzzMessageDialog::constructor: _title == ${_title}`, new Error());
+        log_message('notes', `GzzMessageDialog::constructor: _text == ${_text}`, new Error());
+        log_message('notes', `GzzMessageDialog::constructor: icon_name == ${icon_name}`, new Error());
+        log_message('notes', `GzzMessageDialog::constructor: buttons == ${JSON.stringify(buttons)}`, new Error());
         super({ styleClass: 'extension-dialog' });
 
         let _icon_name = icon_name;
@@ -492,14 +496,35 @@ export class GzzFileDialogBase extends ModalDialog.ModalDialog {
     }
 
     set_double_click_time(dbl_click_time){
+        log_message('notes', `GzzFileDialogBase::set_double_click_time: dbl_click_time == ${dbl_click_time}`, new Error());
         if(Number.isNaN(dbl_click_time)){
-            this._owner.apply_error_handler(this, 'GzzFileDialogBase::set_double_click_time_error', `bad value expected integer or date got ${dbl_click_time}`);
+            log_message(
+                'notes',
+                `GzzFileDialogBase::set_double_click_time: dbl_click_time == ${dbl_click_time}`
+                + `bad value expected integer or date got ${dbl_click_time}`,
+                new Error()
+            );
+            this._owner.apply_error_handler(
+                this,
+                'GzzFileDialogBase::set_double_click_time_error',
+                `bad value expected integer or date got ${dbl_click_time}`
+            );
         }else if(dbl_click_time instanceof Date){
             this._double_click_time = dbl_click_time.getTime();
         }else if(Number.isInteger(dbl_click_time)){
             this._double_click_time = Number(dbl_click_time);
         }else{
-            this._owner.apply_error_handler(this, 'GzzFileDialogBase::set_double_click_time_error', `bad number type expected integer or Date ${dbl_click_time}`);
+            log_message(
+                'notes',
+                `GzzFileDialogBase::set_double_click_time: dbl_click_time == ${dbl_click_time}`
+                + `bad value expected integer or Date ${dbl_click_time}`,
+                new Error()
+            );
+            this._owner.apply_error_handler(
+                this,
+                'GzzFileDialogBase::set_double_click_time_error',
+                `bad number type expected integer or Date ${dbl_click_time}`
+            );
         }
     } // set double_click_time(dbl_click_time) //
     
@@ -516,8 +541,14 @@ export class GzzFileDialogBase extends ModalDialog.ModalDialog {
     }
 
     default_error_handler(_error_owner, _name, msg){
+        log_message('notes', `GzzFileDialogBase::default_error_handler: _error_owner == ${_error_owner}`, new Error());
+        log_message('notes', `GzzFileDialogBase::default_error_handler: _name == ${_name}`, new Error());
+        log_message('notes', `GzzFileDialogBase::default_error_handler: msg == ${msg}`, new Error());
         const dlg = new GzzMessageDialog(_name, msg, 'dialog-error');
         dlg.open();
+        log_message('notes', `GzzFileDialogBase::default_error_handler: _error_owner == ${_error_owner}`, new Error());
+        log_message('notes', `GzzFileDialogBase::default_error_handler: _name == ${_name}`, new Error());
+        log_message('notes', `GzzFileDialogBase::default_error_handler: msg == ${msg}`, new Error());
     }
 
     get_error_handler(){
@@ -1468,6 +1499,7 @@ export class GzzListFileRow extends St.BoxLayout {
     }
 
     set_double_click_time(dbl_click_time){
+        log_message('notes', `GzzListFileRow::set_double_click_time: dbl_click_time == ${dbl_click_time}`, new Error());
         if(Number.isNaN(dbl_click_time)){
             this._owner.apply_error_handler(this, 'GzzListFileRow::set_double_click_time_error', `bad value expected integer or date got ${dbl_click_time}`);
         }else if(dbl_click_time instanceof Date){
@@ -1475,7 +1507,13 @@ export class GzzListFileRow extends St.BoxLayout {
         }else if(Number.isInteger(dbl_click_time)){
             this._double_click_time = Number(dbl_click_time);
         }else{
-            this._owner.apply_error_handler(this, 'GzzListFileRow::set_double_click_time_error', `bad number type expected integer or Date ${dbl_click_time}`);
+            log_message('notes', `GzzListFileRow::set_double_click_time: dbl_click_time == ${dbl_click_time}`
+                + `bad number type expected integer or Date ${dbl_click_time}`, new Error());
+            this._owner.apply_error_handler(
+                this,
+                'GzzListFileRow::set_double_click_time_error',
+                `bad number type expected integer or Date ${dbl_click_time}`
+            );
         }
     } // set double_click_time(dbl_click_time) //
 
@@ -1955,6 +1993,7 @@ export class GzzFileDialog extends GzzFileDialogBase {
                 if(!title_) title_ = info.get_name();
                 console.log(`notes: GzzFileDialog::display_dir title_ === ${title_}: ${e.fileName}:${e.lineNumber + 5}`);
 
+                log_message('notes', `GzzFileDialog::display_dir: this._double_click_time == ${this._double_click_time}`, new Error());
                 const row = new GzzListFileRow({
                     owner:             this, 
                     title:             title_,
