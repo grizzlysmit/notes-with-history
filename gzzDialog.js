@@ -2048,7 +2048,7 @@ export class GzzFileDialog extends GzzFileDialogBase {
         }
     } // do_open_save() //
 
-    async save_file(){
+    save_file(){
         this._result = false;
         if(!this._dir){
             return this._result;
@@ -2086,8 +2086,8 @@ export class GzzFileDialog extends GzzFileDialogBase {
         try {
             const file_path = Gio.File.new_for_path(GLib.build_filenamev([this._dir.get_path(), this._file_name]));
             if(file_path){
-                const outputStream = await file_path.create_async(Gio.FileCreateFlags.NONE, GLib.PRIORITY_DEFAULT, null);
-                const bytesWritten = await outputStream.write_bytes_async(this._contents, GLib.PRIORITY_DEFAULT, null);
+                const outputStream = file_path.create(Gio.FileCreateFlags.NONE, null);
+                const bytesWritten = outputStream.write_bytes(this._contents, null);
                 this._result = (bytesWritten == this._contents.get_size());
             }else{
                 const e = new Error();
@@ -2108,7 +2108,7 @@ export class GzzFileDialog extends GzzFileDialogBase {
             return this._result;
         }
         return this._result;
-    } // async save_file() //
+    } // save_file() //
 
     save_to_file(_dir = null, name = null, _contents = null){
         if(_dir instanceof Gio.File || _dir instanceof String || typeof _dir == 'string'){
