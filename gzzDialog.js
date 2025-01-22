@@ -1312,8 +1312,8 @@ export class GzzListFileRow extends St.BoxLayout {
         switch(event.get_button()){
             case(1):
                 log_message('notes', `GzzListFileRow::handle_button_press_event: button == ${event.get_button()}`);
-                this.press_event_start = Date.now();
-                log_message('notes', `GzzListFileRow::handle_button_press_event: this.press_event_start == ${this.press_event_start}`);
+                this.click_event_start = new Date().valueOf();
+                log_message('notes', `GzzListFileRow::handle_button_press_event: this.click_event_start == ${this.click_event_start}`);
                 if(this.double_click_start == null){
                     this.double_click_start = this.click_event_start;
                     log_message('notes', `GzzListFileRow::handle_button_press_event: this.double_click_start == ${this.double_click_start}`);
@@ -1333,7 +1333,7 @@ export class GzzListFileRow extends St.BoxLayout {
         switch(event.get_button()){
             case(1):
                 log_message('notes', `GzzListFileRow::handle_button_release_event: button == ${event.get_button()}`);
-                now = Date.now();
+                now = new Date().valueOf();
                 button_time = now - this.click_event_start;
                 button_double_time = now - this.double_click_start;
                 log_message('notes', `GzzListFileRow::handle_button_release_event: now == ${now}`);
