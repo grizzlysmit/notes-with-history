@@ -694,14 +694,17 @@ export class GzzHeaderItem extends St.Button {
 
 export class GzzHeader extends St.BoxLayout {
       static {
-            GObject.registerClass(this);
+            GObject.regiterClass(this);
         }
 
     constructor(params) {
         super({
             style_class: 'gzzdialog-list',
-            x_expand: true,
             vertical: false,
+            x_expand: true,
+            y_expand: false,
+            x_align: Clutter.ActorAlign.FILL,
+            y_align: Clutter.ActorAlign.START,
         });
 
         this._owner = null;
@@ -1046,19 +1049,28 @@ export  class GzzListFileSection extends St.BoxLayout {
     constructor(params) {
         super({
             style_class: 'gzzdialog-header-box',
+            vertical: true,
             x_expand: true,
             y_expand: true,
-            vertical: false,
+            x_align: Clutter.ActorAlign.FILL,
+            y_align: Clutter.ActorAlign.FILL,
         });
 
         this.list = new St.BoxLayout({
             style_class: 'gzzdialog-list-box',
             y_expand: true,
             vertical: true,
+            x_align: Clutter.ActorAlign.FILL,
+            y_align: Clutter.ActorAlign.FILL,
         });
 
         this._listScrollView = new St.ScrollView({
             style_class: 'gzzdialog-list-scrollview',
+            vertical: true,
+            x_expand: true,
+            y_expand: true,
+            x_align: Clutter.ActorAlign.FILL,
+            y_align: Clutter.ActorAlign.FILL,
             child: this.list,
         });
 
@@ -1120,6 +1132,9 @@ export  class GzzListFileSection extends St.BoxLayout {
         this._header_box = new St.BoxLayout({
             style_class: 'gzzdialog-header-box',
             vertical: false,
+            x_expand: true,
+            x_align: Clutter.ActorAlign.FILL,
+            y_align: Clutter.ActorAlign.FILL,
         });
 
         this.header = new GzzHeader({
@@ -1200,7 +1215,32 @@ export class GzzListFileRow extends St.BoxLayout {
     constructor(params) {
         super({
             style_class: 'gzzdialog-label-item',
+            vertical: false,
+            x_expand: true,
+            y_align: Clutter.ActorAlign.FILL,
         });
+
+        textLayout.add_child(icon);
+        textLayout.add_child(this._title);
+
+        this.label_actor = this._title;
+        this.add_child(textLayout);
+
+        this._owner = null;
+
+        if('owner' in params){
+            const _owner = params.owner;
+            if(!_owner){
+                throw new Error('GzzListFileRow::owner_error: owner cannot be null');
+            }else if(_owner instanceof GzzFileDialogBase){
+                this._owner = _owner;
+                this.notify('owner');
+            }else{
+                throw new Error('GzzListFileRow::owner_error: owner must be a GzzFileDialogBase');
+            }
+        }else{
+            throw new Error('GzzListFileRow::owner_error: owner must be supplied and must be a GzzFileDialogBase');
+        }
 
         let icon_size_ = 16;
         if('icon_size' in params && Number.isInteger(params.icon_size)){
@@ -1272,7 +1312,7 @@ export class GzzListFileRow extends St.BoxLayout {
         switch(event.get_button()){
             case(1):
                 log_message('notes', `GzzListFileRow::handle_button_press_event: button == ${event.get_button()}`);
-                this.press_event_start = new Date().getUTCSeconds();
+                this.press_event_start = Date.now();
                 log_message('notes', `GzzListFileRow::handle_button_press_event: this.press_event_start == ${this.press_event_start}`);
                 if(this.double_click_start === null){
                     this.double_click_start = this.click_event_start;
@@ -1280,9 +1320,9 @@ export class GzzListFileRow extends St.BoxLayout {
                     this.click_count = 0;
                     log_message('notes', `GzzListFileRow::handle_button_press_event: this.click_count == ${this.click_count}`);
                 }
-                return true;
+                return Clutter.EVENT_STOP;
             default:
-                return false;
+                return Clutter.EVENT_PROPAGATE;
         } //switch(event.get_button()) //
     } // handle_button_press_event(actor, event) //
 
@@ -1293,7 +1333,7 @@ export class GzzListFileRow extends St.BoxLayout {
         switch(event.get_button()){
             case(1):
                 log_message('notes', `GzzListFileRow::handle_button_release_event: button == ${event.get_button()}`);
-                now = new Date().getUTCSeconds();
+                now = Date.now();
                 button_time = now - this.click_event_start;
                 button_double_time = now - this.double_click_start;
                 log_message('notes', `GzzListFileRow::handle_button_release_event: now == ${now}`);
@@ -1317,25 +1357,25 @@ export class GzzListFileRow extends St.BoxLayout {
                             this.double_click_start = null;
                             this.click_count = 0;
                             this._owner.double_clicked(this, this._title.text);
-                            return true;
+                            return Clutter.EVENT_STOP;
                         }else{
                             // dir doesn't do single click //
-                            return true;
+                            return Clutter.EVENT_STOP;
                         }
                     }else{ // if(this._is_dir) //
                         this.click_count = 0;
                         this.double_click_start = null;
                         this._owner.clicked(this, this._title.text);
-                        return true;
+                        return Clutter.EVENT_STOP;
                     }
                 }else{ // if(button_time > 0 && button_double_time < this._double_click_time) //
                     // click time out //
                     this.click_event_start = this.double_click_start = null;
                     this.click_count = 0;
-                    return false;
+                    return Clutter.EVENT_PROPAGATE;
                 }
             default:
-                return false;
+                return Clutter.EVENT_PROPAGATE;
         } //switch(event.get_button()) //
     } // handle_button_release_event(actor, event) //
 
