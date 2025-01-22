@@ -92,9 +92,9 @@ export function splitFile(file){
     return [true, result];
 } // export function splitFile(file) //
 
-export function log_message(id, text, e = new Error()){
+export function log_message(id, text, e){
     console.log(`${id}:${text}: ${e.fileName}:${e.lineNumber}:${e.columnNumber}`);
-} // export function log_message(text, e = new Error()) //
+} // export function log_message(id, text, e) //
 
 export class GzzMessageDialog extends ModalDialog.ModalDialog {
     static {
@@ -1190,7 +1190,7 @@ export  class GzzListFileSection extends St.BoxLayout {
     }
 
     set_file_name(filename){
-        log_message('notes', `GzzFileDialog::set_file_name: filename == ${filename}`);
+        log_message('notes', `GzzFileDialog::set_file_name: filename == ${filename}`,  new Error());
         if(filename && (filename instanceof String || typeof filename == 'string')){
             this._edit.set_text(filename.trim());
         }
@@ -1304,14 +1304,14 @@ export class GzzListFileRow extends St.BoxLayout {
     handle_button_press_event(actor, event){
         switch(event.get_button()){
             case(1):
-                log_message('notes', `GzzListFileRow::handle_button_press_event: button == ${event.get_button()}`);
+                log_message('notes', `GzzListFileRow::handle_button_press_event: button == ${event.get_button()}`,  new Error());
                 this.click_event_start = new Date().valueOf();
-                log_message('notes', `GzzListFileRow::handle_button_press_event: this.click_event_start == ${this.click_event_start}`);
+                log_message('notes', `GzzListFileRow::handle_button_press_event: this.click_event_start == ${this.click_event_start}`,  new Error());
                 if(this.double_click_start == null){
                     this.double_click_start = this.click_event_start;
-                    log_message('notes', `GzzListFileRow::handle_button_press_event: this.double_click_start == ${this.double_click_start}`);
+                    log_message('notes', `GzzListFileRow::handle_button_press_event: this.double_click_start == ${this.double_click_start}`,  new Error());
                     this.click_count = 0;
-                    log_message('notes', `GzzListFileRow::handle_button_press_event: this.click_count == ${this.click_count}`);
+                    log_message('notes', `GzzListFileRow::handle_button_press_event: this.click_count == ${this.click_count}`,  new Error());
                 }
                 return Clutter.EVENT_STOP;
             default:
@@ -1325,26 +1325,27 @@ export class GzzListFileRow extends St.BoxLayout {
         let now = 0
         switch(event.get_button()){
             case(1):
-                log_message('notes', `GzzListFileRow::handle_button_release_event: button == ${event.get_button()}`);
+                log_message('notes', `GzzListFileRow::handle_button_release_event: button == ${event.get_button()}`,  new Error());
                 now = new Date().valueOf();
                 button_time = now - this.click_event_start;
                 button_double_time = now - this.double_click_start;
-                log_message('notes', `GzzListFileRow::handle_button_release_event: now == ${now}`);
-                log_message('notes', `GzzListFileRow::handle_button_release_event: button_time == ${button_time}`);
-                log_message('notes', `GzzListFileRow::handle_button_release_event: button_double_time == ${button_double_time}`);
-                log_message('notes', `GzzListFileRow::handle_button_release_event: this._double_click_time == ${this._double_click_time}`);
+                log_message('notes', `GzzListFileRow::handle_button_release_event: now == ${now}`, new Error());
+                log_message('notes', `GzzListFileRow::handle_button_release_event: button_time == ${button_time}`, new Error());
+                log_message('notes', `GzzListFileRow::handle_button_release_event: button_double_time == ${button_double_time}`, new Error());
+                log_message('notes', `GzzListFileRow::handle_button_release_event: this._double_click_time == ${this._double_click_time}`, new Error());
                 log_message(
                     'notes',
                     'GzzListFileRow::handle_button_release_event:' 
                     + ' button_time > 0 && button_double_time < this._double_click_time == ' 
-                    + `${button_time > 0 && button_double_time < this._double_click_time}`
+                    + `${button_time > 0 && button_double_time < this._double_click_time}`, 
+                    new Error()
                 );
                 if(button_time > 0 && button_double_time < this._double_click_time){
                     this.click_event_start = null;
                     this.click_count++;
-                    log_message('notes', `GzzListFileRow::handle_button_release_event: this.click_count == ${this.click_count}`);
-                    log_message('notes', `GzzListFileRow::handle_button_release_event: this._is_dir == ${this._is_dir}`);
-                    log_message('notes', `GzzListFileRow::handle_button_release_event: now == ${now}`);
+                    log_message('notes', `GzzListFileRow::handle_button_release_event: this.click_count == ${this.click_count}`, new Error());
+                    log_message('notes', `GzzListFileRow::handle_button_release_event: this._is_dir == ${this._is_dir}`, new Error());
+                    log_message('notes', `GzzListFileRow::handle_button_release_event: now == ${now}`, new Error());
                     if(this._is_dir){
                         if(this.click_count >= 2){
                             this.double_click_start = null;
@@ -1646,19 +1647,19 @@ export class GzzFileDialog extends GzzFileDialogBase {
     }
 
     set_dir(dir_){
-        log_message('notes', `GzzFileDialog::set_dir: dir_ == ${dir_}`);
+        log_message('notes', `GzzFileDialog::set_dir: dir_ == ${dir_}`, new Error());
         if(!dir_){
             this._dir = Gio.File.new_for_path(GLib.build_filenamev([GLib.get_home_dir()]));
         }else if(dir_ instanceof Gio.File){
-            log_message('notes', `GzzFileDialog::set_dir: dir_ == ${dir_.get_path()}`);
+            log_message('notes', `GzzFileDialog::set_dir: dir_ == ${dir_.get_path()}`, new Error());
             this._dir = dir_;
         }else if((dir_ instanceof String || typeof dir_ == 'string') && dir_.trim() != ''){
-            log_message('notes', `GzzFileDialog::set_dir: dir_ == ${dir_}`);
+            log_message('notes', `GzzFileDialog::set_dir: dir_ == ${dir_}`, new Error());
             this._dir = Gio.File.new_for_path(GLib.build_filenamev([dir_.trim()]));
         }else{
             this._dir = Gio.File.new_for_path(GLib.build_filenamev([GLib.get_home_dir()]));
         }
-        log_message('notes', `GzzFileDialog::set_dir: this._dir.get_path() == ${this._dir.get_path()}`);
+        log_message('notes', `GzzFileDialog::set_dir: this._dir.get_path() == ${this._dir.get_path()}`, new Error());
     } // set_dir(dir_) //
 
     get dir(){
@@ -1820,16 +1821,16 @@ export class GzzFileDialog extends GzzFileDialogBase {
     }
 
     clicked(_row, filename){
-        log_message('notes', `GzzFileDialog::clicked: filename == ${filename}`);
+        log_message('notes', `GzzFileDialog::clicked: filename == ${filename}`, new Error());
         this.set_file_name(filename);
     }
 
     double_clicked(_row, directory){
-        log_message('notes', `GzzFileDialog::double_clicked: directory == ${directory}`);
+        log_message('notes', `GzzFileDialog::double_clicked: directory == ${directory}`, new Error());
         if(directory){
             this._list_section.list.destroy_all_children();
             const current_dir = Gio.File.new_for_path(GLib.build_filenamev([this._dir.get_path(), directory]));
-            log_message('notes', `GzzFileDialog::double_clicked: current_dir == ${current_dir.get_path()}`);
+            log_message('notes', `GzzFileDialog::double_clicked: current_dir == ${current_dir.get_path()}`, new Error());
             this.set_dir(current_dir);
             this.display_dir(current_dir);
             this.fixup_header(current_dir);
