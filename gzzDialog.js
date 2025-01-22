@@ -1314,7 +1314,7 @@ export class GzzListFileRow extends St.BoxLayout {
                 log_message('notes', `GzzListFileRow::handle_button_press_event: button == ${event.get_button()}`);
                 this.press_event_start = Date.now();
                 log_message('notes', `GzzListFileRow::handle_button_press_event: this.press_event_start == ${this.press_event_start}`);
-                if(this.double_click_start === null){
+                if(this.double_click_start == null){
                     this.double_click_start = this.click_event_start;
                     log_message('notes', `GzzListFileRow::handle_button_press_event: this.double_click_start == ${this.double_click_start}`);
                     this.click_count = 0;
