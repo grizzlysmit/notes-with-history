@@ -526,7 +526,7 @@ export class GzzFileDialogBase extends ModalDialog.ModalDialog {
                 `bad number type expected integer or Date ${dbl_click_time}`
             );
         }
-    } // set double_click_time(dbl_click_time) //
+    } // set_double_click_time(dbl_click_time) //
     
     get double_click_time(){
         return this.get_double_click_time();
@@ -1323,6 +1323,11 @@ export class GzzListFileRow extends St.BoxLayout {
         this.click_event_start  = null;
         this.double_click_start = null;
         if('double_click_time' in params){
+            log_message(
+                'notes',
+                `GzzListFileRow::handle_button_press_event: params.double_click_time == ${params.double_click_time}`,
+                new Error()
+            );
             this.set_double_click_time(params.double_click_time);
         }else{
             this._double_click_time = 400;
@@ -1373,8 +1378,8 @@ export class GzzListFileRow extends St.BoxLayout {
     } // handle_button_press_event(actor, event) //
 
     handle_button_release_event(actor, event){
-        let button_time = null;
-        let button_double_time = null;
+        let button_time_ = null;
+        let button_double_time_ = null;
         let now = 0
         switch(event.get_button()){
             case(1):
@@ -1384,15 +1389,21 @@ export class GzzListFileRow extends St.BoxLayout {
                     new Error()
                 );
                 now = new Date().valueOf();
-                button_time = now - this.click_event_start;
-                button_double_time = now - this.double_click_start;
+                log_message('notes', `GzzListFileRow::handle_button_press_event: this.click_event_start == ${this.click_event_start}`, new Error());
+                button_time_ = now - this.click_event_start;
+                log_message(
+                    'notes',
+                    `GzzListFileRow::handle_button_release_event: this.double_click_start == ${this.double_click_start}`,
+                    new Error()
+                );
+                button_double_time_ = now - this.double_click_start;
                 log_message('notes', `GzzListFileRow::handle_button_release_event: now == ${now}`, new Error());
                 log_message(
-                    'notes', `GzzListFileRow::handle_button_release_event: button_time == ${button_time}`, new Error()
+                    'notes', `GzzListFileRow::handle_button_release_event: button_time_ == ${button_time_}`, new Error()
                 );
                 log_message(
                     'notes',
-                    `GzzListFileRow::handle_button_release_event: button_double_time == ${button_double_time}`,
+                    `GzzListFileRow::handle_button_release_event: button_double_time_ == ${button_double_time_}`,
                     new Error()
                 );
                 log_message(
@@ -1403,11 +1414,11 @@ export class GzzListFileRow extends St.BoxLayout {
                 log_message(
                     'notes',
                     'GzzListFileRow::handle_button_release_event:' 
-                        + ' button_time > 0 && button_double_time < this._double_click_time == ' 
-                            + `${button_time > 0 && button_double_time < this._double_click_time}`, 
+                        + ' button_time_ > 0 && button_double_time_ < this._double_click_time == ' 
+                            + `${button_time_ > 0 && button_double_time_ < this._double_click_time}`, 
                     new Error()
                 );
-                if(button_time > 0 && button_double_time < this._double_click_time){
+                if(button_time_ > 0 && button_double_time_ < this._double_click_time){
                     this.click_count++;
                     if(this.click_count >= 2){
                         this.click_event_start = null;
@@ -1515,7 +1526,7 @@ export class GzzListFileRow extends St.BoxLayout {
                 `bad number type expected integer or Date ${dbl_click_time}`
             );
         }
-    } // set double_click_time(dbl_click_time) //
+    } // set_double_click_time(dbl_click_time) //
 
     get double_click_time(){
         return this.get_double_click_time();
@@ -1866,7 +1877,7 @@ export class GzzFileDialog extends GzzFileDialogBase {
                 'GzzFileDialog::set_double_click_time_error',
                 `bad number type expected integer or Date ${dbl_click_time}`);
         }
-    } // set double_click_time(dbl_click_time) //
+    } // set_double_click_time(dbl_click_time) //
 
     get double_click_time(){
         return this.set_double_click_time();
