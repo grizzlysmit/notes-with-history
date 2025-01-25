@@ -92,9 +92,21 @@ export function splitFile(file){
     return [true, result];
 } // export function splitFile(file) //
 
+let show_logs = true;
+
 export function log_message(id, text, e){
-    console.log(`${id}:${text}: ${e.fileName}:${e.lineNumber}:${e.columnNumber}`);
+    if(show_logs){
+        console.log(`${id}:${text}: ${e.fileName}:${e.lineNumber}:${e.columnNumber}`);
+    }
 } // export function log_message(id, text, e) //
+
+export function get_show_logs(){
+    return show_logs;
+}
+
+export function set_show_logs(value){
+    show_logs = !!value;
+}
 
 export function unixPermsToStr(file_type, perms, path){
     let result = '';
@@ -1064,11 +1076,13 @@ export class GzzHeader extends St.BoxLayout {
     get_show_root(){
         return this._show_root;
     }
+    ave et_show_root(showroot){
 
-    set_show_root(showroot){
+        log_message('notes', `GzzHeader::set_show_root: showroot == ${showroot}`, new Error());
         if(this._show_root != !!showroot){
             this._show_root = !!showroot;
             if(this._array && this._array.length > 0){
+                log_message('notes', `GzzHeader::set_show_root: this._array == ${JSON.stringify(this._array)}`, new Error());
                 this.destroy_all_children();
                 this.add_buttons();
             }
@@ -1086,9 +1100,12 @@ export class GzzHeader extends St.BoxLayout {
     display_dir(_dirname){
         const [ok, array] = splitFile(_dirname);
         if(!ok){
+            log_message('notes', `GzzHeader::display_dir: ok == ${ok}`, new Error());
+            log_message('notes', `GzzHeader::display_dir: array == ${array}`, new Error());
             this._owner.apply_error_handler(this, 'GzzHeader::display_dir_error', `splitFile Error: ${array}`);
             return null;
         }
+        log_message('notes', `GzzHeader::display_dir: array == ${JSON.stringify(array)}`, new Error());
         if(!this._array || this._array.length == 0){
             this._array = array;
         }
@@ -1105,23 +1122,23 @@ export class GzzHeader extends St.BoxLayout {
     } // display_dir(_dirname) //
 
     add_buttons(){
+        log_message('notes', `GzzHeader::add_buttons: this._array.length == ${this._array.length}`, new Error());
         for(let i = 0; i <= this._array.length; i++){
             this.add_button(this._array.slice(0, i));
         }
     }
 
     add_button(array){
+        log_message('notes', `GzzHeader::add_button: array == ${JSON.stringify(array)}`, new Error());
         const [ok, home]   = splitFile(Gio.File.new_for_path(GLib.build_filenamev([GLib.get_home_dir()])));
-        let e    = new Error();
-        console.log(`notes: GzzHeader::add_button ok === ${ok}: ${e.fileName}:${e.lineNumber + 1}`);
-        console.log(`notes: GzzHeader::add_button home === ${home}: ${e.fileName}:${e.lineNumber + 2}`);
-        console.log(`notes: GzzHeader::add_button array === ${JSON.stringify(array)}: ${e.fileName}:${e.lineNumber + 3}`);
-        console.log(`notes: GzzHeader::add_button home === ${JSON.stringify(home)}: ${e.fileName}:${e.lineNumber + 4}`);
+        log_message('notes', `GzzHeader::add_button: ok == ${ok}`, new Error());
+        log_message('notes', `GzzHeader::add_button: home == ${JSON.stringify(home)}`, new Error());
         if(!ok){
+            log_message('notes', `GzzHeader::add_button: splitFile Error: ${home}`, new Error());
             this._owner.apply_error_handler(this, 'GzzHeader::add_button_error', `splitFile Error: ${home}`);
             return;
         }
-        console.log(`notes: GzzHeader::add_button this._show_root === ${this._show_root}: ${e.fileName}:${e.lineNumber + 9}`);
+        log_message('notes', `GzzHeader::add_button: this._show_root == ${this._show_root}`, new Error());
         if(this._show_root){
             const button_path  = Gio.File.new_for_path(GLib.build_filenamev(array));
             const current_path = Gio.File.new_for_path(GLib.build_filenamev(this._array));
@@ -1312,9 +1329,14 @@ export  class GzzListFileSection extends St.BoxLayout {
         this.show_root_button  = new St.Button({
             style_class: 'gzzdialog-list-item-button', 
             label:       "<", 
-            checked:     true, 
+            checked:     false, 
         });
-        this.show_root_button.connectObject('clicked', () => this.header.set_show_root(), this.header)
+        this.show_root_button.connect('clicked', () => {
+            const showroot = !this.header.get_show_root();
+            log_message('notes', `GzzListFileSection::constructor: this.show_root_button.connect showroot == ${showroot}`, new Error());
+            this.header.set_show_root(showroot) 
+            this.show_root_button.checked = !showroot;
+        })
 
         this.new_dir_button  = new St.Button({
             style_class: 'gzzdialog-list-item-button',
@@ -1464,6 +1486,8 @@ export class GzzListFileRow extends St.BoxLayout {
             x_expand:    true,
             reactive:    true, 
         });
+
+        this._inode.set_size_request(20);
         
         this._file_type = Gio.FileType.UNKNOWN;
 
