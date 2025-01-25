@@ -274,7 +274,7 @@ class NotesPreferencesSettings extends PageBase {
     _double_click_time_box(){
         const title = _("Double Click Time");
         const row = new Adw.ActionRow({ title });
-        row.set_subtitle(_("Double click time for mouse clicks."));
+        row.set_subtitle(_("Double click time for mouse clicks in milli seconds."));
         const slider = new Gtk.Scale({
             digits: 0,
             adjustment: new Gtk.Adjustment({ lower: 400, upper: 2000, stepIncrement: 1 }),
@@ -285,7 +285,7 @@ class NotesPreferencesSettings extends PageBase {
         slider.set_draw_value(true);
         slider.set_value(this._caller._window._settings.get_int("double-click-time"));
         slider.connect('value-changed', (_sw) => { this._caller._window._settings.set_int("double-click-time", slider.get_value()); });
-        slider.set_size_request(160, 40);
+        slider.set_size_request(320, 15);
         row.add_suffix(slider);
         row.activatable_widget = slider;
         this.double_click_time_input = row;
