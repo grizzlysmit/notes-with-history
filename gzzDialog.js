@@ -791,7 +791,7 @@ export class GzzHeaderItem extends St.Button {
                 }
             }else if(_owner instanceof GzzFileDialogBase){
                 this._owner = _owner;
-                this.notify('owner');
+                //this.notify('owner');
             }else{
                 throw new Error('GzzHeaderItem::owner_error: owner must be a GzzFileDialogBase');
             }
@@ -818,12 +818,20 @@ export class GzzHeaderItem extends St.Button {
     } // constructor(params) //
 
     get_title() {
-        return this.label.text;
+        return this.label;
     }
 
     set_title(ttl) {
-        _setLabel(this.label, ttl);
-        this.notify('title');
+        if(!ttl){
+            log_message('notes', `GzzHeaderItem::set_title: cannot set title to falsey value ttl == ${ttl}`, new Error());
+            this._owner.display_error_msg('GzzHeaderItem::set_title', 'cannot set title to falsey value');
+        }else if(ttl instanceof String || typeof ttl === 'string'){
+            this.label = `${ttl.toString()}`;
+        }else{
+            log_message('notes', `GzzHeaderItem::set_title: title set to weird value ttl == ${ttl}`, new Error());
+            this.label = `${ttl}`;
+        }
+        //this.notify('title');
     }
 
     get title(){
