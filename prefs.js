@@ -222,6 +222,7 @@ class NotesPreferencesSettings extends PageBase {
         this.group.add(this._position_box());
         this.group.add(this._show_messages());
         this.group.add(this._max_note_length());
+        this.group.add(this._double_click_time_box());
         this.group.add(this._close_row());
         const hbox = new Gtk.Box({orientation: Gtk.Orientation.HORIZONTAL, vexpand: true, hexpand: true, });
         const bottom_spacer = new Gtk.Box({orientation: Gtk.Orientation.VERTICAL, vexpand: true, hexpand: true });
@@ -266,10 +267,30 @@ class NotesPreferencesSettings extends PageBase {
         slider.set_size_request(400, 15);
         row.add_suffix(slider);
         row.activatable_widget = slider;
-        this.position_input = slider;
         this.position_input = row;
         return row;
     } // _position_box() //
+
+    _double_click_time_box(){
+        const title = _("Double Click Time");
+        const row = new Adw.ActionRow({ title });
+        row.set_subtitle(_("Double click time for mouse clicks."));
+        const slider = new Gtk.Scale({
+            digits: 0,
+            adjustment: new Gtk.Adjustment({ lower: 400, upper: 2000, stepIncrement: 1 }),
+            value_pos: Gtk.PositionType.RIGHT,
+            hexpand: true,
+            halign: Gtk.Align.END
+        });
+        slider.set_draw_value(true);
+        slider.set_value(this._caller._window._settings.get_int("double-click-time"));
+        slider.connect('value-changed', (_sw) => { this._caller._window._settings.set_int("double-click-time", slider.get_value()); });
+        slider.set_size_request(160, 40);
+        row.add_suffix(slider);
+        row.activatable_widget = slider;
+        this.double_click_time_input = row;
+        return row;
+    } // _double_click_time_box() //
 
     _show_messages() {
         // Show Messages

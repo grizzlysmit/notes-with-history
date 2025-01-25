@@ -72,5 +72,10 @@
             <summary>Last name used.</summary>
             <description>The name last used to save file to.</description>
         </key>
+        <key type="i" name="double-click-time">
+            <default>800</default>
+            <summary>The maximum length of a note.</summary>
+            <description>The the maximum length a note is alowed to be.</description>
+        </key>
     </schema>
 </schemalist>

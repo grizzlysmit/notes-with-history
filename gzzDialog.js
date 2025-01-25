@@ -96,6 +96,171 @@ export function log_message(id, text, e){
     console.log(`${id}:${text}: ${e.fileName}:${e.lineNumber}:${e.columnNumber}`);
 } // export function log_message(id, text, e) //
 
+export function unixPermsToStr(file_type, perms, path){
+    let result = '';
+    if(file_type == Gio.FileType.SYMBOLIC_LINK){
+        result += 'l';
+    }else if(file_type == Gio.FileType.DIRECTORY){
+        result += 'd';
+    }else if(file_type == Gio.FileType.SPECIAL){
+        let buf;
+        if(GLib.lstat(path, buf)){
+            const filetype = buf['st_mode'] & 0o0170000;
+            switch(filetype){
+                case 0o0140000:
+                    result += 'S';
+                    break;
+                case 0o0060000:
+                    result += 'b';
+                    break;
+                case 0o0020000:
+                    result += 'c';
+                    break;
+                case 0o0010000:
+                    result += '|';
+                    break;
+            } // switch(filetype) //
+        } // if(GLib.lstat(path, buf)) //
+    }else if(file_type == Gio.FileType.REGULAR){
+        result += '.';
+    }else{
+        result += '?';
+    }
+    if(!perms){
+        result += '---------';
+    }
+    if(perms & 0b100_000_000){
+        result += 'r';
+    }else{
+        result += '-';
+    }
+    if(perms & 0b010_000_000){
+        result += 'w';
+    }else{
+        result += '-';
+    }
+    if(perms & 0b001_000_000){
+        if(perms & 0b100_000_000_00){
+            result += 's';
+        }else{
+            result += 'x';
+        }
+    }else{
+        result += '-';
+    }
+    if(perms & 0b000_100_000){
+        result += 'r';
+    }else{
+        result += '-';
+    }
+    if(perms & 0b000_010_000){
+        result += 'w';
+    }else{
+        result += '-';
+    }
+    if(perms & 0b000_001_000){
+        if(perms & 0b010_000_000_00){
+            result += 's';
+        }else{
+            result += 'x';
+        }
+    }else{
+        result += '-';
+    }
+    if(perms & 0b000_000_100){
+        result += 'r';
+    }else{
+        result += '-';
+    }
+    if(perms & 0b000_000_010){
+        result += 'w';
+    }else{
+        result += '-';
+    }
+    if(perms & 0b000_000_001){
+        if(perms & 0b001_000_000_00){
+            result += 'T';
+        }else{
+            result += 'x';
+        }
+    }else{
+        result += '-';
+    }
+    return result;
+} // export function unixPermsToStr(perms) //
+
+export function format_file_size(file_size, base2 = false){
+    let result = '';
+    if(base2){
+        const n = Math.floor(Math.floor(Math.log10(file_size))/3) * 3;
+        switch(n){
+            case 24:
+                result = `${Math.round(file_size/1e24, 2)}YB`;
+                break;
+            case 21:
+                result = `${Math.round(file_size/1e21, 2)}ZB`;
+                break;
+            case 18:
+                result = `${Math.round(file_size/1e18, 2)}EB`;
+                break;
+            case 15:
+                result = `${Math.round(file_size/1e15, 2)}PB`;
+                break;
+            case 12:
+                result = `${Math.round(file_size/1e12, 2)}TB`;
+                break;
+            case 9:
+                result = `${Math.round(file_size/1e9, 2)}GB`;
+                break;
+            case 6:
+                result = `${Math.round(file_size/1e6, 2)}MB`;
+                break;
+            case 3:
+                result = `${Math.round(file_size/1e9, 2)}kB`;
+                break;
+            case 0:
+                result = `${Math.round(file_size, 2)}B`;
+                break;
+            default:
+                result = `${Math.round(file_size/1e24, 2)}YB`;
+        } // switch(n) //
+    }else{
+        const m = Math.floor(Math.floor(Math.log2(file_size))/10) * 10;
+        switch(m){
+            case 24:
+                result = `${Math.round(file_size/(2 ** 24), 2)}YiB`;
+                break;
+            case 21:
+                result = `${Math.round(file_size/(2 ** 21), 2)}ZiB`;
+                break;
+            case 18:
+                result = `${Math.round(file_size/(2 ** 18), 2)}EiB`;
+                break;
+            case 15:
+                result = `${Math.round(file_size/(2 ** 15), 2)}PiB`;
+                break;
+            case 12:
+                result = `${Math.round(file_size/(2 ** 12), 2)}TiB`;
+                break;
+            case 9:
+                result = `${Math.round(file_size/(2 ** 9), 2)}GiB`;
+                break;
+            case 6:
+                result = `${Math.round(file_size/(2 ** 6), 2)}MiB`;
+                break;
+            case 3:
+                result = `${Math.round(file_size/(2 ** 9), 2)}kiB`;
+                break;
+            case 0:
+                result = `${Math.round(file_size, 2)}iB`;
+                break;
+            default:
+                result = `${Math.round(file_size/(2 ** 24), 2)}YiB`;
+        } // switch(n) //
+    }
+    return result;
+} // export function format_file_size(file_size, base2 = false) //
+
 export class GzzMessageDialog extends ModalDialog.ModalDialog {
     static {
         GObject.registerClass(this);
@@ -449,7 +614,7 @@ export class GzzFileDialogBase extends ModalDialog.ModalDialog {
             this._error_handler = this.default_error_handler;
         }
 
-        this._double_click_time = 400;
+        this._double_click_time = 800;
 
         if(this.constructor === GzzFileDialogBase){
             throw new Error('error GzzFileDialogBase is an abstract class create a derived class to use.');
@@ -1266,6 +1431,12 @@ export class GzzListFileRow extends St.BoxLayout {
             throw new Error('GzzListFileRow::owner_error: owner must be supplied and must be a GzzFileDialogBase');
         }
 
+        if('is_dir' in params){
+            this._is_dir = !!params.is_dir;
+        }else{
+            this._is_dir = false;
+        }
+
         let icon_size_ = 16;
         if('icon_size' in params && Number.isInteger(params.icon_size)){
             icon_size_ = Number(params.icon_size);
@@ -1276,9 +1447,150 @@ export class GzzListFileRow extends St.BoxLayout {
             icon_size:  icon_size_, 
         });
 
-        this._title = new St.Label({
-            text:       params.title, 
+        if('icon' in params){
+            icon.set_gicon(params.icon);
+            icon.icon_size = icon_size_;
+        }
+
+        this._inode_number = 0;
+
+        if('inode_number' in params && Number.isInteger(params.inode_number)){
+            this._inode_number = Number(params.inode_number);
+        }
+
+        this._inode = new St.Label({
+            text:        `${this._inode_number}`, 
+            style_class: 'dialog-list-item-inode',
+            reactive:    true, 
+        });
+        
+        this._file_type = Gio.Filetype.UNKOWN;
+
+        if('file_type' in params && Number.isInteger(params.file_type)){
+            this._file_type = params.file_type;
+        }
+        
+        this._file = GLib.get_home_dir();
+
+        if('file' in params && Number.isInteger(params.file)){
+            this._file = params.file;
+        }
+
+        this._mode = '.---------';
+
+        if('mode' in params && Number.isInteger(params.mode)){
+            this._mode = unixPermsToStr(this._file_type, params.mode, this._file);
+        }
+
+        this._mode_box = new St.Label({
+            text:        this._mode, 
+            style_class: 'dialog-list-item-mode',
+            reactive:    true, 
+        });
+
+        this._nlink = 0;
+
+        if('nlink' in params && Number.isInteger(params.nlink)){
+            this._nlink = Number(params.nlink);
+        }
+
+        this._nlink_box = new St.Label({
+            text:        `${this._nlink}`, 
             style_class: 'dialog-list-item-title',
+            reactive:    true, 
+        });
+
+        this._title = new St.Label({
+            text:        params.title, 
+            style_class: 'dialog-list-item-title',
+            reactive:    true, 
+        });
+
+        this._create_time = GLib.DateTime.new_from_unix_local(0);
+
+        if('create_time' in params && params.create_time instanceof GLib.DateTime){
+            this._create_time = params.create_time;
+        }
+
+        this._create = new St.Label({
+            text:        this._create_time.format_iso8601(), 
+            style_class: 'dialog-list-item-create',
+            reactive:    true, 
+        });
+
+        this._modification_time = GLib.DateTime.new_from_unix_local(0);
+
+        if('modification_time' in params && params.modification_time instanceof GLib.DateTime){
+            this._modification_time = params.modification_time;
+        }
+        
+
+        this._modification = new St.Label({
+            text:        this._modification_time.format_iso8601(), 
+            style_class: 'dialog-list-item-title',
+            reactive:    true, 
+        });
+
+        this._access_time = GLib.DateTime.new_from_unix_local(0);
+
+        if('access_time' in params && params.access_time instanceof GLib.DateTime){
+            this._access_time = params.access_time;
+        }
+        
+
+        this._access = new St.Label({
+            text:        this._access_time.format_iso8601(), 
+            style_class: 'dialog-list-item-title',
+            reactive:    true, 
+        });
+
+        this._user_name = '';
+
+        if('user_name' in params){
+            if(params.user_name instanceof String || typeof params.user_name === 'string'){
+                this._user_name = params.user_name.toString();
+            }else{
+                this._user_name = `${params.user_name}`;
+            }
+        }
+
+        this._user = new St.Label({
+            text:        this._user_name, 
+            style_class: 'dialog-list-item-user',
+            reactive:    true, 
+        });
+
+        this._group_name = '';
+
+        if('group_name' in params){
+            if(params.group_name instanceof String || typeof params.group_name === 'string'){
+                this._group_name = params.group_name.toString();
+            }else{
+                this._group_name = `${params.group_name}`;
+            }
+        }
+
+        this._base2_file_sizes = false;
+
+        if('base2_file_sizes' in params){
+            this._base2_file_sizes = !!params.base2_file_sizes;
+        }
+
+        this._file_size  = '';
+
+        if('file_size' in params && Number.isInteger(params.file_size)){
+            this._file_size = format_file_size(params.file_size, this._base2_file_sizes);
+        }
+
+        this._group = new St.Label({
+            text:        this._group_name, 
+            style_class: 'dialog-list-item-group',
+            reactive:    true, 
+        });
+
+        this._file_size_box = new St.Label({
+            text:        this._file_size, 
+            style_class: 'dialog-list-item-file-size',
             reactive:    true, 
         });
 
@@ -1289,36 +1601,19 @@ export class GzzListFileRow extends St.BoxLayout {
         });
 
         textLayout.add_child(icon);
+        textLayout.add_child(this._inode);
+        textLayout.add_child(this._mode_box);
+        textLayout.add_child(this._nlink_box);
+        textLayout.add_child(this._create);
+        textLayout.add_child(this._modification);
+        textLayout.add_child(this._access);
+        textLayout.add_child(this._user);
+        textLayout.add_child(this._group);
+        textLayout.add_child(this._file_size_box);
         textLayout.add_child(this._title);
 
         this.label_actor = this._title;
         this.add_child(textLayout);
-
-        this._owner = null;
-
-        if('owner' in params){
-            const _owner = params.owner;
-            if(!_owner){
-                throw new Error('GzzListFileRow::owner_error: owner cannot be null');
-            }else if(_owner instanceof GzzFileDialogBase){
-                this._owner = _owner;
-                this.notify('owner');
-            }else{
-                throw new Error('GzzListFileRow::owner_error: owner must be a GzzFileDialogBase');
-            }
-        }else{
-            throw new Error('GzzListFileRow::owner_error: owner must be supplied');
-        }
-
-        if('is_dir' in params){
-            this._is_dir = !!params.is_dir;
-        }else{
-            this._is_dir = false;
-        }
-
-        if('icon' in params){
-            icon.set_gicon(params.icon);
-        }
 
         this.click_event_start  = null;
         this.double_click_start = null;
@@ -1330,9 +1625,25 @@ export class GzzListFileRow extends St.BoxLayout {
             );
             this.set_double_click_time(params.double_click_time);
         }else{
-            this._double_click_time = 400;
+            this._double_click_time = 800;
         }
         this.click_count = 0;
+        this._inode.connect("button-press-event", (actor, event) => { this.handle_button_press_event(actor, event); });
+        this._inode.connect("button-release-event", (actor, event) => { this.handle_button_release_event(actor, event); });
+        this._mode_box.connect("button-press-event", (actor, event) => { this.handle_button_press_event(actor, event); });
+        this._mode_box.connect("button-release-event", (actor, event) => { this.handle_button_release_event(actor, event); });
+        this._create.connect("button-press-event", (actor, event) => { this.handle_button_press_event(actor, event); });
+        this._create.connect("button-release-event", (actor, event) => { this.handle_button_release_event(actor, event); });
+        this._modification.connect("button-press-event", (actor, event) => { this.handle_button_press_event(actor, event); });
+        this._modification.connect("button-release-event", (actor, event) => { this.handle_button_release_event(actor, event); });
+        this._access.connect("button-press-event", (actor, event) => { this.handle_button_press_event(actor, event); });
+        this._access.connect("button-release-event", (actor, event) => { this.handle_button_release_event(actor, event); });
+        this._user.connect("button-press-event", (actor, event) => { this.handle_button_press_event(actor, event); });
+        this._user.connect("button-release-event", (actor, event) => { this.handle_button_release_event(actor, event); });
+        this._group.connect("button-press-event", (actor, event) => { this.handle_button_press_event(actor, event); });
+        this._group.connect("button-release-event", (actor, event) => { this.handle_button_release_event(actor, event); });
+        this._file_size_box.connect("button-press-event", (actor, event) => { this.handle_button_press_event(actor, event); });
+        this._file_size_box.connect("button-release-event", (actor, event) => { this.handle_button_release_event(actor, event); });
         this._title.connect("button-press-event", (actor, event) => { this.handle_button_press_event(actor, event); });
         this._title.connect("button-release-event", (actor, event) => { this.handle_button_release_event(actor, event); });
     } // constructor(params) //
@@ -1568,9 +1879,28 @@ export class GzzFileDialog extends GzzFileDialogBase {
             dialogtype: this._dialog_type, 
         });
 
-        let icon = new St.Icon({icon_name: 'inode-directory'});
+        this._icon_size = 16;
 
-        this.contentLayout.add_child(icon);
+        if('icon_size' in params && Number.isInteger(params.icon_size)){
+            this._icon_size = Number(params.icon_size);
+        }
+
+        //*
+        let show_icon = true;
+
+        if('show_icon' in params){
+            show_icon = !!params.show_icons;
+        }
+
+        if(show_icon){
+            let icon = new St.Icon({
+                icon_name: 'inode-directory', 
+                icon_size:  this._icon_size, 
+            });
+
+            this.contentLayout.add_child(icon);
+        } // if(show_icon) //
+        // */
 
         this.contentLayout.add_child(this._list_section);
 
@@ -1679,6 +2009,12 @@ export class GzzFileDialog extends GzzFileDialogBase {
 
         if('save_done' in params && params.save_done instanceof Function){
             this._save_done = params.save_done;
+        }
+
+        this._base2_file_sizes = false;
+
+        if('base2_file_sizes' in params){
+            this._base2_file_sizes = !!params.save_done;
         }
                 
         this.setButtons([{
@@ -1913,6 +2249,22 @@ export class GzzFileDialog extends GzzFileDialogBase {
         this.set_save_done(sb);
     }
 
+    get_base2_file_sizes(){
+        return this._base2_file_sizes;
+    }
+
+    set_base2_file_sizes(base2){
+        this._base2_file_sizes = !!base2;
+    }
+
+    get base2_file_sizes(){
+        return this.get_base2_file_sizes();
+    }
+
+    set base2_file_sizes(base2){
+        this.set_base2_file_sizes(base2);
+    }
+
     clicked(_row, filename){
         log_message('notes', `GzzFileDialog::clicked: filename == ${filename}`, new Error());
         this.set_file_name(filename);
@@ -1962,7 +2314,15 @@ export class GzzFileDialog extends GzzFileDialogBase {
         let title_     = null;
         let e    = new Error();
         console.log(`notes: GzzFileDialog::display_dir filename === ${filename}: ${e.fileName}:${e.lineNumber + 1}`);
-        const attributes = "standard::name,standard::type,standard::display_name,standard::icon";
+        const attributes = "standard::name,standard::type,standard::display_name,standard::icon" 
+                               + ",standard::all,unix::mode,icon,unix::uid,unix::gid,unix::inode"
+                                    + ",unix::nlink,unix::is-mountpoint,trash::item-count"
+                                        + ",trash::deletion-date,time::modified,time::created"
+                                            + ",filesystem::readonly,owner::group,owner::user"
+                                                + ",owner::user-real,recent::modified,id::file"
+                                                    + ",standard::icon,standard::is-hidden"
+                                                        + ",unix::blocks,mountable::unix-device-file"
+                                                            + ",standard::content-type";
         try {
             enumerator = filename.enumerate_children(attributes, Gio.FileQueryInfoFlags.NONE, null);
             e    = new Error();
@@ -2011,8 +2371,21 @@ export class GzzFileDialog extends GzzFileDialogBase {
                     owner:             this, 
                     title:             title_,
                     is_dir:            is_dir_, 
+                    inode_number:      info.get_attribute_uint32('unix::inode'), 
+                    mode:              info.get_attribute_uint32('unix::mode'), 
+                    file_type, 
+                    file:              Gio.File.new_for_path(GLib.build_filenamev([filename.get_path(), info.get_name()])), 
                     icon:              info.get_icon(), 
+                    icon_size:         this._icon_size, 
+                    create_time:       info.get_creation_date_time(),
+                    modification_time: info.get_modification_date_time(),
+                    access_time:       info.get_access_date_time(),
+                    user_name:         info.get_attribute_string('owner::user'),
+                    group_name:        info.get_attribute_string('owner::group'),
+                    file_size:         info.get_size(), 
+                    nlink:             info.get_attribute_uint32('unix::nlink'), 
                     double_click_time: this._double_click_time, 
+                    base2_file_sizes:  this._base2_file_sizes, 
                 });
 
                 this.add_row(row);

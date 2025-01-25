@@ -362,7 +362,7 @@ class Indicator extends PanelMenu.Button {
             file_name:         ((file_name == '') ? 'notes.txt' : file_name), 
             contents:          cont, 
             filter:            new RegExp('^.*\\.txt$', 'i'), 
-            double_click_time: 1000, 
+            double_click_time: this._caller.settings.get_int('double-click-time'), 
             save_done:         (_dlg, result, dir_, file_name_) => {
                 if(result){
                     if(dir_){
@@ -393,7 +393,7 @@ class Indicator extends PanelMenu.Button {
                 file_name:         _file_name, 
                 dialogtype:        _dialogtype, 
                 filter:            new RegExp('^(?:.*\\.txt)$', 'i'), 
-                double_click_time: 1000, 
+                double_click_time: this._caller.settings.get_int('double-click-time'), 
                 save_done:         (dlg_, result, _dir, _file_name) => {
                     if(result){
                         notesfile = dlg_.get_full_path();
