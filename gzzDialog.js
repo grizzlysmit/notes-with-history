@@ -748,9 +748,9 @@ export class GzzFileDialogBase extends ModalDialog.ModalDialog {
         this.set_error_handler(handler);
     }
 
-    apply_error_handler(_error_owner, _name, msg){
+    apply_error_handler(error_owner_, _name, msg){
         if(this._error_handler)
-            this._error_handler(_error_owner, _name, msg);
+            this._error_handler(error_owner_, _name, msg);
     }
 
     display_dir(_dirname){
@@ -824,7 +824,7 @@ export class GzzHeaderItem extends St.Button {
     set_title(ttl) {
         if(!ttl){
             log_message('notes', `GzzHeaderItem::set_title: cannot set title to falsey value ttl == ${ttl}`, new Error());
-            this._owner.display_error_msg('GzzHeaderItem::set_title', 'cannot set title to falsey value');
+            this._owner.apply_error_handler(this, 'GzzHeaderItem::set_title', 'cannot set title to falsey value');
         }else if(ttl instanceof String || typeof ttl === 'string'){
             this.label = `${ttl.toString()}`;
         }else{
