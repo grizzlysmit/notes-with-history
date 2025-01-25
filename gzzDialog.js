@@ -1461,6 +1461,7 @@ export class GzzListFileRow extends St.BoxLayout {
         this._inode = new St.Label({
             text:        `${this._inode_number}`, 
             style_class: 'dialog-list-item-inode',
+            x_expand:    true,
             reactive:    true, 
         });
         
@@ -1485,6 +1486,7 @@ export class GzzListFileRow extends St.BoxLayout {
         this._mode_box = new St.Label({
             text:        this._mode, 
             style_class: 'dialog-list-item-mode',
+            x_expand:    true,
             reactive:    true, 
         });
 
@@ -1497,12 +1499,14 @@ export class GzzListFileRow extends St.BoxLayout {
         this._nlink_box = new St.Label({
             text:        `${this._nlink}`, 
             style_class: 'dialog-list-item-title',
+            x_expand:    true,
             reactive:    true, 
         });
 
         this._title = new St.Label({
             text:        params.title, 
             style_class: 'dialog-list-item-title',
+            x_expand:    true,
             reactive:    true, 
         });
 
@@ -1515,6 +1519,7 @@ export class GzzListFileRow extends St.BoxLayout {
         this._create = new St.Label({
             text:        this._create_time.format_iso8601(), 
             style_class: 'dialog-list-item-create',
+            x_expand:    true,
             reactive:    true, 
         });
 
@@ -1528,6 +1533,7 @@ export class GzzListFileRow extends St.BoxLayout {
         this._modification = new St.Label({
             text:        this._modification_time.format_iso8601(), 
             style_class: 'dialog-list-item-title',
+            x_expand:    true,
             reactive:    true, 
         });
 
@@ -1541,6 +1547,7 @@ export class GzzListFileRow extends St.BoxLayout {
         this._access = new St.Label({
             text:        this._access_time.format_iso8601(), 
             style_class: 'dialog-list-item-title',
+            x_expand:    true,
             reactive:    true, 
         });
 
@@ -1557,6 +1564,7 @@ export class GzzListFileRow extends St.BoxLayout {
         this._user = new St.Label({
             text:        this._user_name, 
             style_class: 'dialog-list-item-user',
+            x_expand:    true,
             reactive:    true, 
         });
 
@@ -1585,12 +1593,14 @@ export class GzzListFileRow extends St.BoxLayout {
         this._group = new St.Label({
             text:        this._group_name, 
             style_class: 'dialog-list-item-group',
+            x_expand:    true,
             reactive:    true, 
         });
 
         this._file_size_box = new St.Label({
             text:        this._file_size, 
             style_class: 'dialog-list-item-file-size',
+            x_expand:    true,
             reactive:    true, 
         });
 
