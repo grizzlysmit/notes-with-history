@@ -808,6 +808,13 @@ export class GzzHeaderItem extends St.Button {
             this._owner.apply_error_handler(this, 'GzzHeaderItem::constructor_error', 'Error: Property array is required.');
         }
 
+        if('action' in params){
+            this.connect('clicked', () => {
+                const dirname_ = Gio.File.new_for_path(GLib.build_filenamev(this._array));
+                this._owner._list_section.header.display_dir(dirname_);
+            });
+        }
+
     } // constructor(params) //
 
     get_title() {
@@ -1076,8 +1083,8 @@ export class GzzHeader extends St.BoxLayout {
     get_show_root(){
         return this._show_root;
     }
-    ave et_show_root(showroot){
 
+    set_show_root(showroot){
         log_message('notes', `GzzHeader::set_show_root: showroot == ${showroot}`, new Error());
         if(this._show_root != !!showroot){
             this._show_root = !!showroot;
@@ -1166,6 +1173,7 @@ export class GzzHeader extends St.BoxLayout {
 
     refresh_button_states(){
         const children = this.get_children();
+        log_message('notes', `GzzHeader::refresh_button_states: children == ${JSON.stringify(children)}`, new Error());
         for(const child of children){
             if(child instanceof GzzHeaderItem){
                 child.checked = (child.get_array() === this._current_array);
@@ -1199,19 +1207,20 @@ export class GzzHeader extends St.BoxLayout {
     }
 
     set_dir_path(file){
-        const e = new Error();
-        console.log(`notes: GzzHeader::set_dir_path file error: ${file}:` 
-            + ` ${e.fileName}:${e.lineNumber + 1}:${e.columnNumber}`);
+        log_message('notes', `GzzHeader::set_dir_path: file == ${file}`, new Error());
         if(file){
             const [ok, array] = splitFile(file);
             if(!ok){
-                const e = new Error();
-                console.log(`notes: GzzHeader::set_dir_path file error: ${array}:` 
-                    + ` ${e.fileName}:${e.lineNumber + 1}:${e.columnNumber}`);
+                log_message('notes', `GzzHeader::set_dir_path: array == ${array}`, new Error());
                 this._owner.apply_error_handler(this, 'GzzHeader::add_button_error', `splitFile Error: ${array}`);
                 return;
             }
             this._current_array = array;
+            log_message('notes', `GzzHeader::set_show_root: this._current_array == ${JSON.stringify(this._current_array)}`, new Error());
+            log_message('notes', `GzzHeader::set_dir_path: array == ${JSON.stringify(array)}`, new Error());
+            log_message('notes', `GzzHeader::set_dir_path: this._array == ${JSON.stringify(this._array)}`, new Error());
+            log_message('notes', `GzzHeader::set_dir_path: array.length == ${array.length}`, new Error());
+            log_message('notes', `GzzHeader::set_dir_path: this._array.length == ${this._array.length}`, new Error());
             if(array.length <= this._array.length){
                 if(array === this._array.slice(0, array.length)){
                     this.refresh_button_states();
@@ -1235,6 +1244,7 @@ export class GzzHeader extends St.BoxLayout {
             const e = new Error();
             console.log('notes: GzzHeader::set_dir_path file error: file must have a value:' 
                 + ` ${e.fileName}:${e.lineNumber + 1}:${e.columnNumber}`);
+            log_message('notes', 'GzzHeader::set_dir_path: file error: file must have a value', new Error());
             this._owner.apply_error_handler(
                 this,
                 'GzzHeader::add_button_error',
@@ -2027,7 +2037,7 @@ export class GzzFileDialog extends GzzFileDialogBase {
                 );
             }
         }else{
-            this._double_click_time = 400;
+            this._double_click_time = 800;
         }
 
         let _label = _('Save');
