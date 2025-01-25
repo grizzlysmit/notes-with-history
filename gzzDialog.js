@@ -1497,8 +1497,6 @@ export class GzzListFileRow extends St.BoxLayout {
             reactive:    true, 
         });
 
-        this._inode.set_size_request(20);
-        
         this._file_type = Gio.FileType.UNKNOWN;
 
         if('file_type' in params && Number.isInteger(params.file_type)){
