@@ -1138,7 +1138,7 @@ export class GzzHeader extends St.BoxLayout {
 
     add_buttons(){
         log_message('notes', `GzzHeader::add_buttons: this._array.length == ${this._array.length}`, new Error());
-        for(let i = 0; i <= this._array.length; i++){
+        for(let i = 1; i <= this._array.length; i++){
             this.add_button(this._array.slice(0, i));
         }
     }
