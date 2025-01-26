@@ -617,7 +617,12 @@ export class GzzFileDialogBase extends ModalDialog.ModalDialog {
     }
 
     constructor(params) {
-        super({ styleClass: 'gzzextension-dialog' });
+        super({ styleClass: 'gzzextension-dialog', 
+            x_expand:      true, 
+            y_expand:      true, 
+            x_align:       Clutter.ActorAlign.FILL, 
+            y_align:       Clutter.ActorAlign.FILL, 
+        });
 
         if('dialogtype' in params){
             const dialogtype = params.dialogtype;
@@ -1205,8 +1210,8 @@ export  class GzzListFileSection extends St.BoxLayout {
             vertical: true,
             x_expand: true,
             y_expand: true,
-            x_align: Clutter.ActorAlign.FILL,
-            y_align: Clutter.ActorAlign.FILL,
+            x_align:  Clutter.ActorAlign.FILL,
+            y_align:  Clutter.ActorAlign.FILL,
         });
 
         this.list = new St.BoxLayout({
@@ -1835,7 +1840,7 @@ export class GzzListFileRow extends St.BoxLayout {
         this.set_is_dir(isdir);
     }
 
-} // export class GzzListFileRow extends St.BoxLayout //
+} // export class GzzLstFileRow extends St.BoxLayout //
 
 export class GzzFileDialog extends GzzFileDialogBase {
     static {
