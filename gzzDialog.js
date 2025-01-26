@@ -92,6 +92,10 @@ export function splitFile(file){
     return [true, result];
 } // export function splitFile(file) //
 
+export function array2file(array){
+    return Gio.File.new_for_path(GLib.build_filenamev(array));
+} // export function array2file(array) //
+
 let show_logs = true;
 
 export function log_message(id, text, e){
@@ -1134,6 +1138,7 @@ export class GzzHeader extends St.BoxLayout {
             action: (self_) => {
                 if(!array_equal(array, this._current_array)){
                     this._current_array = array;
+                    this._owner.set_dir(array2file(this._current_array));
                     this._owner._list_section.list.destroy_all_children();
                     this._owner.display_dir(button_path);
                 }
