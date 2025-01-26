@@ -827,7 +827,6 @@ export class GzzHeaderItem extends St.Button {
                 }
             }else if(_owner instanceof GzzFileDialogBase){
                 this._owner = _owner;
-                //this.notify('owner');
             }else{
                 throw new Error('GzzHeaderItem::owner_error: owner must be a GzzFileDialogBase');
             }
@@ -870,7 +869,6 @@ export class GzzHeaderItem extends St.Button {
             log_message('notes', `GzzHeaderItem::set_title: title set to weird value ttl == ${ttl}`, new Error());
             this.label = `${ttl}`;
         }
-        //this.notify('title');
     }
 
     get title(){
@@ -894,7 +892,6 @@ export class GzzHeaderItem extends St.Button {
             }
         }else if(_owner instanceof GzzFileDialogBase){
             this._owner = _owner;
-            this.notify('owner');
         }else{
             if(this._owner){
                 this._owner.apply_error_handler(this, 'GzzHeaderItem::set_owner_error', "owner must be a GzzFileDialogBase");
@@ -977,7 +974,6 @@ export class GzzHeader extends St.BoxLayout {
                 throw new Error('GzzHeader::owner_error: owner cannot be null' );
             }else if(_owner instanceof GzzFileDialogBase){
                 this._owner = _owner;
-                this.notify('owner');
             }else{
                 throw new Error('GzzHeader::owner_error: owner must be a GzzFileDialogBase');
             }
@@ -1040,7 +1036,6 @@ export class GzzHeader extends St.BoxLayout {
             }
         }else if(_owner instanceof GzzFileDialogBase){
             this._owner = _owner;
-            this.notify('owner');
         }else{
             if(this._owner){
                 this._owner.apply_error_handler(this, 'GzzHeader::set_owner_error', "owner must be a GzzFileDialogBase");
@@ -1258,7 +1253,6 @@ export  class GzzListFileSection extends St.BoxLayout {
                 throw new Error('GzzListFileSection::owner_error: owner cannot be null');
             }else if(_owner instanceof GzzFileDialogBase){
                 this._owner = _owner;
-                this.notify('owner');
             }else{
                 throw new Error('GzzListFileSection::owner_error: owner must be a GzzFileDialogBase');
             }
@@ -1347,7 +1341,6 @@ export  class GzzListFileSection extends St.BoxLayout {
             }
         }else if(_owner instanceof GzzFileDialogBase){
             this._owner = _owner;
-            this.notify('owner');
         }else{
             if(this._owner){
                 this._owner.apply_error_handler(this, 'GzzListFileSection::set_owner_error', "owner must be a GzzFileDialogBase");
@@ -1407,7 +1400,6 @@ export class GzzListFileRow extends St.BoxLayout {
                 throw new Error('GzzListFileRow::owner_error: owner cannot be null');
             }else if(_owner instanceof GzzFileDialogBase){
                 this._owner = _owner;
-                this.notify('owner');
             }else{
                 throw new Error('GzzListFileRow::owner_error: owner must be a GzzFileDialogBase');
             }
@@ -1768,7 +1760,6 @@ export class GzzListFileRow extends St.BoxLayout {
 
     set_title(title_) {
         _setLabel(this._title, title_);
-        this.notify('title');
     }
 
     get title(){
@@ -1792,7 +1783,6 @@ export class GzzListFileRow extends St.BoxLayout {
             }
         }else if(owner_ instanceof GzzFileDialogBase){
             this._owner = owner_;
-            this.notify('owner');
         }else{
             if(this._owner){
                 this._owner.apply_error_handler(this, 'GzzListFileRow::set_owner_error', "owner must be a GzzFileDialogBase");
