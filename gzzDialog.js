@@ -850,7 +850,7 @@ export class GzzHeaderItem extends St.Button {
         if('action' in params){
             const action_ = params.action;
             this.connect('clicked', () => {
-                action_(this);
+                action_();
             });
         }
 
@@ -1131,7 +1131,7 @@ export class GzzHeader extends St.BoxLayout {
             owner: this._owner, 
             array, 
             checked: array_equal(array, this._current_array), 
-            action: (self_) => {
+            action: () => {
                 try {
                     if(!array_equal(array, this._current_array)){
                         this._current_array = array;
@@ -1139,7 +1139,7 @@ export class GzzHeader extends St.BoxLayout {
                         this._owner._list_section.list.destroy_all_children();
                         this._owner.display_dir(button_path);
                     }
-                    this.refresh_button_states(self_); 
+                    this.refresh_button_states(); 
                 } catch(e){
                     log_message('notes', 'GzzHeaderItem::action: button clicked event silly error caught', e);
                 }
@@ -1148,7 +1148,7 @@ export class GzzHeader extends St.BoxLayout {
         }));
     } // add_button(array) //
 
-    refresh_button_states(self_ = null){
+    refresh_button_states(){
         const children = this.get_children();
         /*
         log_message('notes', `GzzHeader::refresh_button_states: children == ${JSON.stringify(children)}`, new Error());
@@ -1156,9 +1156,7 @@ export class GzzHeader extends St.BoxLayout {
         // */
         for(const child of children){
             if(child instanceof GzzHeaderItem){
-                if(child !== self_){
-                    child.checked = array_equal(child.get_array(), this._current_array);
-                }
+                child.checked = array_equal(child.get_array(), this._current_array);
             }
         }
     }
