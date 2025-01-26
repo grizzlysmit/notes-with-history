@@ -618,11 +618,12 @@ export class GzzFileDialogBase extends ModalDialog.ModalDialog {
 
     constructor(params) {
         super({ styleClass: 'gzzextension-dialog', 
-            x_expand:      true, 
-            y_expand:      true, 
-            x_align:       Clutter.ActorAlign.FILL, 
-            y_align:       Clutter.ActorAlign.FILL, 
         });
+        
+        this.set_x_expand(true);
+        this.set_y_expand(true);
+        this.set_x_align(Clutter.ActorAlign.FILL);
+        this.set_y_align(Clutter.ActorAlign.FILL);
 
         if('dialogtype' in params){
             const dialogtype = params.dialogtype;
