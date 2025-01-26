@@ -1136,13 +1136,17 @@ export class GzzHeader extends St.BoxLayout {
             array, 
             checked: array_equal(array, this._current_array), 
             action: (self_) => {
-                if(!array_equal(array, this._current_array)){
-                    this._current_array = array;
-                    this._owner.set_dir(array2file(this._current_array));
-                    this._owner._list_section.list.destroy_all_children();
-                    this._owner.display_dir(button_path);
+                try {
+                    if(!array_equal(array, this._current_array)){
+                        this._current_array = array;
+                        this._owner.set_dir(array2file(this._current_array));
+                        this._owner._list_section.list.destroy_all_children();
+                        this._owner.display_dir(button_path);
+                    }
+                    this.refresh_button_states(self_); 
+                } catch(e){
+                    log_message('notes', 'GzzHeaderItem::action: button clicked event silly error caught', e);
                 }
-                this.refresh_button_states(self_); 
             }, 
 
         }));
