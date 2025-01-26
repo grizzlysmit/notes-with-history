@@ -1131,8 +1131,10 @@ export class GzzHeader extends St.BoxLayout {
             action: () => {
                 if(!array_equal(array, this._current_array)){
                     this._current_array = array;
-                    this.set_dir_path(button_path); 
+                    this._owner._list_section.list.destroy_all_children();
+                    this._owner.display_dir(button_path);
                 }
+                this.refresh_button_states(); 
             }, 
 
         }));
@@ -1142,7 +1144,7 @@ export class GzzHeader extends St.BoxLayout {
         const children = this.get_children();
         log_message('notes', `GzzHeader::refresh_button_states: children == ${JSON.stringify(children)}`, new Error());
         for(const child of children){
-            if(child instanceof GzzHeaderItem){
+            if(child instanceof St.Button){
                 child.checked = array_equal(child.get_array(), this._current_array);
             }
         }
