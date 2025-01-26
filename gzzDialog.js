@@ -1123,8 +1123,10 @@ export class GzzHeader extends St.BoxLayout {
             array, 
             checked: array_equal(array, this._current_array), 
             action: () => {
-                this._current_array = array;
-                this.set_dir_path(button_path); 
+                if(!array_equal(array, this._current_array)){
+                    this._current_array = array;
+                    this.set_dir_path(button_path); 
+                }
             }, 
 
         }));
@@ -1159,18 +1161,10 @@ export class GzzHeader extends St.BoxLayout {
             log_message('notes', `GzzHeader::set_dir_path: this._array == ${JSON.stringify(this._array)}`, new Error());
             log_message('notes', `GzzHeader::set_dir_path: array.length == ${array.length}`, new Error());
             log_message('notes', `GzzHeader::set_dir_path: this._array.length == ${this._array.length}`, new Error());
-            if(array.length <= this._array.length){
-                if(subpathof(array, this._array)){
-                    this.refresh_button_states();
-                    this._owner._list_section.list.destroy_all_children();
-                    this._owner.display_dir(file);
-                }else{
-                    this.destroy_all_children();
-                    this._array = this._current_array = array;
-                    this.add_buttons();
-                    this._owner._list_section.list.destroy_all_children();
-                    this._owner.display_dir(file);
-                }
+            if(subpathof(array, this._array)){
+                this.refresh_button_states();
+                this._owner._list_section.list.destroy_all_children();
+                this._owner.display_dir(file);
             }else{
                 this.destroy_all_children();
                 this._array = this._current_array = array;
