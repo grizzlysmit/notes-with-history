@@ -834,16 +834,19 @@ export class GzzHeaderItem extends St.Button {
         if('array' in params){
             this.set_array(params.array);
         }else{
+            log_message('notes', 'GzzHeaderItem::constructor_error: Property array is required: ', new Error());
             const e = new Error();
-            console.log('notes: GzzHeaderItem::constructor_error: Property array is required:' 
-                + ` ${e.fileName}:${e.lineNumber + 1}:${e.columnNumber}`);
-            this._owner.apply_error_handler(this, 'GzzHeaderItem::constructor_error', 'Error: Property array is required.');
+            this._owner.apply_error_handler(
+                this,
+                'GzzHeaderItem::constructor_error',
+                `Error: Property array is required: ${e.fileName}:${e.lineNumber + 1}`
+            );
         }
 
         if('action' in params){
+            const action_ = params.action;
             this.connect('clicked', () => {
-                const dirname_ = Gio.File.new_for_path(GLib.build_filenamev(this._array));
-                this._owner._list_section.header.display_dir(dirname_);
+                action_(this);
             });
         }
 
@@ -1128,24 +1131,26 @@ export class GzzHeader extends St.BoxLayout {
             owner: this._owner, 
             array, 
             checked: array_equal(array, this._current_array), 
-            action: () => {
+            action: (self_) => {
                 if(!array_equal(array, this._current_array)){
                     this._current_array = array;
                     this._owner._list_section.list.destroy_all_children();
                     this._owner.display_dir(button_path);
                 }
-                this.refresh_button_states(); 
+                this.refresh_button_states(self_); 
             }, 
 
         }));
     } // add_button(array) //
 
-    refresh_button_states(){
+    refresh_button_states(self_ = null){
         const children = this.get_children();
         log_message('notes', `GzzHeader::refresh_button_states: children == ${JSON.stringify(children)}`, new Error());
         for(const child of children){
-            if(child instanceof St.Button){
-                child.checked = array_equal(child.get_array(), this._current_array);
+            if(child instanceof GzzHeaderItem){
+                if(child !== self_){
+                    child.checked = array_equal(child.get_array(), this._current_array);
+                }
             }
         }
     }
