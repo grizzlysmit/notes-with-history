@@ -1150,7 +1150,10 @@ export class GzzHeader extends St.BoxLayout {
 
     refresh_button_states(self_ = null){
         const children = this.get_children();
+        /*
         log_message('notes', `GzzHeader::refresh_button_states: children == ${JSON.stringify(children)}`, new Error());
+        log_message('notes', `GzzHeader::set_show_root: self_ == ${self_}`, new Error());
+        // */
         for(const child of children){
             if(child instanceof GzzHeaderItem){
                 if(child !== self_){
