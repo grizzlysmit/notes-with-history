@@ -33,6 +33,7 @@ import * as PopupMenu from 'resource:///org/gnome/shell/ui/popupMenu.js';
 
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 
+Gzz.set_show_logs(true);
 const APPLICATION_ICON_SIZE = 16;
 
 class ApplicationMenuItem extends PopupMenu.PopupBaseMenuItem {
@@ -127,30 +128,28 @@ class ApplicationMenuItem extends PopupMenu.PopupBaseMenuItem {
 
     activate(event) {
         let t        = typeof event;
-        console.log(`notes: event: ‷${event}‴ of type ‷${t}‴.`);
+        Gzz.log_message('notes', `ApplicationMenuItem::activate: event == ‷${event}‴ of type ‷${t}‴.`, new Error());
         super.activate(event);
         let dlg      = null;
         let new_note = null;
         let index    = null;
         let txt      = null;
-        let thisline = null;
         /*
         dlg          = new Gzz.GzzMessageDialog('ApplicationMenuItem::activate(event)', `Proccessing event: ‷${event}‴.`);
-        console.log(`notes: dlg: ‷${dlg}‴.`);
+        Gzz.log_message('notes', `ApplicationMenuItem::activate: dlg == ‷${dlg}‴`, new Error());
         dlg.open();
         dlg          = null;
         // */
         try {
             t       = typeof this._item;
-            console.log(`notes: this._item: ‷${JSON.stringify(this._item)}‴ of type ‷${t}‴.`);
+            Gzz.log_message('notes', `ApplicationMenuItem::activate: this._item == ‷${JSON.stringify(this._item)}‴ of type ‷${t}‴.`, new Error());
             switch (this._item.type) {
                 case "note":
                     switch(this._item.subtype){
                         case 'edit':
                             index    = this._item.index;
                             txt = this._button._caller.notes[index];
-                            thisline = new Error().lineNumber;
-                            console.log(`[${thisline}]notes: edit: index: ‷${index}‴, txt: ‷${txt}‴.`);
+                            Gzz.log_message('notes', `ApplicationMenuItem::activate: edit: index == ‷${index}‴, txt: ‷${txt}‴.`, new Error());
                             dlg = new Gzz.GzzPromptDialog({
                                             title:       _('Edit Note'), 
                                             description: _('Edit or view Note.'), 
@@ -163,10 +162,8 @@ class ApplicationMenuItem extends PopupMenu.PopupBaseMenuItem {
                                                     icon_name: 'stock_calc-cancel', 
                                                     action: () => {
                                                         dlg.set_result(false);
-                                                        const thisfile = new Error().fileName;
-                                                        const thisline = new Error().lineNumber;
-                                                        console.log(`notes: ${thisfile}:${thisline + 1}: Callback Save: dlg.result: ${dlg.result}`);
-                                                        console.log(`notes: ${thisfile}:${thisline + 2}: Callback Save: dlg.text: ${dlg.text}`);
+                                                        Gzz.log_message('notes', `Callback Cancel: dlg.result: ‷${dlg.result}‴`, new Error());
+                                                        Gzz.log_message('notes', `Callback Cancel: dlg.text: ‷${dlg.text}‴`, new Error());
                                                         dlg.destroy();
                                                     },
                                                 },
@@ -177,13 +174,15 @@ class ApplicationMenuItem extends PopupMenu.PopupBaseMenuItem {
                                                     action: () => {
                                                         dlg.set_text('');
                                                         dlg.set_result(true);
-                                                        const thisfile = new Error().fileName;
-                                                        const thisline = new Error().lineNumber;
-                                                        console.log(`notes: ${thisfile}:${thisline + 1}: Callback Save: dlg.result: ${dlg.result}`);
-                                                        console.log(`notes: ${thisfile}:${thisline + 2}: Callback Save: dlg.text: ${dlg.text}`);
+                                                        Gzz.log_message('notes', `Callback Delete: dlg.result: ‷${dlg.result}‴`, new Error());
+                                                        Gzz.log_message('notes', `Callback Delete: dlg.text: ‷${dlg.text}‴`, new Error());
                                                         this._button._caller.notes.splice(index, 1);
-                                                        console.log(`notes: ApplicationMenuItem::activate: ${thisline + 4}:`
-                                                            + ` case note sub case edit: notes: ‷${JSON.stringify(this._button._caller.notes)}‴.`);
+                                                        Gzz.log_message(
+                                                            'notes',
+                                                            'Callback Delete: case note sub case edit: notes:'
+                                                            + ` ‷${JSON.stringify(this._button._caller.notes)}‴.`,
+                                                            new Error()
+                                                        );
                                                         this._button._caller.settings.set_strv('notes', this._button._caller.notes);
                                                         dlg.destroy();
                                                     },
@@ -194,15 +193,17 @@ class ApplicationMenuItem extends PopupMenu.PopupBaseMenuItem {
                                                     isDefault: true,
                                                     action: () => {
                                                         dlg.set_result(true);
-                                                        const thisfile = new Error().fileName;
-                                                        const thisline = new Error().lineNumber;
-                                                        console.log(`notes: ${thisfile}:${thisline + 1}: Callback Save: dlg.result: ${dlg.result}`);
-                                                        console.log(`notes: ${thisfile}:${thisline + 2}: Callback Save: dlg.text: ${dlg.text}`);
+                                                        Gzz.log_message('notes', `Callback Save: dlg.result: ‷${dlg.result}‴`, new Error());
+                                                        Gzz.log_message('notes', `Callback Save: dlg.text: ‷${dlg.text}‴`, new Error());
                                                         new_note = dlg.text;
                                                         if(new_note.trim() != ''){
                                                             this._button._caller.notes[index] = new_note;
-                                                            console.log(`notes: ApplicationMenuItem::activate: ${thisline + 6}:`
-                                                                + ` case note sub case edit: notes: ‷${JSON.stringify(this._button._caller.notes)}‴.`);
+                                                            Gzz.log_message(
+                                                                'notes',
+                                                                'Callback action: case note sub case edit: notes == '
+                                                                + `‷${JSON.stringify(this._button._caller.notes)}‴.`,
+                                                                new Error()
+                                                            );
                                                             this._button._caller.settings.set_strv('notes', this._button._caller.notes);
                                                         }
                                                         dlg.destroy();
@@ -214,7 +215,7 @@ class ApplicationMenuItem extends PopupMenu.PopupBaseMenuItem {
                             break;
                         case 'delete':
                             index    = this._item.index;
-                            console.log(`notes: delete: index: ‷${index}‴.`);
+                            Gzz.log_message('notes', `ApplicationMenuItem::activate: delete: index: ‷${index}‴.`, new Error());
                             dlg = new Gzz.GzzMessageDialog(
                                 _('Are you sure'),
                                 _(`Are you sure you want to delete note: ‷${this._button._caller.notes[index]}⁗.`),
@@ -244,7 +245,7 @@ class ApplicationMenuItem extends PopupMenu.PopupBaseMenuItem {
                             break;
                         case "edit-delete-in-prefs":
                             index    = this._item.index;
-                            console.log(`notes: edit-delete-in-prefs: index: ‷${index}‴.`);
+                            Gzz.log_message('notes', `ApplicationMenuItem::activate: edit-delete-in-prefs: index: ‷${index}‴.`, new Error());
                             this._button._caller.settings.set_int('index', index);
                             this._button._caller.settings.set_boolean('page', 'editNote');
                             this._button._caller.openPreferences();
@@ -253,7 +254,7 @@ class ApplicationMenuItem extends PopupMenu.PopupBaseMenuItem {
                     break;
                 case "addnote":
                     index    = this._item.index;
-                    console.log(`notes::activate : case addnote: index: ‷${index}‴.`);
+                    Gzz.log_message('notes', `ApplicationMenuItem::activate: case addnote: index: ‷${index}‴.`, new Error());
                     dlg = new Gzz.GzzPromptDialog({
                         title:       _('Edit Note'), 
                         description: _('Edit or view Note.'), 
@@ -263,16 +264,18 @@ class ApplicationMenuItem extends PopupMenu.PopupBaseMenuItem {
                         ok_call_back: () => {
                             const result   = dlg.get_result();
                             const new_note = dlg.get_text();
-                            console.log(`notes: ApplicationMenuItem::activate: case addnote: new_note: ‷${new_note}‴.`);
-                            console.log(`notes: ApplicationMenuItem::activate: case addnote: dlg.result: ‷${result}‴.`);
+                            Gzz.log_message('notes', `Callback ok_call_back: new_note == ‷${new_note}‴`, new Error());
+                            Gzz.log_message('notes', `Callback ok_call_back: result == ‷${result}‴`, new Error());
                             if(result){
                                 if(new_note.trim() !== ''){
                                     this._button._caller.notes.unshift(new_note);
                                     const thisline = new Error().lineNumber;
-                                    console.log(
-                                        `notes: ApplicationMenuItem::addnote:${thisline + 1}:`
+                                    Gzz.log_message(
+                                        'notes', 
+                                        `ApplicationMenuItem::addnote:${thisline + 1}:`
                                                     + ' this._button._caller.notes: '
-                                                    + `‷${JSON.stringify(this._button._caller.notes)}‴.`
+                                                    + `‷${JSON.stringify(this._button._caller.notes)}‴.`,
+                                        new Error()
                                     );
                                     this._button._caller.settings.set_strv('notes', this._button._caller.notes);
                                 } // if(new_note.trim() !== '') //
@@ -284,18 +287,18 @@ class ApplicationMenuItem extends PopupMenu.PopupBaseMenuItem {
                     dlg.open();
                     break;
                 case  "savefile":
-                    console.log(`notes: savefile: index: ‷${index}‴.`);
+                    Gzz.log_message('notes', `savefile: index: ‷${index}‴.`, new Error());
                     this._button.save_to_file();
                     break;
                 case "loadfile":
-                    console.log(`notes: savefile: index: ‷${index}‴.`);
+                    Gzz.log_message('notes', `loadfile: index: ‷${index}‴.`, new Error());
                     this._button.get_file_contents();
                     break;
                 case "settings":
                 case "notesScroller":
                 case "aboutPage":
                 case "credits":
-                    console.log(`notes: settings, etc: this._item.type: ‷${this._item.type}‴.`);
+                    Gzz.log_message('notes', `notes: settings, etc: this._item.type: ‷${this._item.type}‴.`, new Error());
                     this._button._caller.settings.set_boolean("edit-note", true);
                     this._button._caller.settings.set_enum("page", this._item.type);
                     this._button._caller.openPreferences();
@@ -303,12 +306,9 @@ class ApplicationMenuItem extends PopupMenu.PopupBaseMenuItem {
             } // switch (this._item.type) //
         }
         catch(e){
-            console.log(`notes: ${e.stack}`);
-            console.log(`notes: Exception ‷${e}‴, ${e.fileName}:${e.lineNumber}:${e.columnNumber}.`);
-            this._button._caller.display_error_msg(
-                'ApplicationMenuItem::activate',
-                `Exception ‷${e}‴, ${e.fileName}:${e.lineNumber}:${e.columnNumber}.`
-            );
+            Gzz.log_message('notes', `${e.stack}`, e);
+            Gzz.log_message('notes', `Exception ‷${e}‴`, e);
+            this._button._caller.display_error_msg('ApplicationMenuItem::activate', `Exception ‷${e}‴`, e);
         }
     } // activate(event) //
 
@@ -351,10 +351,10 @@ class Indicator extends PanelMenu.Button {
         const path      = this._caller.notespath.get_path();
         const cont      = this._caller.notes.join("\r\n");
         const _dialogtype = Gzz.GzzDialogType.Save;
-        console.log(`notes: file_name: ‷${file_name}‴.`);
-        console.log(`notes: path: ‷${path}‴.`);
-        console.log(`notes: cont: ‷${cont}‴.`);
-        console.log(`notes: _dialogtype: ‷${JSON.stringify(_dialogtype)}‴.`);
+        Gzz.log_message('notes', `file_name: ‷${file_name}‴.`, new Error());
+        Gzz.log_message('notes', `path: ‷${path}‴.`, new Error());
+        Gzz.log_message('notes', `cont: ‷${cont}‴.`, new Error());
+        Gzz.log_message('notes', `_dialogtype: ‷${JSON.stringify(_dialogtype)}‴.`, new Error());
         const dlg       = new Gzz.GzzFileDialog({
             title:             _("Save messages as file"),
             dialogtype:        _dialogtype,
@@ -430,18 +430,24 @@ class Indicator extends PanelMenu.Button {
                                 }else{
                                     this._caller.display_error_msg(
                                         'Indicator::get_file_contents',
-                                        'Error: bad file none of the notes where of a suitable size.'
+                                        'Error: bad file none of the notes where of a suitable size.', 
+                                        new Error()
                                     );
                                 }
                                 if(min_length == 0){
-                                    this._caller.display_error_msg('Indicator::get_file_contents',
-                                        'Error: some of the notes where empty they were skipped.');
+                                    this._caller.display_error_msg(
+                                        'Indicator::get_file_contents',
+                                        'Error: some of the notes where empty they were skipped.', 
+                                        new Error()
+                                    );
                                 }
                                 if(max_length > this._caller.max_note_length){
                                     this._caller.display_error_msg('Indicator::get_file_contents',
                                         "Error: some of the notes where too big they were skipped.\n"
                                          + " THis can be caused by a change in the max_note_length property. "
-                                         + `currently set at ${this._caller.max_note_length}`);
+                                         + `currently set at ${this._caller.max_note_length}`, 
+                                        new Error()
+                                    );
                                 }
                             } // if(ok) //
                         } // if(notesfile) //
@@ -450,12 +456,9 @@ class Indicator extends PanelMenu.Button {
             });
             dlg.open();
         }catch(e){
-            console.log(`notes: ${e.stack}`);
-            console.log(`notes: Error: in Indicator::get_file_contents() ${e}: ${e.fileName}:${e.lineNumber}:${e.columnNumber}`);
-            this._caller.display_error_msg(
-                'Indicator::get_file_contents_error',
-                `Error: in Indicator::get_file_contents() ${e}: ${e.fileName}:${e.lineNumber}:${e.columnNumber}`
-            );
+            Gzz.log_message('notes', `${e.stack}`, e);
+            Gzz.log_message('notes', `Error: in Indicator::get_file_contents() ‷${e}‴:`, e);
+            this._caller.display_error_msg('Indicator::get_file_contents_error', `Error: in Indicator::get_file_contents() ${e}`, e);
         }
     }  // get_file_contents() //
     
@@ -514,10 +517,10 @@ class Indicator extends PanelMenu.Button {
     } // loadMesessages() //
 
     refesh_menu(){
-        console.log("notes: Indicator::refesh_menu: starting.");
+        Gzz.log_message('notes', "Indicator::refesh_menu: starting.", new Error());
         this.menu.box.destroy_all_children();
         this.loadMesessages();
-        console.log("notes::refesh_menu: Indicator: done.");
+        Gzz.log_message('notes', "Indicator: done.", new Error());
     }
 
 } // class Indicator extends PanelMenu.Button //
@@ -555,7 +558,7 @@ export default class IndicatorExampleExtension extends Extension {
         this.settings.set_int('show-messages', this.settings.get_int('show-messages'));
         this._indicator       = new Indicator(this);
         const area            = this.areas[this.settings.get_enum("area")];
-        console.log(`notes: area == ${area}`);
+        Gzz.log_message('notes', `area == ${area}`, new Error());
         Main.panel.addToStatusArea(this._name, this._indicator, this.settings.get_int("position"), area);
 
         this.settingsID_show     = this.settings.connect("changed::show-messages", () => {
@@ -577,8 +580,7 @@ export default class IndicatorExampleExtension extends Extension {
     }
 
     set_notespath(path_){
-        const e = new Error();
-        console.log(`notes: IndicatorExampleExtension::set_notespath: path_: ${path_} ${e.fileName}:${e.lineNumber + 1}`);
+        Gzz.log_message('notes', `IndicatorExampleExtension::set_notespath: path_: ${path_}`, new Error());
         if(!path_){
             this.notespath = Gio.File.new_for_path(GLib.build_filenamev([GLib.get_home_dir()]));
             this.settings.set_string("notespath", this.notespath.get_path());
@@ -587,15 +589,16 @@ export default class IndicatorExampleExtension extends Extension {
             if(path){
                 this.notespath = Gio.File.new_for_path(path);
             }else{
-                const e = new Error();
-                console.log(
-                    `notes: IndicatorExampleExtension::set_notespath_error: bad value for path: ${path}: `
-                    + `genrated from path_: ${path_}: ${e.fileName}:${e.lineNumber}:${e.columnNumber}`
+                Gzz.log_message(
+                    'notes', 
+                    `IndicatorExampleExtension::set_notespath_error: bad value for path: ${path}: `
+                    + `genrated from path_: ${path_}:`, 
+                    new Error()
                 );
                 this.display_error_msg(
                     'IndicatorExampleExtension::set_notespath',
-                    `IndicatorExampleExtension::set_notespath: bad value for path: ${path} genrated from path_: ${path_}: `
-                    + `${path}: ${e.fileName}:${e.lineNumber}:${e.columnNumber}`
+                    `IndicatorExampleExtension::set_notespath: bad value for path: ${path} genrated from path_: ${path_}: `, 
+                    new Error()
                 );
             }
         }else{ // if(!path_) else if(path_ instanceof String) //
@@ -603,15 +606,16 @@ export default class IndicatorExampleExtension extends Extension {
             if(path){
                 this.notespath = Gio.File.new_for_path(path);
             }else{
-                const e = new Error();
-                console.log(
-                    `notes: IndicatorExampleExtension::set_notespath_error: bad value for path: ${path}: `
-                    + `genrated from path_: ${path_}: ${e.fileName}:${e.lineNumber}:${e.columnNumber}`
+                Gzz.log_message(
+                    'notes', 
+                    `IndicatorExampleExtension::set_notespath_error: bad value for path: ${path}: `
+                    + `genrated from path_: ${path_}:`, 
+                    new Error()
                 );
                 this.display_error_msg(
                     'IndicatorExampleExtension::set_notespath',
-                    `IndicatorExampleExtension::set_notespath: bad value for path: ${path} genrated from path_: ${path_}: `
-                    + `${path}: ${e.fileName}:${e.lineNumber}:${e.columnNumber}`
+                    `IndicatorExampleExtension::set_notespath: bad value for path: ${path} genrated from path_: ${path_}: `,
+                    new Error()
                 );
             } // if(path) ... else ... //
         } // if(!path_) else if(path_ instanceof String) ... else ... //
@@ -631,7 +635,10 @@ export default class IndicatorExampleExtension extends Extension {
         this._indicator = null;
     }
 
-    display_error_msg(title, description){
+    display_error_msg(title, description, e = null){
+        if(e && e instanceof Error){
+            description += `${e.fileName}:${e.lineNumber}:${e.columnNumber}`;
+        }
         const dlg = new Gzz.GzzMessageDialog(title, description, 'dialog-error');
         dlg.open();
     }
@@ -640,7 +647,7 @@ export default class IndicatorExampleExtension extends Extension {
         Main.panel.menuManager.removeMenu(this._indicator.menu);
         Main.panel.statusArea[this._name] = null;
         const area      = this.areas[this.settings.get_enum("area")];
-        console.log(`notes: area == ${area}`);
+        Gzz.log_message('notes', `area == ${area}`, new Error());
         const position  = this.settings.get_int("position");
         Main.panel.addToStatusArea(this._name, this._indicator, position, area);
     }
@@ -650,9 +657,9 @@ export default class IndicatorExampleExtension extends Extension {
             this.settings_change_self = false;
         }else{
             this.notes                        = this.settings.get_strv("notes");
-            console.log(`notes: IndicatorExampleExtension::onNotesChanged: this.notes: ${JSON.stringify(this.notes)}`);
+            Gzz.log_message('notes', `IndicatorExampleExtension::onNotesChanged: this.notes: ${JSON.stringify(this.notes)}`, new Error());
             this._indicator.refesh_menu();
-            console.log(`notes: IndicatorExampleExtension::onNotesChanged: this.notes: ${JSON.stringify(this.notes)}`);
+            Gzz.log_message('notes', `IndicatorExampleExtension::onNotesChanged: this.notes: ${JSON.stringify(this.notes)}`, new Error());
         }
     }
 
