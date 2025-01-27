@@ -33,7 +33,6 @@ import * as PopupMenu from 'resource:///org/gnome/shell/ui/popupMenu.js';
 
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 
-Gzz.set_show_logs(true);
 const APPLICATION_ICON_SIZE = 16;
 
 class ApplicationMenuItem extends PopupMenu.PopupBaseMenuItem {
@@ -552,6 +551,7 @@ export default class IndicatorExampleExtension extends Extension {
         const tmp_path         = this.settings.get_string("notespath").trim();
         this.set_notespath(tmp_path);
         
+        Gzz.set_show_logs(this.settings.get_boolean('show-logs'));
         this.settings.set_enum('area', this.settings.get_enum('area'));
         if(this.settings.get_int("position") < 0 || this.settings.get_int("position") > 25) this.settings.set_int("position", 0);
         this.settings.set_int('max-note-length', this.max_note_length);
@@ -576,6 +576,9 @@ export default class IndicatorExampleExtension extends Extension {
         });
         this.settingsID_filename = this.settings.connect('changed::notesname', () => {
             this.notesname         = this.settings.get_string("notesname");
+        });
+        this.settingsID_show_logs = this.settings.connect('changed::show-logs', () => {
+            Gzz.set_show_logs(this.settings.get_boolean('show-logs'));
         });
     }
 
