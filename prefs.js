@@ -697,6 +697,7 @@ export default class MyPreferences extends ExtensionPreferences {
         this.aboutPage                     = null;
         this.creditsPage                   = null;
         this.page                          = this._pageNotesPreferencesSettings;
+        this.enum2string = ["settings", "notesScroller", "editNote", "aboutPage", "credits", ];
     } //  constructor(metadata) //
 
     fillPreferencesWindow(window) {
@@ -709,7 +710,7 @@ export default class MyPreferences extends ExtensionPreferences {
         this.show_messages     = this._window._settings.get_int("show-messages");
         this.window_width      = this._window._settings.get_int("window-width");
         this.window_height     = this._window._settings.get_int("window-height");
-        this.page_name         = this._window._settings.get_enum("page");
+        this.page_name         = this.enum2string[this._window._settings.get_enum("page")];
         this.index             = this._window._settings.get_int("index");
         this.notes             = this._window._settings.get_strv("notes");
         this.max_note_length   = this._window._settings.get_int("max-note-length");
@@ -769,7 +770,7 @@ export default class MyPreferences extends ExtensionPreferences {
                     window.set_visible_page(this.page);
             }  // switch(this.page_name) //
         } // if(this.edit_note) //
-        this.settingsID_area  = this._window._settings.connect("changed::page", this.onPageChanged.bind(this));
+        this.settingsID_page  = this._window._settings.connect("changed::page", this.onPageChanged.bind(this));
 
     } // fillPreferencesWindow(window) //
 
@@ -785,7 +786,7 @@ export default class MyPreferences extends ExtensionPreferences {
     } // _close_request(_win) //
 
     onPageChanged(){
-        this.page_name         = this._window._settings.get_enum("page");
+        this.page_name         = this.enum2string[this._window._settings.get_enum("page")];
         this.edit_note         = this._window._settings.get_boolean('edit-note');
         if(this.edit_note){
             this.edit_note = false;
