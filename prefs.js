@@ -335,7 +335,7 @@ class NotesPreferencesSettings extends PageBase {
           valign: Gtk.Align.CENTER,
         });
         maxNoteLengthSpinButton.connect('notify::value', widget => {
-            this._settings.set_int('max-note-length', widget.get_value());
+            this._caller._window._settings.set_int('max-note-length', widget.get_value());
         });
         const maxNoteLengthRow = new Adw.ActionRow({
           title: _("Maximum length of a Note."),
@@ -379,7 +379,7 @@ class NotesPreferencesSettings extends PageBase {
           valign: Gtk.Align.CENTER,
         });
         iconSizeSpinButton.connect('notify::value', widget => {
-            this._settings.set_int('icon-size', widget.get_value());
+            this._caller._window._settings.set_int('icon-size', widget.get_value());
         });
         const iconSizeRow = new Adw.ActionRow({
           title: _("Size of Icons."),
