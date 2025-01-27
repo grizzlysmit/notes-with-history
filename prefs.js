@@ -348,7 +348,7 @@ class NotesPreferencesSettings extends PageBase {
             subtitle: _("Turn on the logging for this plugin if you don't know what this is the leave it off."),
             active: this._caller._window._settings.get_boolean('show-logs'), 
         });
-        this.show_logs_switch_row.connect("state-set", (_sw, state) => {
+        show_logs_switch_row.connect("state-set", (_sw, state) => {
             this._caller._window._settings.set_boolean("show-logs", state);
         });
         this._show_logs_switch_row  = show_logs_switch_row;
