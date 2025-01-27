@@ -770,7 +770,10 @@ export default class MyPreferences extends ExtensionPreferences {
                     window.set_visible_page(this.page);
             }  // switch(this.page_name) //
         } // if(this.edit_note) //
-        this.settingsID_page  = this._window._settings.connect("changed::page", this.onPageChanged.bind(this));
+        this.settingsID_page       = this._window._settings.connect("changed::page", this.onPageChanged.bind(this));
+        this.settingsID_edit_note  = this._window._settings.connect("changed::edit-note", () => {
+            this.edit_note         = this._window._settings.get_boolean("edit-note");
+        });
 
     } // fillPreferencesWindow(window) //
 
