@@ -582,6 +582,7 @@ class NotesScroller extends PageBase {
         this.controlsGroup.add(this._addButton);
         this.add(this.controlsGroup);
 
+        this.containerGroup    = new Adw.PreferencesGroup();
         this.notesGroup    = new Adw.PreferencesGroup();
         this.notesGroup.set_title(_title);
         this.notesGroup.set_name(_name);
@@ -604,7 +605,10 @@ class NotesScroller extends PageBase {
             });
             this.notesGroup.add(row);
         } // for(const note of this._caller.notes) //
-        this.add(this.notesGroup);
+        this.scrolledWindow    = new Gtk.ScrolledWindow();
+        this.scrolledWindow.set_child(this.notesGroup);
+        this.containerGroup.add(this.scrolledWindow);
+        this.add(this.containerGroup);
         this.bottomGroup    = new Adw.PreferencesGroup();
         this.bottomGroup.add(this._close_row());
         this.add(this.bottomGroup);
