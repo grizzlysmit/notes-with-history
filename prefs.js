@@ -210,9 +210,10 @@ class NotesPreferencesSettings extends PageBase {
 
     constructor(caller, _title, _name, _icon_name) {
         super(caller, _title, _name, _icon_name);
-        this.area_token_box = null;
-        this.position_input = null;
-        this.show_messages  = null;
+        this.area_token_box         = null;
+        this.position_input         = null;
+        this.show_messages          = null;
+        this._show_logs_switch_row  = null;
 
         this.group = new Adw.PreferencesGroup();
         this.group.set_title(_title);
