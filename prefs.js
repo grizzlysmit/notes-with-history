@@ -427,6 +427,11 @@ class FileDisplay extends PageBase {
         this.group.add(this._display_mode_box());
         this.group.add(this._display_number_links_box());
         this.group.add(this._display_size_box());
+        this.group.add(this._close_row());
+        const hbox = new Gtk.Box({orientation: Gtk.Orientation.HORIZONTAL, vexpand: true, hexpand: true, });
+        const bottom_spacer = new Gtk.Box({orientation: Gtk.Orientation.VERTICAL, vexpand: true, hexpand: true });
+        hbox.prepend(bottom_spacer);
+        this.group.add(hbox);
 
         this.add(this.group);
     } // constructor(caller, _title, _name, _icon_name) //
