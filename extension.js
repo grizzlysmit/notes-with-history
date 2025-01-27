@@ -142,6 +142,7 @@ class ApplicationMenuItem extends PopupMenu.PopupBaseMenuItem {
         try {
             t       = typeof this._item;
             Gzz.log_message('notes', `ApplicationMenuItem::activate: this._item == ‷${JSON.stringify(this._item)}‴ of type ‷${t}‴.`, new Error());
+            const string2enum = { settings: 0, NotesScroller: 1, editNote: 2, aboutPage: 3, credits: 4, };
             switch (this._item.type) {
                 case "note":
                     switch(this._item.subtype){
@@ -299,7 +300,7 @@ class ApplicationMenuItem extends PopupMenu.PopupBaseMenuItem {
                 case "credits":
                     Gzz.log_message('notes', `notes: settings, etc: this._item.type: ‷${this._item.type}‴.`, new Error());
                     this._button._caller.settings.set_boolean("edit-note", true);
-                    this._button._caller.settings.set_enum("page", this._item.type);
+                    this._button._caller.settings.set_enum("page", string2enum[this._item.type]);
                     this._button._caller.openPreferences();
                     break;
             } // switch (this._item.type) //
