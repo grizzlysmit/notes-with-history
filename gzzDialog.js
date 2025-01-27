@@ -614,6 +614,14 @@ export class GzzDialogType {
 
 }
 
+export const None          = 0b00000;
+export const Create        = 0b00001;
+export const Modify        = 0b00010;
+export const Access        = 0b00100;
+export const No_User_Group = 0b00000;
+export const User          = 0b00001;
+export const Group         = 0b00010;
+
 export class GzzFileDialogBase extends ModalDialog.ModalDialog {
     static {
         GObject.registerClass(this);

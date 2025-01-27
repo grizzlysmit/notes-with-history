@@ -6,10 +6,27 @@
     </enum>
     <enum id="org.gnome.shell.extensions.notes-with-history.page">
         <value value="0" nick="settings"/>
-        <value value="1" nick="notesScroller"/>
-        <value value="2" nick="editNote"/>
-        <value value="3" nick="aboutPage"/>
-        <value value="4" nick="credits"/>
+        <value value="1" nick="fileDisplay"/>
+        <value value="2" nick="notesScroller"/>
+        <value value="3" nick="editNote"/>
+        <value value="4" nick="aboutPage"/>
+        <value value="5" nick="credits"/>
+    </enum>
+    <enum id="org.gnome.shell.extensions.notes-with-history.time-type">
+        <value value="0" nick="None"/>
+        <value value="1" nick="Create"/>
+        <value value="2" nick="Modify"/>
+        <value value="3" nick="Crete-Modify"/>
+        <value value="4" nick="Access"/>
+        <value value="5" nick="Create-Access"/>
+        <value value="6" nick="Modify-Access"/>
+        <value value="7" nick="Create-Modify-Access"/>
+    </enum>
+    <enum id="org.gnome.shell.extensions.notes-with-history.user-group">
+        <value value="0" nick="No-User-Group"/>
+        <value value="1" nick="User"/>
+        <value value="2" nick="Group"/>
+        <value value="3" nick="User-Group"/>
     </enum>
     <schema path="/org/gnome/shell/extensions/notes-with-history/" id="org.gnome.shell.extensions.notes-with-history">
         <key name="area" enum="org.gnome.shell.extensions.notes-with-history.area">
@@ -81,6 +98,41 @@
             <default>false</default>
             <summary>The maximum length of a note.</summary>
             <description>The the maximum length a note is alowed to be.</description>
+        </key>
+        <key name="time-type" enum="org.gnome.shell.extensions.notes-with-history.time-type">
+            <default>'Modify'</default>
+            <summary>The time fields to display.</summary>
+            <description>Display exactly these time fields.</description>
+        </key>
+        <key name="user-group" enum="org.gnome.shell.extensions.notes-with-history.user-group">
+            <default>'User-Group'</default>
+            <summary>The user group fields to display.</summary>
+            <description>Display exactly these user group fields.</description>
+        </key>
+        <key type="b" name="display-inode">
+            <default>true</default>
+            <summary>The maximum length of a note.</summary>
+            <description>The the maximum length a note is alowed to be.</description>
+        </key>
+        <key type="b" name="display-mode">
+            <default>true</default>
+            <summary>The maximum length of a note.</summary>
+            <description>The the maximum length a note is alowed to be.</description>
+        </key>
+        <key type="b" name="display-number-links">
+            <default>true</default>
+            <summary>The maximum length of a note.</summary>
+            <description>The the maximum length a note is alowed to be.</description>
+        </key>
+        <key type="b" name="display-size">
+            <default>true</default>
+            <summary>The maximum length of a note.</summary>
+            <description>The the maximum length a note is alowed to be.</description>
+        </key>
+        <key type="i" name="icon-size">
+            <default>16</default>
+            <summary>The Icon Size.</summary>
+            <description>The Size for Icons.</description>
         </key>
     </schema>
 </schemalist>

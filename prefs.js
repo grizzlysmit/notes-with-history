@@ -213,7 +213,9 @@ class NotesPreferencesSettings extends PageBase {
         this.area_token_box         = null;
         this.position_input         = null;
         this.show_messages          = null;
+        this._max_note_length       = null;
         this._show_logs_switch_row  = null;
+        this._icon_size             = null;
 
         this.group = new Adw.PreferencesGroup();
         this.group.set_title(_title);
@@ -222,9 +224,10 @@ class NotesPreferencesSettings extends PageBase {
         this.group.add(this._area_token_box());
         this.group.add(this._position_box());
         this.group.add(this._show_messages());
-        this.group.add(this._max_note_length());
+        this.group.add(this._max_note_length_box());
         this.group.add(this._double_click_time_box());
-        this.group.add(this._show_logs());
+        this.group.add(this._show_logs_box());
+        this.group.add(this._icon_size_box());
         this.group.add(this._close_row());
         const hbox = new Gtk.Box({orientation: Gtk.Orientation.HORIZONTAL, vexpand: true, hexpand: true, });
         const bottom_spacer = new Gtk.Box({orientation: Gtk.Orientation.VERTICAL, vexpand: true, hexpand: true });
@@ -315,7 +318,7 @@ class NotesPreferencesSettings extends PageBase {
         return showMessagesRow;
     } // _show_messages() //
 
-    _max_note_length(){
+    _max_note_length_box(){
         // Max length of a note in chars //
         const maxNoteLengthSpinButton = new Gtk.SpinButton({
           adjustment: new Gtk.Adjustment({
@@ -331,17 +334,20 @@ class NotesPreferencesSettings extends PageBase {
           numeric: true,
           valign: Gtk.Align.CENTER,
         });
+        maxNoteLengthSpinButton.connect('notify::value', widget => {
+            this._settings.set_int('max-note-length', widget.get_value());
+        });
         const maxNoteLengthRow = new Adw.ActionRow({
           title: _("Maximum length of a Note."),
           subtitle: _("The maximum length allowed for a note"),
           activatable_widget: maxNoteLengthSpinButton,
         });
         maxNoteLengthRow.add_suffix(maxNoteLengthSpinButton);
-        this.max_note_length  = maxNoteLengthRow;
+        this._max_note_length  = maxNoteLengthRow;
         return maxNoteLengthRow;
-    }
+    } // _max_note_length_box() //
 
-    _show_logs(){
+    _show_logs_box(){
         // Show logs for debugging //
         const show_logs_switch_row = new Adw.SwitchRow({
             title: _("Show logs for debugging."),
@@ -354,7 +360,36 @@ class NotesPreferencesSettings extends PageBase {
         });
         this._show_logs_switch_row  = show_logs_switch_row;
         return show_logs_switch_row;
-    }
+    } // _show_logs_box() //
+
+    _icon_size_box(){
+        // Max length of a note in chars //
+        const iconSizeSpinButton = new Gtk.SpinButton({
+          adjustment: new Gtk.Adjustment({
+            lower: 100,
+            upper: 255,
+            step_increment: 1,
+            page_increment: 1,
+            page_size: 0,
+            value: this._caller._window._settings.get_int("icon-size"),
+          }),
+          climb_rate: 1,
+          digits: 0,
+          numeric: true,
+          valign: Gtk.Align.CENTER,
+        });
+        iconSizeSpinButton.connect('notify::value', widget => {
+            this._settings.set_int('icon-size', widget.get_value());
+        });
+        const iconSizeRow = new Adw.ActionRow({
+          title: _("Maximum length of a Note."),
+          subtitle: _("The maximum length allowed for a note"),
+          activatable_widget: iconSizeSpinButton,
+        });
+        iconSizeRow.add_suffix(iconSizeSpinButton);
+        this._icon_size  = iconSizeRow;
+        return iconSizeRow;
+    } // _icon_size_box() //
 
     destroy(){
         this.area_token_box        = null;
@@ -362,10 +397,156 @@ class NotesPreferencesSettings extends PageBase {
         this.show_messages         = null;
         this.max_note_length       = null;
         this._show_logs_switch_row = null;
+        this._max_note_length      = null;
+        this._icon_size            = null;
         super.destroy();
     } // destroy() //
     
 } // class NotesPreferencesSettings extends Adw.PreferencesPage //
+
+class FileDisplay extends PageBase {
+    static {
+        GObject.registerClass(this);
+    }
+
+    constructor(caller, _title, _name, _icon_name) {
+        super(caller, _title, _name, _icon_name);
+
+        this.time_type_box                    = null;
+        this._display_inode_switch_row        = null;
+        this.user_group_box                   = null;
+        this._display_mode_switch_row         = null;
+        this._display_number_links_switch_row = null;
+        this._display_size_switch_row         = null;
+
+        this.group = new Adw.PreferencesGroup();
+
+        this.group.add(this._time_type_box());
+        this.group.add(this._display_inode_box());
+        this.group.add(this._user_group_box());
+        this.group.add(this._display_mode_box());
+        this.group.add(this._display_number_links_box());
+        this.group.add(this._display_size_box());
+
+        this.add(this.group);
+    } // constructor(caller, _title, _name, _icon_name) //
+
+    _time_type_box(){
+        const title = _("Diplay these time types");
+        const panelAreas = new Gtk.StringList();
+        const time_type = [
+            _("None"), _("Create"), _("Modify"),
+            _("Crete+Modify"), _("Access"),
+            _("Create+Access"), _("Modify+Access"),
+            _("Create+Modify+Access")
+        ];
+        for (let i = 0; i < time_type.length; i++){
+            panelAreas.append(time_type[i]);
+        }
+        const row = new Adw.ComboRow({
+            title,
+            model: panelAreas,
+            selected: this._caller._window._settings.get_enum("time-type"),
+            use_subtitle: true, 
+        });
+        row.connect("notify::selected", (widget) => {
+            this._caller._window._settings.set_enum("time-type", widget.selected);
+        });
+        this.time_type_box = row;
+        return row;
+    } // _time_type_box() //
+
+    _display_inode_box(){
+        // Display Inode //
+        const display_inode_switch_row = new Adw.SwitchRow({
+            title: _("Display Inode."),
+            subtitle: _("Diplay the Inode number."),
+            active: this._caller._window._settings.get_boolean('display-inode'), 
+        });
+        this.display_inode_switch = display_inode_switch_row.activatable_widget;
+        this.display_inode_switch.connect("state-set", (_sw, state) => {
+            this._caller._window._settings.set_boolean("display-inode", state);
+        });
+        this._display_inode_switch_row  = display_inode_switch_row;
+        return display_inode_switch_row;
+    } // _display_inode_box() //
+
+    _user_group_box(){
+        const title = _("Diplay User and or Group");
+        const panelAreas = new Gtk.StringList();
+        const user_group = [ _("No-User-Group"), _("User"), _("Group"), _("User+Group"), ];
+        for (let i = 0; i < user_group.length; i++){
+            panelAreas.append(user_group[i]);
+        }
+        const row = new Adw.ComboRow({
+            title,
+            model: panelAreas,
+            selected: this._caller._window._settings.get_enum("user-group"),
+            use_subtitle: true, 
+        });
+        row.connect("notify::selected", (widget) => {
+            this._caller._window._settings.set_enum("user-group", widget.selected);
+        });
+        this.user_group_box = row;
+        return row;
+    } // _user_group_box() //
+
+    _display_mode_box(){
+        // Display mode //
+        const display_mode_switch_row = new Adw.SwitchRow({
+            title: _("Display Perms."),
+            subtitle: _("Diplay the Permissions and File Type."),
+            active: this._caller._window._settings.get_boolean('display-mode'), 
+        });
+        this.display_mode_switch = display_mode_switch_row.activatable_widget;
+        this.display_mode_switch.connect("state-set", (_sw, state) => {
+            this._caller._window._settings.set_boolean("display-mode", state);
+        });
+        this._display_mode_switch_row  = display_mode_switch_row;
+        return display_mode_switch_row;
+    } // _display_mode_box() //
+
+    _display_number_links_box(){
+        // Display number of links //
+        const display_number_links_switch_row = new Adw.SwitchRow({
+            title: _("Display number of links."),
+            subtitle: _("Diplay the number of hard links."),
+            active: this._caller._window._settings.get_boolean('display-number-links'), 
+        });
+        this.display_number_links_switch = display_number_links_switch_row.activatable_widget;
+        this.display_number_links_switch.connect("state-set", (_sw, state) => {
+            this._caller._window._settings.set_boolean("display-number-links", state);
+        });
+        this._display_number_links_switch_row  = display_number_links_switch_row;
+        return display_number_links_switch_row;
+    } // _display_number_links_box() //
+
+    _display_size_box(){
+        // Display size //
+        const display_size_switch_row = new Adw.SwitchRow({
+            title: _("Display File Size."),
+            subtitle: _("Diplay the File Size in Terra Bytes, Giga Bytes etc..."),
+            active: this._caller._window._settings.get_boolean('display-size'), 
+        });
+        this.display_size_switch = display_size_switch_row.activatable_widget;
+        this.display_size_switch.connect("state-set", (_sw, state) => {
+            this._caller._window._settings.set_boolean("display-size", state);
+        });
+        this._display_size_switch_row  = display_size_switch_row;
+        return display_size_switch_row;
+    } // _display_size_box() //
+
+    destroy(){
+        this.time_type_box                    = null;
+        this._display_inode_switch_row        = null;
+        this.user_group_box                   = null;
+        this._display_mode_switch_row         = null;
+        this._display_number_links_switch_row = null;
+        this._display_size_switch_row         = null;
+        super.destroy();
+    }
+
+} // class FileDisplay extends PageBase //
 
 class NotesScroller extends PageBase {
     static {
@@ -418,8 +599,10 @@ class NotesScroller extends PageBase {
             });
             this.notesGroup.add(row);
         } // for(const note of this._caller.notes) //
-        this.notesGroup.add(this._close_row());
         this.add(this.notesGroup);
+        this.bottomGroup    = new Adw.PreferencesGroup();
+        this.bottomGroup.add(this._close_row());
+        this.add(this.bottomGroup);
     } // constructor(caller, _title, _name, _icon_name) //
     
     refresh(){
@@ -689,7 +872,7 @@ class CreditsPage extends PageBase {
 
 } // class CreditsPage extends PageBase //
 
-export default class MyPreferences extends ExtensionPreferences {
+export default class NotesPreferences extends ExtensionPreferences {
     constructor(metadata) {
         super(metadata);
         this._pageNotesPreferencesSettings = null;
@@ -698,7 +881,7 @@ export default class MyPreferences extends ExtensionPreferences {
         this.aboutPage                     = null;
         this.creditsPage                   = null;
         this.page                          = this._pageNotesPreferencesSettings;
-        this.enum2string = ["settings", "notesScroller", "editNote", "aboutPage", "credits", ];
+        this.enum2string = ["settings", "fileDisplay", "notesScroller", "editNote", "aboutPage", "credits", ];
     } //  constructor(metadata) //
 
     fillPreferencesWindow(window) {
@@ -718,6 +901,7 @@ export default class MyPreferences extends ExtensionPreferences {
         this.edit_note         = this._window._settings.get_boolean("edit-note");
 
         this._pageNotesPreferencesSettings = new NotesPreferencesSettings(this, _('Settings'), _("settings"), 'preferences-system-symbolic');
+        this._fileDisplay                  = new FileDisplay(this, _('File Display Settings'), _("fileDisplay"), 'preferences-system-symbolic');
         this._NotesScroller                = new NotesScroller(this, _("Notes"), _("notes"), 'notes-app');
         this._EditNote                     = new EditNote(this, _("Edit note"), _("editNotes"), 'notes-app');
         this.aboutPage                     = new AboutPage(this, this.metadata);
@@ -730,6 +914,7 @@ export default class MyPreferences extends ExtensionPreferences {
                 this._window._settings.set_int("window-height", height);
             } // if(width !== this.properties_width && height !== this.properties_height) //
             this._pageNotesPreferencesSettings = null;
+            this._fileDisplay                  = null;
             this._NotesScroller                = null;
             this._EditNote                     = null;
             this.aboutPage                     = null;
@@ -737,6 +922,7 @@ export default class MyPreferences extends ExtensionPreferences {
             window.destroy();
         });
         window.add(this._pageNotesPreferencesSettings);
+        window.add(this._fileDisplay);
         window.add(this._NotesScroller);
         window.add(this._EditNote);
         window.add(this.aboutPage);
@@ -748,6 +934,10 @@ export default class MyPreferences extends ExtensionPreferences {
             switch(this.page_name){
                 case("settings"):
                     this.page = this._pageNotesPreferencesSettings;
+                    this._window.set_visible_page(this.page);
+                    break;
+                case("fileDisplay"):
+                    this.page = this._fileDisplay;
                     this._window.set_visible_page(this.page);
                     break;
                 case("notesScroller"):
@@ -800,6 +990,10 @@ export default class MyPreferences extends ExtensionPreferences {
                     this.page = this._pageNotesPreferencesSettings;
                     this._window.set_visible_page(this.page);
                     break;
+                case("fileDisplay"):
+                    this.page = this._fileDisplay;
+                    this._window.set_visible_page(this.page);
+                    break;
                 case("notesScroller"):
                     this.page = this._NotesScroller;
                     this._window.set_visible_page(this.page);
@@ -830,5 +1024,5 @@ export default class MyPreferences extends ExtensionPreferences {
 
     }
 
-}
+} // export default class NotesPreferences extends ExtensionPreferences //
 

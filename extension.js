@@ -143,7 +143,7 @@ class ApplicationMenuItem extends PopupMenu.PopupBaseMenuItem {
         try {
             t       = typeof this._item;
             Gzz.log_message('notes', `ApplicationMenuItem::activate: this._item == ‷${JSON.stringify(this._item)}‴ of type ‷${t}‴.`, new Error());
-            const string2enum = { settings: 0, notesScroller: 1, editNote: 2, aboutPage: 3, credits: 4, };
+            const string2enum = { settings: 0, fileDisplay: 1, notesScroller: 2, editNote: 3, aboutPage: 4, credits: 5, };
             switch (this._item.type) {
                 case "note":
                     switch(this._item.subtype){
@@ -297,6 +297,7 @@ class ApplicationMenuItem extends PopupMenu.PopupBaseMenuItem {
                     this._button.get_file_contents();
                     break;
                 case "settings":
+                case "fileDisplay":
                 case "notesScroller":
                 case "aboutPage":
                 case "credits":
@@ -358,14 +359,21 @@ class Indicator extends PanelMenu.Button {
         Gzz.log_message('notes', `cont: ‷${cont}‴.`, new Error());
         Gzz.log_message('notes', `_dialogtype: ‷${JSON.stringify(_dialogtype)}‴.`, new Error());
         const dlg       = new Gzz.GzzFileDialog({
-            title:             _("Save messages as file"),
-            dialogtype:        _dialogtype,
-            dir:               path, 
-            file_name:         ((file_name == '') ? 'notes.txt' : file_name), 
-            contents:          cont, 
-            filter:            new RegExp('^.*\\.txt$', 'i'), 
-            double_click_time: this._caller.settings.get_int('double-click-time'), 
-            save_done:         (_dlg, result, dir_, file_name_) => {
+            title:                _("Save messages as file"),
+            dialogtype:           _dialogtype,
+            dir:                  path, 
+            file_name:            ((file_name == '') ? 'notes.txt' : file_name), 
+            contents:             cont, 
+            filter:               new RegExp('^.*\\.txt$', 'i'), 
+            icon_size:            this._caller._window.settings.get_int('icon-size'), 
+            display_times:        this._caller._window.settings.get_enum('time-type'), 
+            display_inode:        this._caller._window.settings.get_boolean('display-inode'), 
+            display_user_group:   this._caller._window.settings.get_enum('user-group'), 
+            display_mode:         this._caller._window.settings.get_boolean('display-mode'),
+            display_number_links: this._caller._window.settings.get_boolean('display-number-links'),
+            display_size:         this._caller._window.settings.get_boolean('display-size'),
+            double_click_time:    this._caller.settings.get_int('double-click-time'), 
+            save_done:            (_dlg, result, dir_, file_name_) => {
                 if(result){
                     if(dir_){
                         this._caller.settings.set_string("notespath", dir_.get_path());
@@ -390,13 +398,19 @@ class Indicator extends PanelMenu.Button {
             const _file_name  = this._caller.notesname;
             const _dialogtype = Gzz.GzzDialogType.Open;
             dlg = new Gzz.GzzFileDialog({
-                title:             'Load File', 
-                dir:               _dir, 
-                file_name:         _file_name, 
-                dialogtype:        _dialogtype, 
-                filter:            new RegExp('^(?:.*\\.txt)$', 'i'), 
-                double_click_time: this._caller.settings.get_int('double-click-time'), 
-                save_done:         (dlg_, result, _dir, _file_name) => {
+                title:                'Load File', 
+                dir:                  _dir, 
+                file_name:            _file_name, 
+                dialogtype:           _dialogtype, 
+                display_times:        this._caller._window.settings.get_enum('time-type'), 
+                display_inode:        this._caller._window.settings.get_boolean('display-inode'), 
+                display_user_group:   this._caller._window.settings.get_enum('user-group'), 
+                display_mode:         this._caller._window.settings.get_boolean('display-mode'),
+                display_number_links: this._caller._window.settings.get_boolean('display-number-links'),
+                display_size:         this._caller._window.settings.get_boolean('display-size'),
+                filter:               new RegExp('^(?:.*\\.txt)$', 'i'), 
+                double_click_time:    this._caller.settings.get_int('double-click-time'), 
+                save_done:            (dlg_, result, _dir, _file_name) => {
                     if(result){
                         notesfile = dlg_.get_full_path();
                         if(notesfile){
@@ -484,8 +498,11 @@ class Indicator extends PanelMenu.Button {
         submenu.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
 
         item = new ApplicationMenuItem(this, { text: _('Settings...'), type: 'settings', index: 0, subtype: 'None', });
-        //item.connect('activate', () => { this._caller.openPreferences(); });
-        //item.connect('activate', (event) => { item.activate(event); });
+
+        submenu.menu.addMenuItem(item);
+
+        item = new ApplicationMenuItem(this, { text: _('File Display Settings...'), type: 'fileDisplay', index: 0, subtype: 'None', });
+
         submenu.menu.addMenuItem(item);
 
         item = new ApplicationMenuItem(this, { text: _('Notes Scroller...'), type: 'notesScroller', index: 0, subtype: 'None', });
