@@ -606,8 +606,8 @@ class NotesScroller extends PageBase {
             this.notesGroup.add(row);
         } // for(const note of this._caller.notes) //
         this.scrolledWindow    = new Gtk.ScrolledWindow();
-        const height = this._caller._window.default_height - 300;
-        this._caller.log_message('notes', `Callback notify::default-height: height == ${height}`, new Error());
+        const height = this._caller._window.default_height - 600;
+        this._caller.log_message('notes', `NotesScroller::constructor: height == ${height}`, new Error());
         this.scrolledWindow.set_max_content_height(height);
         this.scrolledWindow.set_child(this.notesGroup);
         this.containerGroup.add(this.scrolledWindow);
@@ -616,7 +616,7 @@ class NotesScroller extends PageBase {
         this.bottomGroup.add(this._close_row());
         this.add(this.bottomGroup);
         this.size_changed_id = this._caller._window.connect('notify::default-height', () => {
-            const height = this._caller._window.default_height - 300;
+            const height = this._caller._window.default_height - 600;
             this._caller.log_message('notes', `Callback notify::default-height: height == ${height}`, new Error());
             this.scrolledWindow.set_max_content_height(height);
         });
