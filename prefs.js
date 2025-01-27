@@ -797,11 +797,11 @@ export default class MyPreferences extends ExtensionPreferences {
             switch(this.page_name){
                 case("settings"):
                     this.page = this._pageNotesPreferencesSettings;
-                    window.set_visible_page(this.page);
+                    this._window.set_visible_page(this.page);
                     break;
                 case("notesScroller"):
                     this.page = this._NotesScroller;
-                    window.set_visible_page(this.page);
+                    this._window.set_visible_page(this.page);
                     break;
                 case("editNote"):
                     this.page = this._EditNote;
@@ -809,15 +809,15 @@ export default class MyPreferences extends ExtensionPreferences {
                     break;
                 case("aboutPage"):
                     this.page = this.aboutPage;
-                    window.set_visible_page(this.page);
+                    this._window.set_visible_page(this.page);
                     break;
                 case("credits"):
                     this.page = this.creditsPage;
-                    window.set_visible_page(this.page);
+                    this._window.set_visible_page(this.page);
                     break;
                 default:
                     this.page = this._pageNotesPreferencesSettings;
-                    window.set_visible_page(this.page);
+                    this._window.set_visible_page(this.page);
             }  // switch(this.page_name) //
         } // if(this.edit_note) //
     }
