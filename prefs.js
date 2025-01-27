@@ -719,7 +719,7 @@ export default class MyPreferences extends ExtensionPreferences {
         this._NotesScroller                = new NotesScroller(this, _("Notes"), _("notes"), 'notes-app');
         this._EditNote                     = new EditNote(this, _("Edit note"), _("editNotes"), 'notes-app');
         this.aboutPage                     = new AboutPage(this, this.metadata);
-        this.creditsPage                   = new CreditsPage(this, _("Credits"), _("editNotes"), 'copyright-symbolic');
+        this.creditsPage                   = new CreditsPage(this, _("Credits"), _("credits"), 'copyright-symbolic');
         window.connect("close-request", (_win) => {
             const width  = window.default_width;
             const height = window.default_height;
