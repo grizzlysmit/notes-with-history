@@ -366,8 +366,8 @@ class NotesPreferencesSettings extends PageBase {
         // Max length of a note in chars //
         const iconSizeSpinButton = new Gtk.SpinButton({
           adjustment: new Gtk.Adjustment({
-            lower: 100,
-            upper: 255,
+            lower: 16,
+            upper: 256,
             step_increment: 1,
             page_increment: 1,
             page_size: 0,
@@ -382,8 +382,8 @@ class NotesPreferencesSettings extends PageBase {
             this._settings.set_int('icon-size', widget.get_value());
         });
         const iconSizeRow = new Adw.ActionRow({
-          title: _("Maximum length of a Note."),
-          subtitle: _("The maximum length allowed for a note"),
+          title: _("Size of Icons."),
+          subtitle: _("The Size of the icons in the dialogs"),
           activatable_widget: iconSizeSpinButton,
         });
         iconSizeRow.add_suffix(iconSizeSpinButton);
