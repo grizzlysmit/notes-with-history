@@ -80,6 +80,7 @@ class ApplicationMenuItem extends PopupMenu.PopupBaseMenuItem {
                     icon_name: 'notes-app',
                     style_class: 'system-status-icon',
                 });
+                icon.icon_size = APPLICATION_ICON_SIZE;
                 break;
             case "settings":
                 app  = this._button._caller.appSys.lookup_app('org.gnome.settings');
