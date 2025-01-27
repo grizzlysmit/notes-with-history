@@ -247,7 +247,8 @@ class ApplicationMenuItem extends PopupMenu.PopupBaseMenuItem {
                             index    = this._item.index;
                             Gzz.log_message('notes', `ApplicationMenuItem::activate: edit-delete-in-prefs: index: ‷${index}‴.`, new Error());
                             this._button._caller.settings.set_int('index', index);
-                            this._button._caller.settings.set_boolean('page', 'editNote');
+                            this._button._caller.settings.set_boolean("edit-note", true);
+                            this._button._caller.settings.set_enum('page', string2enum['editNote']);
                             this._button._caller.openPreferences();
                             break;
                     } // switch(this._item.subtype) //
