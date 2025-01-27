@@ -502,16 +502,17 @@ class EditNote extends PageBase {
                                                  valign:      Gtk.Align.CENTER,
         });
         this.save_button.connect("clicked", () => { this.save(false); });
-        this.save_exit     = new Gtk.Button({
+        this.save_exit_button     = new Gtk.Button({
                                                 label:        save_exit_lable,
                                                  css_classes: ["save-button"],
                                                  valign:      Gtk.Align.CENTER,
         });
-        this.save_exit.connect("clicked", () => { this.save_exit(); });
+        this.save_exit_button.connect("clicked", () => { this.save_exit(); });
         this.button_box.prepend(this.cancel_button);
         this.button_box.append(this.restart_button);
         this.button_box.append(this.delete_button);
         this.button_box.append(this.save_button);
+        this.button_box.append(this.save_exit_button);
         this.buttonRow = new Adw.PreferencesRow({
                             title: "",
         });
@@ -575,19 +576,19 @@ class EditNote extends PageBase {
     delete_note(){
         if(0 <= this.index && this.index < this._caller.notes.length){
             this._caller.notes.splice(this.index, 1);
-            this._caller._settings.set_strv("notes", this._caller.notes);
+            this._caller._window._settings.set_strv("notes", this._caller.notes);
             this.note = null;
             this.edit.set_text('');
             this.index = -1;
         }
         if(this._caller.edit_note){
             this._caller.edit_note = false;
-            this._caller._window._settings.set_boolean(false);
+            this._caller._window._settings.set_boolean('edit-note', false);
             if(this.calling_page){
                 this._caller._NotesScroller.refresh();
                 this._caller._window.set_visible_page(this.calling_page);
             }else{
-                this._caller._close_request(this._caller._window);
+                this._caller._window._close_request(this._caller._window);
             }
         }else if(this.calling_page){ // if(this._caller.edit_note) //
             this._caller._NotesScroller.refresh();
@@ -601,7 +602,7 @@ class EditNote extends PageBase {
         if(0 <= this.index && this.index < this._caller.notes.length){
             if(this.note && this.note.trim() != ''){
                 this._caller.notes[this.index] = this.note;
-                this._caller._settings.set_strv("notes", this._caller.notes);
+                this._caller._window._settings.set_strv("notes", this._caller.notes);
             }
             if(this._caller.edit_note){
                 this._caller.edit_note = false;
