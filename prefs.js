@@ -223,6 +223,7 @@ class NotesPreferencesSettings extends PageBase {
         this.group.add(this._show_messages());
         this.group.add(this._max_note_length());
         this.group.add(this._double_click_time_box());
+        this.group.add(this._show_logs());
         this.group.add(this._close_row());
         const hbox = new Gtk.Box({orientation: Gtk.Orientation.HORIZONTAL, vexpand: true, hexpand: true, });
         const bottom_spacer = new Gtk.Box({orientation: Gtk.Orientation.VERTICAL, vexpand: true, hexpand: true });
@@ -339,11 +340,27 @@ class NotesPreferencesSettings extends PageBase {
         return maxNoteLengthRow;
     }
 
+    _show_logs(){
+        // Show logs for debugging //
+        const show_logs_switch_row = new Adw.SwitchRow({
+            title: _("Show logs for debugging."),
+            subtitle: _("Turn on the logging for this plugin if you don't know what this is the leave it off."),
+            active: this._caller._window._settings.get_boolean('show-logs'), 
+        });
+        this.show_logs_switch_row.connect("state-set", (_sw, state) => {
+            this._caller._window._settings.set_boolean("show-logs", state);
+        });
+        this._show_logs_switch_row  = show_logs_switch_row;
+        return show_logs_switch_row;
+    }
+
     destroy(){
-        this.area_token_box  = null;
-        this.position_input  = null;
-        this.show_messages   = null;
-        this.max_note_length = null;
+        this.area_token_box        = null;
+        this.position_input        = null;
+        this.show_messages         = null;
+        this.max_note_length       = null;
+        this._show_logs_switch_row = null;
+        super.destroy();
     } // destroy() //
     
 } // class NotesPreferencesSettings extends Adw.PreferencesPage //
@@ -578,7 +595,7 @@ class EditNote extends PageBase {
 
     save(_exit){
         this.note = this.get_text();
-        console.log(`notes: EditNote::save: this.note: ‷${this.note}‴.`);
+        this._caller.log_message('notes', `EditNote::save: this.note: ‷${this.note}‴.`, new Error());
         if(0 <= this.index && this.index < this._caller.notes.length){
             if(this.note && this.note.trim() != ''){
                 this._caller.notes[this.index] = this.note;
@@ -606,10 +623,10 @@ class EditNote extends PageBase {
                 this._caller._close_request(this._caller._window);
             }
         }else{ //if(0 <= this.index && this.index < this._caller.notes.length) //
-            console.log(`notes: EditNote::save: this.note: ‷${this.note}‴.`);
+            this._caller.log_message('notes', `EditNote::save: this.note: ‷${this.note}‴.`, new Error());
             if(this.note && this.note.trim() != ''){
                 this._caller.notes.unshift(this.note);
-                console.log(`notes: EditNote::save: this._caller.notes: ‷${this._caller.notes}‴.`);
+                this._caller.log_message('notes', `EditNote::save: this._caller.notes: ‷${this._caller.notes}‴.`, new Error());
                 this.index = 0;
                 this._caller._settings.set_strv("notes", this._caller.notes);
                 this._caller._settings.set_int("index", this.index);
@@ -797,6 +814,13 @@ export default class MyPreferences extends ExtensionPreferences {
                     window.set_visible_page(this.page);
             }  // switch(this.page_name) //
         } // if(this.edit_note) //
+    }
+
+    log_message(id, text, e){
+        if(this._window._settings.get_boolean('show-logs')){
+            console.log(`${id}:${text}: ${e.fileName}:${e.lineNumber}:${e.columnNumber}`);
+        }
+
     }
 
 }

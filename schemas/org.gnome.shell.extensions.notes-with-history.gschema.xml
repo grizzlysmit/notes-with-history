@@ -77,5 +77,10 @@
             <summary>The maximum length of a note.</summary>
             <description>The the maximum length a note is alowed to be.</description>
         </key>
+        <key type="b" name="show-logs">
+            <default>false</default>
+            <summary>The maximum length of a note.</summary>
+            <description>The the maximum length a note is alowed to be.</description>
+        </key>
     </schema>
 </schemalist>
