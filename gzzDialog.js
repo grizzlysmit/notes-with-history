@@ -1543,7 +1543,7 @@ export class GzzListFileRow extends St.BoxLayout {
                 style_class: 'dialog-list-item-create',
                 x_expand:    true,
                 x_align:     Clutter.ActorAlign.FILL, 
-                width:       250, 
+                width:       300, 
                 reactive:    true, 
             });
         }
@@ -1562,7 +1562,7 @@ export class GzzListFileRow extends St.BoxLayout {
                 style_class: 'dialog-list-item-title',
                 x_expand:    true,
                 x_align:     Clutter.ActorAlign.FILL, 
-                width:       250, 
+                width:       300, 
                 reactive:    true, 
             });
         }
@@ -1581,7 +1581,7 @@ export class GzzListFileRow extends St.BoxLayout {
                 style_class: 'dialog-list-item-title',
                 x_expand:    true,
                 x_align:     Clutter.ActorAlign.FILL, 
-                width:       250, 
+                width:       300, 
                 reactive:    true, 
             });
         }
