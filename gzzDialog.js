@@ -1714,8 +1714,8 @@ export class GzzListFileRow extends St.BoxLayout {
             this._nlink_box.connect("button-release-event", (actor, event) => { this.handle_button_release_event(actor, event); });
         }
         if(this._nlink_box){
-            this._create.connect("button-press-event", (actor, event) => { this.handle_button_press_event(actor, event); });
-            this._create.connect("button-release-event", (actor, event) => { this.handle_button_release_event(actor, event); });
+            this._nlink_box.connect("button-press-event", (actor, event) => { this.handle_button_press_event(actor, event); });
+            this._nlink_box.connect("button-release-event", (actor, event) => { this.handle_button_release_event(actor, event); });
         }
         if(this._create){
             this._create.connect("button-press-event", (actor, event) => { this.handle_button_press_event(actor, event); });
