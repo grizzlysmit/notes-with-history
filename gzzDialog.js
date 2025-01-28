@@ -1588,6 +1588,13 @@ export class GzzListFileRow extends St.BoxLayout {
 
         this._display_user_group = GzzListFileRow.No_User_Group;
 
+        if('display_user_group' in params && Number.isInteger(params.display_user_group)
+            && 0 <= Number(params.display_user_group) && Number(params.display_user_group) <= 3){
+            this._display_user_group = Number(params.display_user_group);
+        }
+        
+        log_message('notes', `GzzFileDialog::constructor: this._display_user_group == ${this._display_user_group}`, new Error());
+
         this._user_name = '';
 
         if('user_name' in params){
@@ -1645,16 +1652,14 @@ export class GzzListFileRow extends St.BoxLayout {
                 reactive:    true, 
             });
         }
-        /* TODO: finish this boiler plate!!!!
-                    display_size:         this._display_size,
-                    base2_file_sizes:     this._base2_file_sizes, 
-        // */    
 
         this._display_size = false;
 
         if('display_size' in params){
             this._display_size = !!params.display_size;
         }
+        log_message('notes', `GzzListFileRow::constructor: this._display_size == ${this._display_size}`, new Error());
+        log_message('notes', `GzzListFileRow::constructor: this._file_size == ${this._file_size}`, new Error());
 
         this._file_size_box = null;
 
@@ -1664,10 +1669,11 @@ export class GzzListFileRow extends St.BoxLayout {
                 style_class: 'dialog-list-item-file-size',
                 x_expand:    true,
                 x_align:     Clutter.ActorAlign.FILL, 
-                width:       40, 
+                width:       60, 
                 reactive:    true, 
             });
         }
+        log_message('notes', `GzzListFileRow::constructor: this._file_size_box == ${this._file_size_box}`, new Error());
 
         let textLayout = new St.BoxLayout({
             vertical: false,
@@ -1704,7 +1710,7 @@ export class GzzListFileRow extends St.BoxLayout {
         }
         this.click_count = 0;
         this._icon.connect("button-press-event", (actor, event) => { this.handle_button_press_event(actor, event); });
-        this._icon.connect("button-press-event", (actor, event) => { this.handle_button_press_event(actor, event); });
+        this._icon.connect("button-release-event", (actor, event) => { this.handle_button_press_event(actor, event); });
         if(this._inode){
             this._inode.connect("button-press-event", (actor, event) => { this.handle_button_press_event(actor, event); });
             this._inode.connect("button-release-event", (actor, event) => { this.handle_button_release_event(actor, event); });
@@ -2137,12 +2143,13 @@ export class GzzFileDialog extends GzzFileDialogBase {
             this._display_inode = !!params.display_inode;
         }
 
-        this._display_user_group = 3; // user-group //
+        this._display_user_group = GzzListFileRow.User|GzzListFileRow.Group; // user-group //
 
         if('display_user_group' in params && Number.isInteger(params.display_user_group) 
             && 0 <= Number(params.display_times) && Number(params.display_times) <= 3){
             this._display_user_group = Number(params.display_user_group);
         }
+        log_message('notes', `GzzFileDialog::constructor: this._display_user_group == ${this._display_user_group}`, new Error());
 
         this._display_mode = false;
 
