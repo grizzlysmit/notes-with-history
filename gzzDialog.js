@@ -1415,11 +1415,11 @@ export class GzzListFileRow extends St.BoxLayout {
             icon_size_ = Number(params.icon_size);
         }
         
-        this._icon = null;
-
         this._icon = new St.Icon({
             icon_name: (this._is_dir ? 'inode-directory' : 'notes-app'), 
             icon_size:  icon_size_, 
+            x_align:    Clutter.ActorAlign.CENTER, 
+            width:      icon_size_ + 10, 
             reactive:   true, 
         });
 
@@ -1483,7 +1483,7 @@ export class GzzListFileRow extends St.BoxLayout {
                 style_class: 'dialog-list-item-mode',
                 x_expand:    true,
                 x_align:     Clutter.ActorAlign.FILL, 
-                width:       200, 
+                width:       150, 
                 reactive:    true, 
             });
         }
@@ -1508,7 +1508,7 @@ export class GzzListFileRow extends St.BoxLayout {
                 style_class: 'dialog-list-item-title',
                 x_expand:    true,
                 x_align:     Clutter.ActorAlign.FILL, 
-                width:       40, 
+                width:       20, 
                 reactive:    true, 
             });
         }
@@ -1518,7 +1518,7 @@ export class GzzListFileRow extends St.BoxLayout {
             style_class: 'dialog-list-item-title',
             x_expand:    true,
             x_align:     Clutter.ActorAlign.FILL, 
-            width:       400, 
+            width:       200, 
             reactive:    true, 
         });
 
@@ -1543,7 +1543,7 @@ export class GzzListFileRow extends St.BoxLayout {
                 style_class: 'dialog-list-item-create',
                 x_expand:    true,
                 x_align:     Clutter.ActorAlign.FILL, 
-                width:       200, 
+                width:       250, 
                 reactive:    true, 
             });
         }
@@ -1562,7 +1562,7 @@ export class GzzListFileRow extends St.BoxLayout {
                 style_class: 'dialog-list-item-title',
                 x_expand:    true,
                 x_align:     Clutter.ActorAlign.FILL, 
-                width:       200, 
+                width:       250, 
                 reactive:    true, 
             });
         }
@@ -1581,7 +1581,7 @@ export class GzzListFileRow extends St.BoxLayout {
                 style_class: 'dialog-list-item-title',
                 x_expand:    true,
                 x_align:     Clutter.ActorAlign.FILL, 
-                width:       200, 
+                width:       250, 
                 reactive:    true, 
             });
         }
@@ -1606,7 +1606,7 @@ export class GzzListFileRow extends St.BoxLayout {
                 style_class: 'dialog-list-item-user',
                 x_expand:    true,
                 x_align:     Clutter.ActorAlign.FILL, 
-                width:       200, 
+                width:       250, 
                 reactive:    true, 
             });
         }
@@ -1641,7 +1641,7 @@ export class GzzListFileRow extends St.BoxLayout {
                 style_class: 'dialog-list-item-group',
                 x_expand:    true,
                 x_align:     Clutter.ActorAlign.FILL, 
-                width:       200, 
+                width:       250, 
                 reactive:    true, 
             });
         }
