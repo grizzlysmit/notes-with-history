@@ -1368,7 +1368,7 @@ export  class GzzListFileSection extends St.BoxLayout {
     }
 
     set_file_name(filename){
-        log_message('notes', `GzzFileDialog::set_file_name: filename == ${filename}`,  new Error());
+        log_message('notes', `GzzListFileSection::set_file_name: filename == ${filename}`,  new Error());
         if(filename && (filename instanceof String || typeof filename == 'string')){
             this._edit.set_text(filename.trim());
         }
@@ -1411,6 +1411,13 @@ export class GzzListFileRow extends St.BoxLayout {
         }else{
             throw new Error('GzzListFileRow::owner_error: owner must be supplied and must be a GzzFileDialogBase');
         }
+        /* TODO: finish this boiler plate!!!!
+                    display_times:        this._display_times, 
+                    display_user_group:   this._display_user_group, 
+                    display_number_links: this._display_number_links,
+                    display_size:         this._display_size,
+                    base2_file_sizes:     this._base2_file_sizes, 
+        // */    
 
         if('is_dir' in params){
             this._is_dir = !!params.is_dir;
@@ -1419,32 +1426,44 @@ export class GzzListFileRow extends St.BoxLayout {
         }
 
         let icon_size_ = 16;
-        if('icon_size' in params && Number.isInteger(params.icon_size)){
+        if('icon_size' in params && Number.isInteger(params.icon_size) && 16 <= Number(params.icon_size) && Number(params.icon_size) <= 256){
             icon_size_ = Number(params.icon_size);
         }
+        
+        this._icon = null;
 
-        let icon = new St.Icon({
+        this._icon = new St.Icon({
             icon_name: (this._is_dir ? 'inode-directory' : 'notes-app'), 
             icon_size:  icon_size_, 
+            reactive:   true, 
         });
 
         if('icon' in params){
-            icon.set_gicon(params.icon);
-            icon.icon_size = icon_size_;
+            this._icon.set_gicon(params.icon);
+            this._icon.icon_size = icon_size_;
         }
 
         this._inode_number = 0;
+
+        this._display_inode = null;
+
+        if("display_inode" in params){
+            this._display_inode = !!params.display_inode;
+        }
 
         if('inode_number' in params && Number.isInteger(params.inode_number)){
             this._inode_number = Number(params.inode_number);
         }
 
-        this._inode = new St.Label({
-            text:        `${this._inode_number}`, 
-            style_class: 'dialog-list-item-inode',
-            x_expand:    true,
-            reactive:    true, 
-        });
+        if(this._display_inode){
+            this._inode = new St.Label({
+                text:        `${this._inode_number}`, 
+                style_class: 'dialog-list-item-inode',
+                x_expand:    true,
+                x_align:     Clutter.ActorAlign.FILL, 
+                reactive:    true, 
+            });
+        }
 
         this._file_type = Gio.FileType.UNKNOWN;
 
@@ -1464,12 +1483,24 @@ export class GzzListFileRow extends St.BoxLayout {
             this._mode = unixPermsToStr(this._file_type, params.mode, this._file);
         }
 
-        this._mode_box = new St.Label({
-            text:        this._mode, 
-            style_class: 'dialog-list-item-mode',
-            x_expand:    true,
-            reactive:    true, 
-        });
+        this._mode = null;
+
+        this._display_mode = false;
+
+        if('display_mode' in params){
+            this._display_mode = !! params.display_mode;
+        }
+
+        if(this._display_mode){
+            this._mode_box = new St.Label({
+                text:        this._mode, 
+                style_class: 'dialog-list-item-mode',
+                x_expand:    true,
+                x_align:     Clutter.ActorAlign.FILL, 
+                width:       200, 
+                reactive:    true, 
+            });
+        }
 
         this._nlink = 0;
 
@@ -1591,7 +1622,7 @@ export class GzzListFileRow extends St.BoxLayout {
             y_align: Clutter.ActorAlign.CENTER,
         });
 
-        textLayout.add_child(icon);
+        textLayout.add_child(this._icon);
         textLayout.add_child(this._inode);
         textLayout.add_child(this._mode_box);
         textLayout.add_child(this._nlink_box);
@@ -1619,6 +1650,8 @@ export class GzzListFileRow extends St.BoxLayout {
             this._double_click_time = 800;
         }
         this.click_count = 0;
+        this._icon.connect("button-press-event", (actor, event) => { this.handle_button_press_event(actor, event); });
+        this._icon.connect("button-press-event", (actor, event) => { this.handle_button_press_event(actor, event); });
         this._inode.connect("button-press-event", (actor, event) => { this.handle_button_press_event(actor, event); });
         this._inode.connect("button-release-event", (actor, event) => { this.handle_button_release_event(actor, event); });
         this._mode_box.connect("button-press-event", (actor, event) => { this.handle_button_press_event(actor, event); });
@@ -1880,7 +1913,6 @@ export class GzzFileDialog extends GzzFileDialogBase {
             this._icon_size = Number(params.icon_size);
         }
 
-        //*
         let show_icon = true;
 
         if('show_icon' in params){
@@ -1895,7 +1927,6 @@ export class GzzFileDialog extends GzzFileDialogBase {
 
             this.contentLayout.add_child(icon);
         } // if(show_icon) //
-        // */
 
         this.contentLayout.add_child(this._list_section);
 
@@ -2009,7 +2040,45 @@ export class GzzFileDialog extends GzzFileDialogBase {
         this._base2_file_sizes = false;
 
         if('base2_file_sizes' in params){
-            this._base2_file_sizes = !!params.save_done;
+            this._base2_file_sizes = !!params.base2_file_sizes;
+        }
+
+        this._display_times = 2; // Modify //
+
+        if('display_times' in params && Number.isInteger(params.display_times) 
+            && 0 <= Number(params.display_times) && Number(params.display_times) <= 7){
+            this._display_times = Number(params.display_times);
+        }
+
+        this._display_inode = false;
+
+        if('display_inode' in params){
+            this._display_inode = !!params.display_inode;
+        }
+
+        this._display_user_group = 3; // user-group //
+
+        if('display_user_group' in params && Number.isInteger(params.display_user_group) 
+            && 0 <= Number(params.display_times) && Number(params.display_times) <= 3){
+            this._display_user_group = Number(params.display_user_group);
+        }
+
+        this._display_mode = false;
+
+        if('display_mode' in params){
+            this._display_mode = !!params.display_mode;
+        }
+
+        this._display_number_links = false;
+
+        if('display_number_links' in params){
+            this._display_number_links = !!params.display_number_links;
+        }
+
+        this._display_size = false;
+
+        if('display_size' in params){
+            this._display_size = !!params.display_size;
         }
                 
         this.setButtons([{
@@ -2265,6 +2334,124 @@ export class GzzFileDialog extends GzzFileDialogBase {
         this.set_base2_file_sizes(base2);
     }
 
+    get_icon_size(){
+        return this._icon_size;
+    }
+
+    set_icon_size(sz){
+        if(Number.isInteger(sz)){
+            this._icon_size = Number(sz);
+        }
+    } // set_icon_size(sz) //
+
+    get icon_size(){
+        return this.get_icon_size();
+    }
+
+    set icon_size(sz){
+        this.set_icon_size(sz);
+    }
+
+    get_display_times(){
+        return this._display_times;
+    }
+
+    set_display_times(times){
+        if(Number.isInteger(times) && 0 <= Number(times) && Number(times) <= 7){
+            this._display_times = Number(times);
+        }
+    } // set_display_times(times) //
+
+    get display_times(){
+        return this.get_display_times();
+    }
+
+    set display_times(times){
+        this.set_display_times(times);
+    }
+
+    get_display_inode(){
+        return this._display_inode;
+    }
+
+    set_display_inode(di){
+        this._display_inode = !!di;
+    } // set_display_inode(sz) //
+
+    get display_inode(){
+        return this.get_display_inode();
+    }
+
+    set display_inode(di){
+        this.set_display_inode(di);
+    }
+
+    get_display_user_group(){
+        return this._display_user_group;
+    }
+
+    set_display_user_group(ug){
+        if(Number.isInteger(ug) && 0 <= Number(ug) && Number(ug) <= 3){
+            this._display_user_group = Number(ug);
+        }
+    } // set_display_user_group(ug) //
+
+    get display_user_group(){
+        return this.get_display_user_group();
+    }
+
+    set display_user_group(ug){
+        this.set_display_user_group(ug);
+    }
+
+    get_display_mode(){
+        return this._display_mode;
+    }
+
+    set_display_mode(dm){
+        this._display_mode = !!dm;
+    } // set_display_mode(dm) //
+
+    get display_mode(){
+        return this.get_display_mode();
+    }
+
+    set display_mode(dm){
+        this.set_display_mode(dm);
+    }
+
+    get_display_number_links(){
+        return this._display_number_links;
+    }
+
+    set_display_number_links(dnumber){
+        this._display_number_links = !!dnumber;
+    } // set_display_number_links(dnumber) //
+
+    get display_number_links(){
+        return this.get_display_number_links();
+    }
+
+    set display_number_links(dnumber){
+        this.set_display_number_links(dnumber);
+    }
+
+    get_display_size(){
+        return this._display_size;
+    }
+
+    set_display_size(dsz){
+        this._display_size = !!dsz;
+    } // set_display_size(dsz) //
+
+    get display_size(){
+        return this.get_display_size();
+    }
+
+    set display_size(dsz){
+        this.set_display_size(dsz);
+    }
+
     clicked(_row, filename){
         log_message('notes', `GzzFileDialog::clicked: filename == ${filename}`, new Error());
         this.set_file_name(filename);
@@ -2363,24 +2550,30 @@ export class GzzFileDialog extends GzzFileDialogBase {
 
                 log_message('notes', `GzzFileDialog::display_dir: this._double_click_time == ${this._double_click_time}`, new Error());
                 const row = new GzzListFileRow({
-                    owner:             this, 
-                    title:             title_,
-                    is_dir:            is_dir_, 
-                    inode_number:      info.get_attribute_uint32('unix::inode'), 
-                    mode:              info.get_attribute_uint32('unix::mode'), 
+                    owner:                this, 
+                    title:                title_,
+                    is_dir:               is_dir_, 
+                    inode_number:         info.get_attribute_uint32('unix::inode'), 
+                    mode:                 info.get_attribute_uint32('unix::mode'), 
                     file_type, 
-                    file:              Gio.File.new_for_path(GLib.build_filenamev([filename.get_path(), info.get_name()])), 
-                    icon:              info.get_icon(), 
-                    icon_size:         this._icon_size, 
-                    create_time:       info.get_creation_date_time(),
-                    modification_time: info.get_modification_date_time(),
-                    access_time:       info.get_access_date_time(),
-                    user_name:         info.get_attribute_string('owner::user'),
-                    group_name:        info.get_attribute_string('owner::group'),
-                    file_size:         info.get_size(), 
-                    nlink:             info.get_attribute_uint32('unix::nlink'), 
-                    double_click_time: this._double_click_time, 
-                    base2_file_sizes:  this._base2_file_sizes, 
+                    file:                 Gio.File.new_for_path(GLib.build_filenamev([filename.get_path(), info.get_name()])), 
+                    icon:                 info.get_icon(), 
+                    icon_size:            this._icon_size, 
+                    create_time:          info.get_creation_date_time(),
+                    modification_time:    info.get_modification_date_time(),
+                    access_time:          info.get_access_date_time(),
+                    user_name:            info.get_attribute_string('owner::user'),
+                    group_name:           info.get_attribute_string('owner::group'),
+                    file_size:            info.get_size(), 
+                    nlink:                info.get_attribute_uint32('unix::nlink'), 
+                    double_click_time:    this._double_click_time, 
+                    display_times:        this._display_times, 
+                    display_inode:        this._display_inode, 
+                    display_user_group:   this._display_user_group, 
+                    display_mode:         this._display_mode,
+                    display_number_links: this._display_number_links,
+                    display_size:         this._display_size,
+                    base2_file_sizes:     this._base2_file_sizes, 
                 });
 
                 this.add_row(row);

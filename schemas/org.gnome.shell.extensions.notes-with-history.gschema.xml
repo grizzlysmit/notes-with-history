@@ -134,5 +134,15 @@
             <summary>The Icon Size.</summary>
             <description>The Size for Icons.</description>
         </key>
+        <key type="b" name="display-icon">
+            <default>true</default>
+            <summary>Show the icon above content.</summary>
+            <description>Display the little Icon above the content.</description>
+        </key>
+        <key type="b" name="base2-file-sizes">
+            <default>true</default>
+            <summary>Base 2 file sizes.</summary>
+            <description>Show the file sizes in base 2 (i.e. multiples of 2¹⁰, 2²⁰ etc).</description>
+        </key>
     </schema>
 </schemalist>

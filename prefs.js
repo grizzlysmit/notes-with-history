@@ -605,20 +605,23 @@ class NotesScroller extends PageBase {
             });
             this.notesGroup.add(row);
         } // for(const note of this._caller.notes) //
-        this.scrolledWindow    = new Gtk.ScrolledWindow();
-        const height = this._caller._window.default_height - 600;
+        this.scrolledWindow    = new Gtk.ScrolledWindow({
+            name: 'scrolledWindow', 
+        });
+        this.scrolledWindow.min_content_height = 20;
+        const height = Math.max(Math.floor((3 * this._caller._window.default_height)/10), this.scrolledWindow.min_content_height);
         this._caller.log_message('notes', `NotesScroller::constructor: height == ${height}`, new Error());
         this.scrolledWindow.set_max_content_height(height);
+        this.scrolledWindow.height_request = height;
         this.scrolledWindow.set_child(this.notesGroup);
         this.containerGroup.add(this.scrolledWindow);
+        this.containerGroup.add(this._close_row());
         this.add(this.containerGroup);
-        this.bottomGroup    = new Adw.PreferencesGroup();
-        this.bottomGroup.add(this._close_row());
-        this.add(this.bottomGroup);
         this.size_changed_id = this._caller._window.connect('notify::default-height', () => {
-            const height = this._caller._window.default_height - 600;
+            const height = Math.max(Math.floor((3 * this._caller._window.default_height)/10), this.scrolledWindow.min_content_height);
             this._caller.log_message('notes', `Callback notify::default-height: height == ${height}`, new Error());
             this.scrolledWindow.set_max_content_height(height);
+            this.scrolledWindow.height_request = height;
         });
     } // constructor(caller, _title, _name, _icon_name) //
     
