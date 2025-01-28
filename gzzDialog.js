@@ -1461,6 +1461,7 @@ export class GzzListFileRow extends St.BoxLayout {
                 style_class: 'dialog-list-item-inode',
                 x_expand:    true,
                 x_align:     Clutter.ActorAlign.FILL, 
+                width:       200, 
                 reactive:    true, 
             });
         }
@@ -1497,7 +1498,7 @@ export class GzzListFileRow extends St.BoxLayout {
                 style_class: 'dialog-list-item-mode',
                 x_expand:    true,
                 x_align:     Clutter.ActorAlign.FILL, 
-                width:       100, 
+                width:       200, 
                 reactive:    true, 
             });
         }
