@@ -113,7 +113,7 @@ export function unixPermsToStr(file_type, perms, path){
     log_message('notes', `function  unixPermsToStr: perms == ${perms}`, new Error());
     log_message('notes', `function  unixPermsToStr: path == ${path}`, new Error());
     let result = '';
-    if(file_type == Gio.Filetype.SYMBOLIC_LINK){
+    if(file_type == Gio.FileType.SYMBOLIC_LINK){
         result += 'l';
     }else if(file_type == Gio.FileType.DIRECTORY){
         result += 'd';
