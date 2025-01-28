@@ -116,7 +116,8 @@ export function unixPermsToStr(file_type, perms, path){
     if(file_type == Gio.FileType.DIRECTORY){
         result += 'd';
     }else if(file_type == Gio.FileType.SPECIAL || file_type == Gio.FileType.REGULAR){
-        let buf;
+        //let buf = new GLib.StatBuf();
+        let buf = {};
         if(GLib.lstat(path, buf)){
             const filetype = buf['st_mode'] & 0o0170000;
             switch(filetype){
