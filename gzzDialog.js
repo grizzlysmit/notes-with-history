@@ -2554,7 +2554,7 @@ export class GzzFileDialog extends GzzFileDialogBase {
                     owner:                this, 
                     title:                title_,
                     is_dir:               is_dir_, 
-                    inode_number:         info.get_attribute_uint32('unix::inode'), 
+                    inode_number:         info.get_attribute_uint64('unix::inode'), 
                     mode:                 info.get_attribute_uint32('unix::mode'), 
                     file_type, 
                     file:                 Gio.File.new_for_path(GLib.build_filenamev([filename.get_path(), info.get_name()])), 
