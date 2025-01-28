@@ -1467,9 +1467,10 @@ export class GzzListFileRow extends St.BoxLayout {
         
         this._file = GLib.get_home_dir();
 
-        if('file' in params && Number.isInteger(params.file)){
-            this._file = params.file;
+        if('file' in params && (params.file instanceof String || typeof params.file === 'string')){
+            this._file = params.file.toString();
         }
+        log_message('notes', `GzzListFileRow::constructor: this._file == ${this._file}`, new Error());
 
         this._mode = '.---------';
 
@@ -2591,7 +2592,7 @@ export class GzzFileDialog extends GzzFileDialogBase {
         let enumerator = null;
         let is_dir_    = null;
         let title_     = null;
-        log_message('notes', `GzzFileDialog::display_dir: filename == ‷${filename}‴`, new Error());
+        log_message('notes', `GzzFileDialog::display_dir: start: filename == ‷${filename.get_path()}‴`, new Error());
         const attributes = "standard::name,standard::type,standard::display_name,standard::icon" 
                                + ",standard::*,unix::mode,icon,unix::uid,unix::gid,unix::inode"
                                     + ",unix::nlink,unix::is-mountpoint,trash::item-count"
