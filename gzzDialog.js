@@ -115,31 +115,32 @@ export function unixPermsToStr(file_type, perms, path){
     let result = '';
     if(file_type == Gio.FileType.DIRECTORY){
         result += 'd';
-    }else if(file_type == Gio.FileType.SPECIAL){
+    }else if(file_type == Gio.FileType.SPECIAL || file_type == Gio.FileType.REGULAR){
         let buf;
         if(GLib.lstat(path, buf)){
             const filetype = buf['st_mode'] & 0o0170000;
             switch(filetype){
-                case 0o0140000:
+                case 0o0140000:  // Socket //
                     result += 'S';
                     break;
-                case 0o0060000:
+                case 0o0060000: // Block Special //
                     result += 'b';
                     break;
-                case 0o0020000:
+                case 0o0020000: // Character Special //
                     result += 'c';
                     break;
-                case 0o0010000:
+                case 0o0010000: // FIFO //
                     result += '|';
                     break;
-                case 0o0120000:
+                case 0o0120000: // Symbolic Link //
                     result += 'l';
+                    break;
+                case 0o0100000: // Regular File //
+                    result += '.';
                     break;
             } // switch(filetype) //
         } // if(GLib.lstat(path, buf)) //
-    }else if(file_type == Gio.FileType.REGULAR){
-        result += '.';
-    }else{
+    }else{ // WHAT ??? //
         result += '?';
     }
     if(!perms){
@@ -207,6 +208,8 @@ export function unixPermsToStr(file_type, perms, path){
 } // export function unixPermsToStr(perms) //
 
 export function format_file_size(file_size, base2 = false){
+    log_message('notes', `function  format_file_size: file_size == ${file_size}`, new Error());
+    log_message('notes', `function  format_file_size: base2 == ${base2}`, new Error());
     let result = '';
     if(base2){
         const n = Math.floor(Math.floor(Math.log10(file_size))/3) * 3;
@@ -2590,7 +2593,7 @@ export class GzzFileDialog extends GzzFileDialogBase {
         let title_     = null;
         log_message('notes', `GzzFileDialog::display_dir: filename == ‷${filename}‴`, new Error());
         const attributes = "standard::name,standard::type,standard::display_name,standard::icon" 
-                               + ",standard::all,unix::mode,icon,unix::uid,unix::gid,unix::inode"
+                               + ",standard::*,unix::mode,icon,unix::uid,unix::gid,unix::inode"
                                     + ",unix::nlink,unix::is-mountpoint,trash::item-count"
                                         + ",trash::deletion-date,time::modified,time::created"
                                             + ",filesystem::readonly,owner::group,owner::user"
@@ -2643,8 +2646,8 @@ export class GzzFileDialog extends GzzFileDialogBase {
                     title:                title_,
                     is_dir:               is_dir_, 
                     inode_number:         info.get_attribute_uint64('unix::inode'), 
-                    mode:                 info.get_attribute_uint64('unix::mode'), 
-                    file_type, 
+                    mode:                 info.get_attribute_uint32('unix::mode'), 
+                    file_type:            file_type, 
                     file:                 Gio.File.new_for_path(GLib.build_filenamev([filename.get_path(), info.get_name()])), 
                     icon:                 info.get_icon(), 
                     icon_size:            this._icon_size, 
