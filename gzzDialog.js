@@ -1530,7 +1530,7 @@ export class GzzListFileRow extends St.BoxLayout {
                 style_class: 'dialog-list-item-title',
                 x_expand:    true,
                 x_align:     Clutter.ActorAlign.FILL, 
-                width:       20, 
+                width:       40, 
                 reactive:    true, 
             });
         }
@@ -1540,7 +1540,7 @@ export class GzzListFileRow extends St.BoxLayout {
             style_class: 'dialog-list-item-title',
             x_expand:    true,
             x_align:     Clutter.ActorAlign.FILL, 
-            width:       200, 
+            width:       300, 
             reactive:    true, 
         });
 
@@ -1565,7 +1565,7 @@ export class GzzListFileRow extends St.BoxLayout {
                 style_class: 'dialog-list-item-create',
                 x_expand:    true,
                 x_align:     Clutter.ActorAlign.FILL, 
-                width:       305, 
+                width:       315, 
                 reactive:    true, 
             });
         }
@@ -1584,7 +1584,7 @@ export class GzzListFileRow extends St.BoxLayout {
                 style_class: 'dialog-list-item-title',
                 x_expand:    true,
                 x_align:     Clutter.ActorAlign.FILL, 
-                width:       305, 
+                width:       315, 
                 reactive:    true, 
             });
         }
@@ -1603,7 +1603,7 @@ export class GzzListFileRow extends St.BoxLayout {
                 style_class: 'dialog-list-item-title',
                 x_expand:    true,
                 x_align:     Clutter.ActorAlign.FILL, 
-                width:       305, 
+                width:       315, 
                 reactive:    true, 
             });
         }
@@ -1691,7 +1691,7 @@ export class GzzListFileRow extends St.BoxLayout {
                 style_class: 'dialog-list-item-file-size',
                 x_expand:    true,
                 x_align:     Clutter.ActorAlign.FILL, 
-                width:       60, 
+                width:       160, 
                 reactive:    true, 
             });
         }
