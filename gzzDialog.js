@@ -113,10 +113,16 @@ export function unixPermsToStr(file_type, perms, path){
     log_message('notes', `function  unixPermsToStr: perms == ${perms}`, new Error());
     log_message('notes', `function  unixPermsToStr: path == ${path}`, new Error());
     let result = '';
-    if(file_type == Gio.FileType.DIRECTORY){
+    if(file_type == Gio.Filetype.SYMBOLIC_LINK){
+        result += 'l';
+    }else if(file_type == Gio.FileType.DIRECTORY){
         result += 'd';
-    }else if(file_type == Gio.FileType.SPECIAL || file_type == Gio.FileType.REGULAR){
-        let buf = new GLib.StatBuf();
+    }else if(file_type == Gio.FileType.SPECIAL){
+        result += '|';
+        /* cannot use GLib.lstat just now    //
+        // no way to allocate a GLib.StatBuf //
+        //let buf = new GLib.StatBuf();
+        let buf = {};
         if(GLib.lstat(path, buf) === 0){
             const filetype = buf['st_mode'] & 0o0170000;
             switch(filetype){
@@ -139,7 +145,10 @@ export function unixPermsToStr(file_type, perms, path){
                     result += '.';
                     break;
             } // switch(filetype) //
-        } // if(GLib.lstat(path, buf)) //
+        } // if(GLib.lstat(path, buf) === 0) //
+        // */
+    }else if(file_type == Gio.FileType.REGULAR){
+        result += '.';
     }else{ // WHAT ??? //
         result += '?';
     }
@@ -2603,9 +2612,9 @@ export class GzzFileDialog extends GzzFileDialogBase {
                                         + ",trash::deletion-date,time::modified,time::created"
                                             + ",filesystem::readonly,owner::group,owner::user"
                                                 + ",owner::user-real,recent::modified,id::file"
-                                                    + ",standard::icon,standard::is-hidden"
+                                                    + ",standard::is-hidden"
                                                         + ",unix::blocks,mountable::unix-device-file"
-                                                            + ",standard::content-type";
+                                                            + ",standard::content-type,standard::type";
         try {
             enumerator = filename.enumerate_children(attributes, Gio.FileQueryInfoFlags.NONE, null);
             log_message('notes', `GzzFileDialog::display_dir: enumerator == ‷${enumerator}‴`, new Error());
@@ -2638,12 +2647,14 @@ export class GzzFileDialog extends GzzFileDialogBase {
                     continue;
                 }
 
-                const query_info = file.query_info('standard::display_name', Gio.FileQueryInfoFlags.NONE, null)
+                const query_info = file.query_info(attributes, Gio.FileQueryInfoFlags.NOFOLLOW_SYMLINKS, null)
                 log_message('notes', `GzzFileDialog::display_dir: query_info == ‷${query_info}‴`, new Error());
                 title_ = query_info.get_display_name();
                 log_message('notes', `GzzFileDialog::display_dir: title_ == ‷${title_}‴`, new Error());
                 if(!title_) title_ = info.get_name();
                 log_message('notes', `GzzFileDialog::display_dir: title_ == ‷${title_}‴`, new Error());
+                const filetype = query_info.get_file_type();
+                log_message('notes', `GzzFileDialog::display_dir: filetype == ‷${filetype}‴`, new Error());
 
                 log_message('notes', `GzzFileDialog::display_dir: this._double_click_time == ${this._double_click_time}`, new Error());
                 const row = new GzzListFileRow({
@@ -2652,7 +2663,7 @@ export class GzzFileDialog extends GzzFileDialogBase {
                     is_dir:               is_dir_, 
                     inode_number:         info.get_attribute_uint64('unix::inode'), 
                     mode:                 info.get_attribute_uint32('unix::mode'), 
-                    file_type:            file_type, 
+                    file_type:            filetype, 
                     file:                 Gio.File.new_for_path(GLib.build_filenamev([filename.get_path(), info.get_name()])), 
                     icon:                 info.get_icon(), 
                     icon_size:            this._icon_size, 
