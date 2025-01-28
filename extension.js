@@ -156,7 +156,7 @@ class ApplicationMenuItem extends PopupMenu.PopupBaseMenuItem {
                                             description: _('Edit or view Note.'), 
                                             icon_name:   'notes-app', 
                                             text:        txt,
-                                            max_length:    this._button._caller._settings.get_int('max-note-length'), 
+                                            max_length:    this._button._caller.settings.get_int('max-note-length'), 
                                             buttons:     [
                                                 {
                                                     label:   _('Cancel'),
@@ -184,7 +184,7 @@ class ApplicationMenuItem extends PopupMenu.PopupBaseMenuItem {
                                                             + ` ‷${JSON.stringify(this._button._caller.notes)}‴.`,
                                                             new Error()
                                                         );
-                                                        this._button._caller._settings.set_strv('notes', this._button._caller.notes);
+                                                        this._button._caller.settings.set_strv('notes', this._button._caller.notes);
                                                         dlg.destroy();
                                                     },
                                                 }, 
@@ -205,7 +205,7 @@ class ApplicationMenuItem extends PopupMenu.PopupBaseMenuItem {
                                                                 + `‷${JSON.stringify(this._button._caller.notes)}‴.`,
                                                                 new Error()
                                                             );
-                                                            this._button._caller._settings.set_strv('notes', this._button._caller.notes);
+                                                            this._button._caller.settings.set_strv('notes', this._button._caller.notes);
                                                         }
                                                         dlg.destroy();
                                                     },
@@ -228,7 +228,7 @@ class ApplicationMenuItem extends PopupMenu.PopupBaseMenuItem {
                                         action: () => {
                                             dlg.set_result(true);
                                             this._button._caller.notes.splice(index, 1);
-                                            this._button._caller._settings.set_strv('notes', this._button._caller.notes);
+                                            this._button._caller.settings.set_strv('notes', this._button._caller.notes);
                                             dlg.destroy();
                                         }, 
                                     }, 
@@ -247,9 +247,9 @@ class ApplicationMenuItem extends PopupMenu.PopupBaseMenuItem {
                         case "edit-delete-in-prefs":
                             index    = this._item.index;
                             Gzz.log_message('notes', `ApplicationMenuItem::activate: edit-delete-in-prefs: index: ‷${index}‴.`, new Error());
-                            this._button._caller._settings.set_int('index', index);
-                            this._button._caller._settings.set_boolean("edit-note", true);
-                            this._button._caller._settings.set_enum('page', string2enum['editNote']);
+                            this._button._caller.settings.set_int('index', index);
+                            this._button._caller.settings.set_boolean("edit-note", true);
+                            this._button._caller.settings.set_enum('page', string2enum['editNote']);
                             this._button._caller.openPreferences();
                             break;
                     } // switch(this._item.subtype) //
@@ -262,7 +262,7 @@ class ApplicationMenuItem extends PopupMenu.PopupBaseMenuItem {
                         description: _('Edit or view Note.'), 
                         ok_button:   _('Add Note'), 
                         ok_icon_name:  'list-add', 
-                        max_length:    this._button._caller._settings.get_int('max-note-length'), 
+                        max_length:    this._button._caller.settings.get_int('max-note-length'), 
                         ok_call_back: () => {
                             const result   = dlg.get_result();
                             const new_note = dlg.get_text();
@@ -279,7 +279,7 @@ class ApplicationMenuItem extends PopupMenu.PopupBaseMenuItem {
                                                     + `‷${JSON.stringify(this._button._caller.notes)}‴.`,
                                         new Error()
                                     );
-                                    this._button._caller._settings.set_strv('notes', this._button._caller.notes);
+                                    this._button._caller.settings.set_strv('notes', this._button._caller.notes);
                                 } // if(new_note.trim() !== '') //
                             } // if(result) //
                         },
@@ -302,8 +302,8 @@ class ApplicationMenuItem extends PopupMenu.PopupBaseMenuItem {
                 case "aboutPage":
                 case "credits":
                     Gzz.log_message('notes', `notes: settings, etc: this._item.type: ‷${this._item.type}‴.`, new Error());
-                    this._button._caller._settings.set_boolean("edit-note", true);
-                    this._button._caller._settings.set_enum("page", string2enum[this._item.type]);
+                    this._button._caller.settings.set_boolean("edit-note", true);
+                    this._button._caller.settings.set_enum("page", string2enum[this._item.type]);
                     this._button._caller.openPreferences();
                     break;
             } // switch (this._item.type) //
@@ -332,14 +332,14 @@ class Indicator extends PanelMenu.Button {
             style_class: 'system-status-icon',
         }));
 
-        const tmp = this._caller._settings.get_string("notespath").trim();
+        const tmp = this._caller.settings.get_string("notespath").trim();
 
         const notespath = ((tmp == '') ?
             GLib.build_filenamev([GLib.get_home_dir()]) :
                                     GLib.build_filenamev([tmp]));
 
         this.dir_path = Gio.File.new_for_path(notespath);
-        this._caller._settings.set_boolean('edit-note', this._caller.edit_note);
+        this._caller.settings.set_boolean('edit-note', this._caller.edit_note);
 
         const file_name = this._caller.notesname.trim();
         
@@ -365,23 +365,23 @@ class Indicator extends PanelMenu.Button {
             file_name:            ((file_name == '') ? 'notes.txt' : file_name), 
             contents:             cont, 
             filter:               new RegExp('^.*\\.txt$', 'i'), 
-            icon_size:            this._caller._settings.get_int('icon-size'), 
-            display_times:        this._caller._settings.get_enum('time-type'), 
-            display_inode:        this._caller._settings.get_boolean('display-inode'), 
-            display_user_group:   this._caller._settings.get_enum('user-group'), 
-            display_mode:         this._caller._settings.get_boolean('display-mode'),
-            display_number_links: this._caller._settings.get_boolean('display-number-links'),
-            display_size:         this._caller._settings.get_boolean('display-size'),
-            base2_file_sizes:     this._caller._settings.get_boolean('base2-file-sizes'),
-            show_icon:            this._caller._settings.get_boolean('display-icon'),
-            double_click_time:    this._caller._settings.get_int('double-click-time'), 
+            icon_size:            this._caller.settings.get_int('icon-size'), 
+            display_times:        this._caller.settings.get_enum('time-type'), 
+            display_inode:        this._caller.settings.get_boolean('display-inode'), 
+            display_user_group:   this._caller.settings.get_enum('user-group'), 
+            display_mode:         this._caller.settings.get_boolean('display-mode'),
+            display_number_links: this._caller.settings.get_boolean('display-number-links'),
+            display_size:         this._caller.settings.get_boolean('display-size'),
+            base2_file_sizes:     this._caller.settings.get_boolean('base2-file-sizes'),
+            show_icon:            this._caller.settings.get_boolean('display-icon'),
+            double_click_time:    this._caller.settings.get_int('double-click-time'), 
             save_done:            (_dlg, result, dir_, file_name_) => {
                 if(result){
                     if(dir_){
-                        this._caller._settings.set_string("notespath", dir_.get_path());
+                        this._caller.settings.set_string("notespath", dir_.get_path());
                     }
                     if(file_name_ && (file_name_ instanceof String || typeof file_name_ === 'string')){
-                        this._caller._settings.set_string("notesname", file_name_);
+                        this._caller.settings.set_string("notesname", file_name_);
                     }
                 } // if(result) //
             }, 
@@ -405,15 +405,15 @@ class Indicator extends PanelMenu.Button {
                 file_name:            _file_name, 
                 dialogtype:           _dialogtype, 
                 display_times:        this._caller._settings.get_enum('time-type'), 
-                display_inode:        this._caller._settings.get_boolean('display-inode'), 
-                display_user_group:   this._caller._settings.get_enum('user-group'), 
-                display_mode:         this._caller._settings.get_boolean('display-mode'),
-                display_number_links: this._caller._settings.get_boolean('display-number-links'),
-                display_size:         this._caller._settings.get_boolean('display-size'),
-                show_icon:            this._caller._settings.get_boolean('display-icon'),
-                base2_file_sizes:     this._caller._settings.get_boolean('base2-file-sizes'),
+                display_inode:        this._caller.settings.get_boolean('display-inode'), 
+                display_user_group:   this._caller.settings.get_enum('user-group'), 
+                display_mode:         this._caller.settings.get_boolean('display-mode'),
+                display_number_links: this._caller.settings.get_boolean('display-number-links'),
+                display_size:         this._caller.settings.get_boolean('display-size'),
+                show_icon:            this._caller.settings.get_boolean('display-icon'),
+                base2_file_sizes:     this._caller.settings.get_boolean('base2-file-sizes'),
                 filter:               new RegExp('^(?:.*\\.txt)$', 'i'), 
-                double_click_time:    this._caller._settings.get_int('double-click-time'), 
+                double_click_time:    this._caller.settings.get_int('double-click-time'), 
                 save_done:            (dlg_, result, _dir, _file_name) => {
                     if(result){
                         notesfile = dlg_.get_full_path();
@@ -442,11 +442,11 @@ class Indicator extends PanelMenu.Button {
                                 } // for(const note of array_of_notes) //
                                 this._caller.notesname = dlg.get_file_name();
                                 this._caller.notespath = dlg.get_dir();
-                                this._caller._settings.set_string("notesname", this._caller.notesname);
-                                this._caller._settings.set_string("notespath", this._caller.notespath.get_path());
+                                this._caller.settings.set_string("notesname", this._caller.notesname);
+                                this._caller.settings.set_string("notespath", this._caller.notespath.get_path());
                                 if(notes.length > 0){
                                     this._caller.notes = notes;
-                                    this._caller._settings.set_strv('notes', this._caller.notes);
+                                    this._caller.settings.set_strv('notes', this._caller.notes);
                                 }else{
                                     this._caller.display_error_msg(
                                         'Indicator::get_file_contents',
@@ -523,7 +523,7 @@ class Indicator extends PanelMenu.Button {
 
         this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
 
-        const length = Math.min(this._caller._settings.get_int('show-messages'), this._caller._settings.get_strv('notes').length);
+        const length = Math.min(this._caller.settings.get_int('show-messages'), this._caller.settings.get_strv('notes').length);
         for(let i = 0; i < length; i++){
             submenu = new PopupMenu.PopupSubMenuMenuItem(this._caller.notes[i], true, this, 0);
             item         = new ApplicationMenuItem(this, { text: 'Edit...', index: i, type: 'note', subtype: 'edit', });
