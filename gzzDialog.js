@@ -1483,7 +1483,7 @@ export class GzzListFileRow extends St.BoxLayout {
             this._mode = unixPermsToStr(this._file_type, params.mode, this._file);
         }
 
-        this._mode = null;
+        this._mode_box = null;
 
         this._display_mode = false;
 
@@ -1497,7 +1497,7 @@ export class GzzListFileRow extends St.BoxLayout {
                 style_class: 'dialog-list-item-mode',
                 x_expand:    true,
                 x_align:     Clutter.ActorAlign.FILL, 
-                width:       200, 
+                width:       100, 
                 reactive:    true, 
             });
         }
