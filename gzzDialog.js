@@ -1467,8 +1467,12 @@ export class GzzListFileRow extends St.BoxLayout {
         
         this._file = GLib.get_home_dir();
 
-        if('file' in params && (params.file instanceof String || typeof params.file === 'string')){
-            this._file = params.file.toString();
+        if('file' in params){
+            if(params.file instanceof String || typeof params.file === 'string'){
+                this._file = params.file.toString();
+            }else if(params.file instanceof Gio.File){
+                this._file = params.file.get_path();
+            }
         }
         log_message('notes', `GzzListFileRow::constructor: this._file == ${this._file}`, new Error());
 
