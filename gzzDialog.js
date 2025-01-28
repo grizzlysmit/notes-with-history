@@ -109,10 +109,11 @@ export function array2file(array){
 } // export function array2file(array) //
 
 export function unixPermsToStr(file_type, perms, path){
+    log_message('notes', `function  unixPermsToStr: file_type == ${file_type}`, new Error());
+    log_message('notes', `function  unixPermsToStr: perms == ${perms}`, new Error());
+    log_message('notes', `function  unixPermsToStr: path == ${path}`, new Error());
     let result = '';
-    if(file_type == Gio.FileType.SYMBOLIC_LINK){
-        result += 'l';
-    }else if(file_type == Gio.FileType.DIRECTORY){
+    if(file_type == Gio.FileType.DIRECTORY){
         result += 'd';
     }else if(file_type == Gio.FileType.SPECIAL){
         let buf;
@@ -131,6 +132,9 @@ export function unixPermsToStr(file_type, perms, path){
                 case 0o0010000:
                     result += '|';
                     break;
+                case 0o0120000:
+                    result += 'l';
+                    break;
             } // switch(filetype) //
         } // if(GLib.lstat(path, buf)) //
     }else if(file_type == Gio.FileType.REGULAR){
@@ -140,6 +144,7 @@ export function unixPermsToStr(file_type, perms, path){
     }
     if(!perms){
         result += '---------';
+        return result;
     }
     if(perms & 0b100_000_000){
         result += 'r';
@@ -234,7 +239,7 @@ export function format_file_size(file_size, base2 = false){
                 result = `${Math.round(file_size, 2)}B`;
                 break;
             default:
-                result = `${Math.round(file_size/1e24, 2)}YB`;
+                result = `${file_size}B`;
         } // switch(n) //
     }else{
         const m = Math.floor(Math.floor(Math.log2(file_size))/10) * 10;
@@ -264,10 +269,10 @@ export function format_file_size(file_size, base2 = false){
                 result = `${Math.round(file_size/(2 ** 9), 2)}kiB`;
                 break;
             case 0:
-                result = `${Math.round(file_size, 2)}iB`;
+                result = `${Math.round(file_size, 2)}B`;
                 break;
             default:
-                result = `${Math.round(file_size/(2 ** 24), 2)}YiB`;
+                result = `${file_size}B`;
         } // switch(n) //
     }
     return result;
@@ -1543,7 +1548,7 @@ export class GzzListFileRow extends St.BoxLayout {
                 style_class: 'dialog-list-item-create',
                 x_expand:    true,
                 x_align:     Clutter.ActorAlign.FILL, 
-                width:       300, 
+                width:       305, 
                 reactive:    true, 
             });
         }
@@ -1562,7 +1567,7 @@ export class GzzListFileRow extends St.BoxLayout {
                 style_class: 'dialog-list-item-title',
                 x_expand:    true,
                 x_align:     Clutter.ActorAlign.FILL, 
-                width:       300, 
+                width:       305, 
                 reactive:    true, 
             });
         }
@@ -1581,7 +1586,7 @@ export class GzzListFileRow extends St.BoxLayout {
                 style_class: 'dialog-list-item-title',
                 x_expand:    true,
                 x_align:     Clutter.ActorAlign.FILL, 
-                width:       300, 
+                width:       305, 
                 reactive:    true, 
             });
         }
@@ -1716,10 +1721,6 @@ export class GzzListFileRow extends St.BoxLayout {
             this._inode.connect("button-release-event", (actor, event) => { this.handle_button_release_event(actor, event); });
         }
         if(this._mode_box){
-            this._nlink_box.connect("button-press-event", (actor, event) => { this.handle_button_press_event(actor, event); });
-            this._nlink_box.connect("button-release-event", (actor, event) => { this.handle_button_release_event(actor, event); });
-        }
-        if(this._nlink_box){
             this._nlink_box.connect("button-press-event", (actor, event) => { this.handle_button_press_event(actor, event); });
             this._nlink_box.connect("button-release-event", (actor, event) => { this.handle_button_release_event(actor, event); });
         }
@@ -2642,7 +2643,7 @@ export class GzzFileDialog extends GzzFileDialogBase {
                     title:                title_,
                     is_dir:               is_dir_, 
                     inode_number:         info.get_attribute_uint64('unix::inode'), 
-                    mode:                 info.get_attribute_uint32('unix::mode'), 
+                    mode:                 info.get_attribute_uint64('unix::mode'), 
                     file_type, 
                     file:                 Gio.File.new_for_path(GLib.build_filenamev([filename.get_path(), info.get_name()])), 
                     icon:                 info.get_icon(), 
@@ -2653,7 +2654,7 @@ export class GzzFileDialog extends GzzFileDialogBase {
                     user_name:            info.get_attribute_string('owner::user'),
                     group_name:           info.get_attribute_string('owner::group'),
                     file_size:            info.get_size(), 
-                    nlink:                info.get_attribute_uint32('unix::nlink'), 
+                    nlink:                info.get_attribute_uint64('unix::nlink'), 
                     double_click_time:    this._double_click_time, 
                     display_times:        this._display_times, 
                     display_inode:        this._display_inode, 
