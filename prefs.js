@@ -418,6 +418,7 @@ class FileDisplay extends PageBase {
         this._display_mode_switch_row         = null;
         this._display_number_links_switch_row = null;
         this._display_size_switch_row         = null;
+        this._base2_file_sizes_switch_row     = null;
 
         this.group = new Adw.PreferencesGroup();
 
@@ -427,6 +428,7 @@ class FileDisplay extends PageBase {
         this.group.add(this._display_mode_box());
         this.group.add(this._display_number_links_box());
         this.group.add(this._display_size_box());
+        this.group.add(this._base2_file_sizes_box());
         this.group.add(this._close_row());
         const hbox = new Gtk.Box({orientation: Gtk.Orientation.HORIZONTAL, vexpand: true, hexpand: true, });
         const bottom_spacer = new Gtk.Box({orientation: Gtk.Orientation.VERTICAL, vexpand: true, hexpand: true });
@@ -541,6 +543,21 @@ class FileDisplay extends PageBase {
         return display_size_switch_row;
     } // _display_size_box() //
 
+    _base2_file_sizes_box(){
+        // Display file size in base 2 multiples 2¹⁰, 2²⁰, ... //
+        const base2_file_sizes_switch_row = new Adw.SwitchRow({
+            title: _("Base 2 file sizes."),
+            subtitle: _("Show the file sizes in base 2 (i.e. multiples of 2¹⁰, 2²⁰ etc)."),
+            active: this._caller._window._settings.get_boolean('base2-file-sizes'), 
+        });
+        this._base2_file_sizes_switch = base2_file_sizes_switch_row.activatable_widget;
+        this._base2_file_sizes_switch.connect("state-set", (_sw, state) => {
+            this._caller._window._settings.set_boolean("base2-file-sizes", state);
+        });
+        this._base2_file_sizes_switch_row  = base2_file_sizes_switch_row;
+        return base2_file_sizes_switch_row;
+    } // _base2_file_sizes_box() //
+
     destroy(){
         this.time_type_box                    = null;
         this._display_inode_switch_row        = null;
@@ -548,6 +565,7 @@ class FileDisplay extends PageBase {
         this._display_mode_switch_row         = null;
         this._display_number_links_switch_row = null;
         this._display_size_switch_row         = null;
+        this._base2_file_sizes_switch_row     = null;
         super.destroy();
     }
 

@@ -614,14 +614,6 @@ export class GzzDialogType {
 
 }
 
-export const None          = 0b00000;
-export const Create        = 0b00001;
-export const Modify        = 0b00010;
-export const Access        = 0b00100;
-export const No_User_Group = 0b00000;
-export const User          = 0b00001;
-export const Group         = 0b00010;
-
 export class GzzFileDialogBase extends ModalDialog.ModalDialog {
     static {
         GObject.registerClass(this);
@@ -1411,13 +1403,6 @@ export class GzzListFileRow extends St.BoxLayout {
         }else{
             throw new Error('GzzListFileRow::owner_error: owner must be supplied and must be a GzzFileDialogBase');
         }
-        /* TODO: finish this boiler plate!!!!
-                    display_times:        this._display_times, 
-                    display_user_group:   this._display_user_group, 
-                    display_number_links: this._display_number_links,
-                    display_size:         this._display_size,
-                    base2_file_sizes:     this._base2_file_sizes, 
-        // */    
 
         if('is_dir' in params){
             this._is_dir = !!params.is_dir;
@@ -1509,17 +1494,31 @@ export class GzzListFileRow extends St.BoxLayout {
             this._nlink = Number(params.nlink);
         }
 
-        this._nlink_box = new St.Label({
-            text:        `${this._nlink}`, 
-            style_class: 'dialog-list-item-title',
-            x_expand:    true,
-            reactive:    true, 
-        });
+        this._display_number_links = false;
+
+        if('display_number_links' in params){
+            this._display_number_links = !!params.display_number_links;
+        }
+
+        this._nlink_box = null;
+
+        if(this._display_number_links){
+            this._nlink_box = new St.Label({
+                text:        `${this._nlink}`, 
+                style_class: 'dialog-list-item-title',
+                x_expand:    true,
+                x_align:     Clutter.ActorAlign.FILL, 
+                width:       40, 
+                reactive:    true, 
+            });
+        }
 
         this._title = new St.Label({
             text:        params.title, 
             style_class: 'dialog-list-item-title',
             x_expand:    true,
+            x_align:     Clutter.ActorAlign.FILL, 
+            width:       400, 
             reactive:    true, 
         });
 
@@ -1529,12 +1528,25 @@ export class GzzListFileRow extends St.BoxLayout {
             this._create_time = params.create_time;
         }
 
-        this._create = new St.Label({
-            text:        this._create_time.format_iso8601(), 
-            style_class: 'dialog-list-item-create',
-            x_expand:    true,
-            reactive:    true, 
-        });
+        this._display_times = GzzListFileRow.None;
+
+        if('display_times' in params && Number.isInteger(params.display_times)
+            && 0 <= Number(params.display_times) && Number(params.display_times) <= 7){
+            this._display_times = Number(params.display_times);
+        }
+
+        this._create = null;
+
+        if(this._display_times & GzzListFileRow.Create){
+            this._create = new St.Label({
+                text:        this._create_time.format_iso8601(), 
+                style_class: 'dialog-list-item-create',
+                x_expand:    true,
+                x_align:     Clutter.ActorAlign.FILL, 
+                width:       200, 
+                reactive:    true, 
+            });
+        }
 
         this._modification_time = GLib.DateTime.new_from_unix_local(0);
 
@@ -1542,13 +1554,18 @@ export class GzzListFileRow extends St.BoxLayout {
             this._modification_time = params.modification_time;
         }
         
+        this._modification = null;
 
-        this._modification = new St.Label({
-            text:        this._modification_time.format_iso8601(), 
-            style_class: 'dialog-list-item-title',
-            x_expand:    true,
-            reactive:    true, 
-        });
+        if(this._display_times & GzzListFileRow.Modify){
+            this._modification = new St.Label({
+                text:        this._modification_time.format_iso8601(), 
+                style_class: 'dialog-list-item-title',
+                x_expand:    true,
+                x_align:     Clutter.ActorAlign.FILL, 
+                width:       200, 
+                reactive:    true, 
+            });
+        }
 
         this._access_time = GLib.DateTime.new_from_unix_local(0);
 
@@ -1556,13 +1573,20 @@ export class GzzListFileRow extends St.BoxLayout {
             this._access_time = params.access_time;
         }
         
+        this._access = null;
 
-        this._access = new St.Label({
-            text:        this._access_time.format_iso8601(), 
-            style_class: 'dialog-list-item-title',
-            x_expand:    true,
-            reactive:    true, 
-        });
+        if(this._display_times & GzzListFileRow.Access){
+            this._access = new St.Label({
+                text:        this._access_time.format_iso8601(), 
+                style_class: 'dialog-list-item-title',
+                x_expand:    true,
+                x_align:     Clutter.ActorAlign.FILL, 
+                width:       200, 
+                reactive:    true, 
+            });
+        }
+
+        this._display_user_group = GzzListFileRow.No_User_Group;
 
         this._user_name = '';
 
@@ -1574,12 +1598,18 @@ export class GzzListFileRow extends St.BoxLayout {
             }
         }
 
-        this._user = new St.Label({
-            text:        this._user_name, 
-            style_class: 'dialog-list-item-user',
-            x_expand:    true,
-            reactive:    true, 
-        });
+        this._user = null;
+
+        if(this._display_user_group & GzzListFileRow.User){
+            this._user = new St.Label({
+                text:        this._user_name, 
+                style_class: 'dialog-list-item-user',
+                x_expand:    true,
+                x_align:     Clutter.ActorAlign.FILL, 
+                width:       200, 
+                reactive:    true, 
+            });
+        }
 
         this._group_name = '';
 
@@ -1603,19 +1633,41 @@ export class GzzListFileRow extends St.BoxLayout {
             this._file_size = format_file_size(params.file_size, this._base2_file_sizes);
         }
 
-        this._group = new St.Label({
-            text:        this._group_name, 
-            style_class: 'dialog-list-item-group',
-            x_expand:    true,
-            reactive:    true, 
-        });
+        this._group = null;
 
-        this._file_size_box = new St.Label({
-            text:        this._file_size, 
-            style_class: 'dialog-list-item-file-size',
-            x_expand:    true,
-            reactive:    true, 
-        });
+        if(this._display_user_group & GzzListFileRow.Group){
+            this._group = new St.Label({
+                text:        this._group_name, 
+                style_class: 'dialog-list-item-group',
+                x_expand:    true,
+                x_align:     Clutter.ActorAlign.FILL, 
+                width:       200, 
+                reactive:    true, 
+            });
+        }
+        /* TODO: finish this boiler plate!!!!
+                    display_size:         this._display_size,
+                    base2_file_sizes:     this._base2_file_sizes, 
+        // */    
+
+        this._display_size = false;
+
+        if('display_size' in params){
+            this._display_size = !!params.display_size;
+        }
+
+        this._file_size_box = null;
+
+        if(this._display_size){
+            this._file_size_box = new St.Label({
+                text:        this._file_size, 
+                style_class: 'dialog-list-item-file-size',
+                x_expand:    true,
+                x_align:     Clutter.ActorAlign.FILL, 
+                width:       40, 
+                reactive:    true, 
+            });
+        }
 
         let textLayout = new St.BoxLayout({
             vertical: false,
@@ -1624,15 +1676,15 @@ export class GzzListFileRow extends St.BoxLayout {
         });
 
         textLayout.add_child(this._icon);
-        textLayout.add_child(this._inode);
-        textLayout.add_child(this._mode_box);
-        textLayout.add_child(this._nlink_box);
-        textLayout.add_child(this._create);
-        textLayout.add_child(this._modification);
-        textLayout.add_child(this._access);
-        textLayout.add_child(this._user);
-        textLayout.add_child(this._group);
-        textLayout.add_child(this._file_size_box);
+        if(this._inode)         textLayout.add_child(this._inode);
+        if(this._mode_box)      textLayout.add_child(this._mode_box);
+        if(this._nlink_box)     textLayout.add_child(this._nlink_box);
+        if(this._create)        textLayout.add_child(this._create);
+        if(this._modification)  textLayout.add_child(this._modification);
+        if(this._access)        textLayout.add_child(this._access);
+        if(this._user)          textLayout.add_child(this._user);
+        if(this._group)         textLayout.add_child(this._group);
+        if(this._file_size_box) textLayout.add_child(this._file_size_box);
         textLayout.add_child(this._title);
 
         this.label_actor = this._title;
@@ -1653,25 +1705,53 @@ export class GzzListFileRow extends St.BoxLayout {
         this.click_count = 0;
         this._icon.connect("button-press-event", (actor, event) => { this.handle_button_press_event(actor, event); });
         this._icon.connect("button-press-event", (actor, event) => { this.handle_button_press_event(actor, event); });
-        this._inode.connect("button-press-event", (actor, event) => { this.handle_button_press_event(actor, event); });
-        this._inode.connect("button-release-event", (actor, event) => { this.handle_button_release_event(actor, event); });
-        this._mode_box.connect("button-press-event", (actor, event) => { this.handle_button_press_event(actor, event); });
-        this._mode_box.connect("button-release-event", (actor, event) => { this.handle_button_release_event(actor, event); });
-        this._create.connect("button-press-event", (actor, event) => { this.handle_button_press_event(actor, event); });
-        this._create.connect("button-release-event", (actor, event) => { this.handle_button_release_event(actor, event); });
-        this._modification.connect("button-press-event", (actor, event) => { this.handle_button_press_event(actor, event); });
-        this._modification.connect("button-release-event", (actor, event) => { this.handle_button_release_event(actor, event); });
-        this._access.connect("button-press-event", (actor, event) => { this.handle_button_press_event(actor, event); });
-        this._access.connect("button-release-event", (actor, event) => { this.handle_button_release_event(actor, event); });
-        this._user.connect("button-press-event", (actor, event) => { this.handle_button_press_event(actor, event); });
-        this._user.connect("button-release-event", (actor, event) => { this.handle_button_release_event(actor, event); });
-        this._group.connect("button-press-event", (actor, event) => { this.handle_button_press_event(actor, event); });
-        this._group.connect("button-release-event", (actor, event) => { this.handle_button_release_event(actor, event); });
-        this._file_size_box.connect("button-press-event", (actor, event) => { this.handle_button_press_event(actor, event); });
-        this._file_size_box.connect("button-release-event", (actor, event) => { this.handle_button_release_event(actor, event); });
+        if(this._inode){
+            this._inode.connect("button-press-event", (actor, event) => { this.handle_button_press_event(actor, event); });
+            this._inode.connect("button-release-event", (actor, event) => { this.handle_button_release_event(actor, event); });
+        }
+        if(this._mode_box){
+            this._nlink_box.connect("button-press-event", (actor, event) => { this.handle_button_press_event(actor, event); });
+            this._nlink_box.connect("button-release-event", (actor, event) => { this.handle_button_release_event(actor, event); });
+        }
+        if(this._nlink_box){
+            this._create.connect("button-press-event", (actor, event) => { this.handle_button_press_event(actor, event); });
+            this._create.connect("button-release-event", (actor, event) => { this.handle_button_release_event(actor, event); });
+        }
+        if(this._create){
+            this._create.connect("button-press-event", (actor, event) => { this.handle_button_press_event(actor, event); });
+            this._create.connect("button-release-event", (actor, event) => { this.handle_button_release_event(actor, event); });
+        }
+        if(this._modification){
+            this._modification.connect("button-press-event", (actor, event) => { this.handle_button_press_event(actor, event); });
+            this._modification.connect("button-release-event", (actor, event) => { this.handle_button_release_event(actor, event); });
+        }
+        if(this._access){
+            this._access.connect("button-press-event", (actor, event) => { this.handle_button_press_event(actor, event); });
+            this._access.connect("button-release-event", (actor, event) => { this.handle_button_release_event(actor, event); });
+        }
+        if(this._user){
+            this._user.connect("button-press-event", (actor, event) => { this.handle_button_press_event(actor, event); });
+            this._user.connect("button-release-event", (actor, event) => { this.handle_button_release_event(actor, event); });
+        }
+        if(this._group){
+            this._group.connect("button-press-event", (actor, event) => { this.handle_button_press_event(actor, event); });
+            this._group.connect("button-release-event", (actor, event) => { this.handle_button_release_event(actor, event); });
+        }
+        if(this._file_size_box){
+            this._file_size_box.connect("button-press-event", (actor, event) => { this.handle_button_press_event(actor, event); });
+            this._file_size_box.connect("button-release-event", (actor, event) => { this.handle_button_release_event(actor, event); });
+        }
         this._title.connect("button-press-event", (actor, event) => { this.handle_button_press_event(actor, event); });
         this._title.connect("button-release-event", (actor, event) => { this.handle_button_release_event(actor, event); });
     } // constructor(params) //
+
+    static None          = 0b00000;
+    static Create        = 0b00001;
+    static Modify        = 0b00010;
+    static Access        = 0b00100;
+    static No_User_Group = 0b00000;
+    static User          = 0b00001;
+    static Group         = 0b00010;
 
     handle_button_press_event(actor, event){
         switch(event.get_button()){
