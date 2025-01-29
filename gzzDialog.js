@@ -673,6 +673,12 @@ export class GzzFileDialogBase extends ModalDialog.ModalDialog {
             this._dialog_type = GzzDialogType.Save;
         }
 
+        this._icon_size = 16;
+
+        if('icon_size' in params && Number.isInteger(params.icon_size)){
+            this._icon_size = Number(params.icon_size);
+        }
+
         if('errorhandler' in params){
             this._error_handler = params.errorhandler;
         }else{
@@ -806,6 +812,24 @@ export class GzzFileDialogBase extends ModalDialog.ModalDialog {
         this.set_error_handler(handler);
     }
 
+    get_icon_size(){
+        return this._icon_size;
+    }
+
+    set_icon_size(sz){
+        if(Number.isInteger(sz)){
+            this._icon_size = Number(sz);
+        }
+    } // set_icon_size(sz) //
+
+    get icon_size(){
+        return this.get_icon_size();
+    }
+
+    set icon_size(sz){
+        this.set_icon_size(sz);
+    }
+
     apply_error_handler(error_owner_, _name, msg, e = null){
         if(this._error_handler)
             this._error_handler(error_owner_, _name, msg, e);
@@ -854,6 +878,12 @@ export class GzzHeaderItem extends St.Button {
             }
         }else{
             throw new Error('GzzHeaderItem::owner_error: owner must be supplied');
+        }
+
+        this._icon_size = 16;
+
+        if('icon_size' in params && Number.isInteger(params.icon_size)){
+            this._icon_size = Number(params.icon_size);
         }
 
 
@@ -925,6 +955,24 @@ export class GzzHeaderItem extends St.Button {
         this.set_owner(_owner);
     }
 
+    get_icon_size(){
+        return this._icon_size;
+    }
+
+    set_icon_size(sz){
+        if(Number.isInteger(sz)){
+            this._icon_size = Number(sz);
+        }
+    } // set_icon_size(sz) //
+
+    get icon_size(){
+        return this.get_icon_size();
+    }
+
+    set icon_size(sz){
+        this.set_icon_size(sz);
+    }
+
     get_array(){
         return this._array;
     }
@@ -941,6 +989,7 @@ export class GzzHeaderItem extends St.Button {
             const home = Gio.File.new_for_path(GLib.build_filenamev([GLib.get_home_dir()]));
             if(file.equal(home)){
                 this.set_icon_name('user-home');
+                this.set_icon_size(this._icon_size);
             }
         }else{
             log_message('notes', `GzzHeaderItem::set_array: array must be an array: you gave me ${JSON.stringify(this._array)}:`, new Error());
@@ -1139,21 +1188,18 @@ export class GzzHeader extends St.BoxLayout {
         log_message('notes', `GzzHeader::add_button: this._show_root == ${this._show_root}`, new Error());
         const button_path = Gio.File.new_for_path(GLib.build_filenamev(array));
         this.add_child(new GzzHeaderItem({
-            owner: this._owner, 
+            owner:     this._owner, 
             array, 
-            checked: array_equal(array, this._current_array), 
-            action: () => {
-                try {
-                    if(!array_equal(array, this._current_array)){
-                        this._current_array = array;
-                        this._owner.set_dir(array2file(this._current_array));
-                        this._owner._list_section.list.destroy_all_children();
-                        this._owner.display_dir(button_path);
-                    }
-                    this.refresh_button_states(); 
-                } catch(e){
-                    log_message('notes', 'GzzHeaderItem::action: button clicked event silly error caught', e);
+            checked:   array_equal(array, this._current_array), 
+            icon_size: this._owner.get_icon(), 
+            action:    () => {
+                if(!array_equal(array, this._current_array)){
+                    this._current_array = array;
+                    this._owner.set_dir(array2file(this._current_array));
+                    this._owner._list_section.list.destroy_all_children();
+                    this._owner.display_dir(button_path);
                 }
+                this.refresh_button_states(); 
             }, 
 
         }));
@@ -1257,6 +1303,12 @@ export  class GzzListFileSection extends St.BoxLayout {
             child: this.list,
         });
 
+        this._icon_size = 16;
+
+        if('icon_size' in params && Number.isInteger(params.icon_size)){
+            this._icon_size = Number(params.icon_size);
+        }
+
         this.label_actor = this.list;
 
         this._owner = null;
@@ -1311,6 +1363,7 @@ export  class GzzListFileSection extends St.BoxLayout {
         this.new_dir_button  = new St.Button({
             style_class: 'gzzdialog-list-item-button',
             icon_name:   'stock_new-dir', 
+            icon_size:   this._owner._icon_size, 
         });
         this.new_dir_button.connectObject('clicked', () => this._owner.create_new_dir(), this._owner)
 
@@ -1370,6 +1423,24 @@ export  class GzzListFileSection extends St.BoxLayout {
     
     set owner(_owner){
         this.set_owner(_owner);
+    }
+
+    get_icon_size(){
+        return this._icon_size;
+    }
+
+    set_icon_size(sz){
+        if(Number.isInteger(sz)){
+            this._icon_size = Number(sz);
+        }
+    } // set_icon_size(sz) //
+
+    get icon_size(){
+        return this.get_icon_size();
+    }
+
+    set icon_size(sz){
+        this.set_icon_size(sz);
     }
 
     get_file_name(){
@@ -2010,13 +2081,8 @@ export class GzzFileDialog extends GzzFileDialogBase {
             owner:      this, 
             title:      params.title,
             dialogtype: this._dialog_type, 
+            icon_size:  this._icon_size, 
         });
-
-        this._icon_size = 16;
-
-        if('icon_size' in params && Number.isInteger(params.icon_size)){
-            this._icon_size = Number(params.icon_size);
-        }
 
         let show_icon = true;
 
@@ -2438,24 +2504,6 @@ export class GzzFileDialog extends GzzFileDialogBase {
 
     set base2_file_sizes(base2){
         this.set_base2_file_sizes(base2);
-    }
-
-    get_icon_size(){
-        return this._icon_size;
-    }
-
-    set_icon_size(sz){
-        if(Number.isInteger(sz)){
-            this._icon_size = Number(sz);
-        }
-    } // set_icon_size(sz) //
-
-    get icon_size(){
-        return this.get_icon_size();
-    }
-
-    set icon_size(sz){
-        this.set_icon_size(sz);
     }
 
     get_display_times(){
