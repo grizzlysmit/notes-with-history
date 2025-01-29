@@ -43,18 +43,23 @@ class PageBase extends Adw.PreferencesPage {
         }
     } // constructor(caller, _title, _name, _icon_name) //
 
+    _close_button(){
+        const close_button = new Gtk.Button({
+            label: _("Exit Settings"),
+             css_classes: ["suggested-action"],
+             valign: Gtk.Align.CENTER,
+        });
+        close_button.connect("clicked", () => { this._caller._close_request(this._caller._window); });
+        return close_button;
+    } // _close_button() //
+
     _close_row(){
         const title = "";
         const row = new Adw.ActionRow({ title });
         row.set_subtitle("");
-        const close_button = new Gtk.Button({
-                                                        label: _("Exit Settings"),
-                                                         css_classes: ["suggested-action"],
-                                                         valign: Gtk.Align.CENTER,
-                                                    });
+        const close_button = this._close_button();
         row.add_suffix(close_button);
         row.activatable_widget = close_button;
-        close_button.connect("clicked", () => { this._caller._close_request(this._caller._window); });
 
         return row;
     } // _close_row() //
@@ -402,7 +407,7 @@ class NotesPreferencesSettings extends PageBase {
         super.destroy();
     } // destroy() //
     
-} // class NotesPreferencesSettings extends Adw.PreferencesPage //
+} // class NotesPreferencesSettings extends PageBase //
 
 class FileDisplay extends PageBase {
     static {
@@ -592,11 +597,14 @@ class NotesScroller extends PageBase {
                                 valign:      Gtk.Align.CENTER,
         });
         insbutton.connect("clicked", () => { this._caller.editNote(-1); });
+        this.button_box     = new Gtk.Box({orientation: Gtk.Orientation.HORIZONTAL, vexpand: false, hexpand: true, });
         //this._addButton.connect('activated', () => { this._caller.editNote(-1); });
-        this._addButton = new Adw.ActionRow({
+        this.button_box.prepend(insbutton);
+        this.button_box.append(this._close_button());
+        this._addButton = new Adw.PreferencesRow({
             title:               _("Insert Note..."), 
-            activatable_widget:  insbutton, 
         });
+        this._addButton.set_child(this.button_box);
         this.controlsGroup.add(this._addButton);
         this.add(this.controlsGroup);
 
@@ -633,7 +641,7 @@ class NotesScroller extends PageBase {
         this.scrolledWindow.height_request = height;
         this.scrolledWindow.set_child(this.notesGroup);
         this.containerGroup.add(this.scrolledWindow);
-        this.containerGroup.add(this._close_row());
+        //this.containerGroup.add(this._close_row());
         this.add(this.containerGroup);
         this.size_changed_id = this._caller._window.connect('notify::default-height', () => {
             const height = Math.max(Math.floor((3 * this._caller._window.default_height)/10), this.scrolledWindow.min_content_height);

@@ -47,22 +47,22 @@
         <key type="i" name="window-width">
             <default>925</default>
             <summary>The window width.</summary>
-            <description>The users chosen window width.</description>
+            <description>The users chosen window width (for the preferences).</description>
         </key>
         <key type="i" name="window-height">
             <default>575</default>
             <summary>The window height.</summary>
-            <description>The users chosen window height.</description>
+            <description>The users chosen window height (for the preferences).</description>
         </key>
         <key name="page" enum="org.gnome.shell.extensions.notes-with-history.page">
             <default>'settings'</default>
             <summary>The Page to open on.</summary>
-            <description>Open on this page when first called.</description>
+            <description>Open on this page when first called (part of the communication between the plugin and it's preferences).</description>
         </key>
         <key type="i" name="index">
             <default>-1</default>
             <summary>The index of the note to be edited.</summary>
-            <description>The index the note to be   edited is located at.</description>
+            <description>The index the note to be   edited is located at (part of the communication between the plugin and it's preferences).</description>
         </key>
         <key type="as" name="notes">
             <default>[]</default>
@@ -77,7 +77,7 @@
         <key type="b" name="edit-note">
             <default>false</default>
             <summary>Edit Note.</summary>
-            <description>Edit Note if true.</description>
+            <description>Edit Note if true (part of the communication between the plugin and it's preferences).</description>
         </key>
         <key type="s" name="notespath">
             <default>''</default>
@@ -105,12 +105,12 @@
             <description>Display exactly these time fields.</description>
         </key>
         <key name="user-group" enum="org.gnome.shell.extensions.notes-with-history.user-group">
-            <default>'User-Group'</default>
+            <default>'No-User-Group'</default>
             <summary>The user group fields to display.</summary>
             <description>Display exactly these user group fields.</description>
         </key>
         <key type="b" name="display-inode">
-            <default>true</default>
+            <default>false</default>
             <summary>The maximum length of a note.</summary>
             <description>The the maximum length a note is alowed to be.</description>
         </key>
@@ -120,7 +120,7 @@
             <description>The the maximum length a note is alowed to be.</description>
         </key>
         <key type="b" name="display-number-links">
-            <default>true</default>
+            <default>false</default>
             <summary>The maximum length of a note.</summary>
             <description>The the maximum length a note is alowed to be.</description>
         </key>
