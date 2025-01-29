@@ -1732,7 +1732,7 @@ export class GzzListFileRow extends St.BoxLayout {
         }
         this.click_count = 0;
         this._icon.connect("button-press-event", (actor, event) => { this.handle_button_press_event(actor, event); });
-        this._icon.connect("button-release-event", (actor, event) => { this.handle_button_press_event(actor, event); });
+        this._icon.connect("button-release-event", (actor, event) => { this.handle_button_release_event(actor, event); });
         if(this._inode){
             this._inode.connect("button-press-event", (actor, event) => { this.handle_button_press_event(actor, event); });
             this._inode.connect("button-release-event", (actor, event) => { this.handle_button_release_event(actor, event); });
