@@ -1505,7 +1505,7 @@ export class GzzListFileRow extends St.BoxLayout {
                 style_class: 'dialog-list-item-mode',
                 x_expand:    true,
                 x_align:     Clutter.ActorAlign.FILL, 
-                width:       150, 
+                width:       160, 
                 reactive:    true, 
             });
         }
