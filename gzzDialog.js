@@ -339,7 +339,20 @@ export class Button extends St.BoxLayout {
             reactive:    true, 
             name:        'GzzButton', 
             vertical:    false,
+            x_expand:    true,
+            y_expand:    false,
+            x_align:     Clutter.ActorAlign.FILL,
+            y_align:     Clutter.ActorAlign.START,
         });
+
+        /* TODO: more params  //
+            vertical:    false,
+            x_expand:    true,
+            y_expand:    false,
+            x_align:     Clutter.ActorAlign.FILL,
+            y_align:     Clutter.ActorAlign.START,
+            toggle_mode: true, 
+        // */
 
         this._icon = null;
 
@@ -370,10 +383,16 @@ export class Button extends St.BoxLayout {
 
         this._label = new St.Label({
             text:  this._title, 
+            x_expand:    true,
+            y_expand:    false,
+            x_align:     Clutter.ActorAlign.FILL,
+            y_align:     Clutter.ActorAlign.START,
         });
 
         if(this._icon) this.add_child(this._icon);
         this.add_child(this._label);
+
+        if(this._icon) this.set_child_at_index(this._icon, 0);
 
         this.connect('button-release-event', (_actor, event) => {
             log_message('notes', `Gzz::Button::button-release-event:  event == ${event}`, new Error());
@@ -403,7 +422,7 @@ export class Button extends St.BoxLayout {
                     icon_name:   this._icon_name, 
                     icon_size:   this._icon_size, 
                 });
-                this.add_child(this._icon);
+                this.insert_child_at_index(this._icon, 0);
             }
         } // if(!iconname) ... else if(iconname instanceof String || typeof iconname === 'string') ... //
     } // set_icon_name(name_) //
@@ -1027,7 +1046,11 @@ export class GzzHeaderItem extends Button {
     constructor(params) {
         super({
             style_class: 'gzzdialog-header-item',
-            x_expand:    true, 
+            vertical:    false,
+            x_expand:    true,
+            y_expand:    false,
+            x_align:     Clutter.ActorAlign.FILL,
+            y_align:     Clutter.ActorAlign.START,
             toggle_mode: true, 
         });
 
