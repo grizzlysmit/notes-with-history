@@ -14,7 +14,7 @@ gzzbutton {
     margin-top:       5;
     margin-bottom:    5;
     color:            black;
-    background-color: grey, 
+    background-color: lightgrey, 
 }
 
 .gzzdialog-header-item-selected {
@@ -23,12 +23,14 @@ gzzbutton {
     margin-top:       5;
     margin-bottom:    5;
     color:            cyan;
-    background-color: darkgrey, 
+    background-color: grey, 
 }
 
 .gzz-button {
-    margin-left:   5;
-    margin-right:  5;
-    margin-top:    5;
-    margin-bottom: 5;
+    margin-left:      5;
+    margin-right:     5;
+    margin-top:       5;
+    margin-bottom:    5;
+    color:            black;
+    background-color: lightgrey, 
 }
