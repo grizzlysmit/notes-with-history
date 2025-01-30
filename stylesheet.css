@@ -1,10 +1,22 @@
 /* Add your custom extension styling here */
+gzzbutton {
+    margin-left:   5;
+    margin-right:  5;
+    margin-top:    5;
+    margin-bottom: 5;
+    color:         grey;
+}
+
 .gzzdialog-header-item {
     color:  darkgrey;
 }
 
 .gzzdialog-header-item-selected {
-    color:  darkcyan;
+    margin-left:   5;
+    margin-right:  5;
+    margin-top:    5;
+    margin-bottom: 5;
+    color:         cyan;
 }
 
 .gzz-button {

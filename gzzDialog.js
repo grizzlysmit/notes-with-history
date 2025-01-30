@@ -312,7 +312,7 @@ export function array_equal(lhs, rhs){
 export class Button extends St.BoxLayout {
     static {
         GObject.registerClass({
-            GTypeName: 'GzzButton button Button',
+            GTypeName: 'GzzButton',
             Signals: {
                 'clicked': {
                     flags: GObject.SignalFlags.RUN_LAST,
@@ -328,9 +328,9 @@ export class Button extends St.BoxLayout {
     constructor(params) {
         log_message('notes', `Gzz::Button::constructor: params == ${JSON.stringify(params)}`, new Error());
         super({
-            styleClass: 'gzz-button',  
+            styleClass: 'gzz-button button',  
             reactive:    true, 
-            name:        'GzzButton', 
+            name:        'gzzbutton', 
             vertical:    false,
             x_expand:    false,
             y_expand:    false,
@@ -342,6 +342,10 @@ export class Button extends St.BoxLayout {
         this.set_margin_right(20);
         this.set_margin_top(20);
         this.set_margin_bottom(20);
+
+        if('styleClass' in params && (params.styleClass instanceof String || typeof params.styleClass === 'string')){
+            this.set_style_class_name(params.styleClass.toString());
+        }
 
         /* TODO: more params  //
             vertical:    false,
@@ -1380,11 +1384,12 @@ export class GzzHeader extends St.BoxLayout {
         log_message('notes', `GzzHeader::add_button: this._show_root == ${this._show_root}`, new Error());
         const button_path = Gio.File.new_for_path(GLib.build_filenamev(array));
         this.add_child(new GzzHeaderItem({
-            owner:     this._owner, 
+            owner:      this._owner, 
+            styleClass: 'gzzdialog-header-item', 
             array, 
-            checked:   array_equal(array, this._current_array), 
-            icon_size: this._owner.get_icon_size(), 
-            action:    () => {
+            checked:    array_equal(array, this._current_array), 
+            icon_size:  this._owner.get_icon_size(), 
+            action:     () => {
                 if(!array_equal(array, this._current_array)){
                     this._current_array = array;
                     this._owner.set_dir(array2file(this._current_array));
@@ -1403,10 +1408,12 @@ export class GzzHeader extends St.BoxLayout {
             if(child instanceof GzzHeaderItem){
                 if(array_equal(child.get_array(), this._current_array)){
                     child.checked = true;
-                    child.set_style_class_name('gzzdialog-header-item-selected');
+                    child.remove_style_class_name('gzzdialog-header-item');
+                    child.add_style_class_name('gzzdialog-header-item-selected');
                 }else{
                     child.checked = false;
-                    child.set_style_class_name('gzzdialog-header-item');
+                    child.remove_style_class_name('gzzdialog-header-item-selected');
+                    child.add_style_class_name('gzzdialog-header-item');
                 }
             }
         }
