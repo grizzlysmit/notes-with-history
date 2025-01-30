@@ -338,18 +338,11 @@ export class Button extends St.BoxLayout {
             y_align:     Clutter.ActorAlign.START,
         });
 
-        /*
-        this.set_margin_left(20);
-        this.set_margin_right(20);
-        this.set_margin_top(20);
-        this.set_margin_bottom(20);
-        // */
-
         if('styleClass' in params && (params.styleClass instanceof String || typeof params.styleClass === 'string')){
             this.set_style_class_name(params.styleClass.toString());
             this.add_style_class_name('button');
         }
-        this.ensure_style();
+        //this.ensure_style();
 
         /* TODO: more params  //
             vertical:    false,
