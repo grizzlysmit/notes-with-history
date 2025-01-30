@@ -1172,7 +1172,7 @@ export class GzzHeaderItem extends Button {
         }else if(Array.isArray(arr)){
             this._array = arr;
             const title = this.array.at(-1);
-            this.set_title(title);
+            this.set_label(title);
             const file = Gio.File.new_for_path(GLib.build_filenamev(this._array));
             const home = Gio.File.new_for_path(GLib.build_filenamev([GLib.get_home_dir()]));
             if(file.equal(home)){
