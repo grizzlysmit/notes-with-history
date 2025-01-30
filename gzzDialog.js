@@ -2866,9 +2866,74 @@ export class GzzFileDialog extends GzzFileDialogBase {
                                                         + ",unix::blocks,mountable::unix-device-file"
                                                             + ",standard::content-type,standard::type";
         try {
-            enumerator = filename.enumerate_children(attributes, Gio.FileQueryInfoFlags.NONE, null);
+            enumerator = filename.enumerate_children(attributes, Gio.FileQueryInfoFlags.NOFOLLOW_SYMLINKS, null);
             log_message('notes', `GzzFileDialog::display_dir: enumerator == ‷${enumerator}‴`, new Error());
             let info;
+            {
+                info          = filename.query_info(attributes, Gio.FileQueryInfoFlags.NONE, null);
+                let filetype  = filename.query_file_type(Gio.FileQueryInfoFlags.NONE, null);
+                let file_type = info.get_file_type();
+                const self_ = new GzzListFileRow({
+                    owner:                this, 
+                    title:                '.',
+                    is_dir:               true, 
+                    inode_number:         info.get_attribute_uint64('unix::inode'), 
+                    mode:                 info.get_attribute_uint32('unix::mode'), 
+                    file_type:            (filetype ? filetype : file_type), 
+                    file:                 filename, 
+                    icon:                 info.get_icon(), 
+                    icon_size:            this._icon_size, 
+                    create_time:          info.get_creation_date_time(),
+                    modification_time:    info.get_modification_date_time(),
+                    access_time:          info.get_access_date_time(),
+                    user_name:            info.get_attribute_string('owner::user'),
+                    group_name:           info.get_attribute_string('owner::group'),
+                    file_size:            info.get_size(), 
+                    nlink:                info.get_attribute_uint64('unix::nlink'), 
+                    double_click_time:    this._double_click_time, 
+                    display_times:        this._display_times, 
+                    display_inode:        this._display_inode, 
+                    display_user_group:   this._display_user_group, 
+                    display_mode:         this._display_mode,
+                    display_number_links: this._display_number_links,
+                    display_size:         this._display_size,
+                    base2_file_sizes:     this._base2_file_sizes, 
+                });
+                this.add_row(self_);
+                const parent_dir = filename.get_parent();
+                if(parent_dir){
+                    info      = parent_dir.query_info(attributes, Gio.FileQueryInfoFlags.NONE, null);
+                    filetype  = parent_dir.query_file_type(Gio.FileQueryInfoFlags.NONE, null);
+                    file_type = info.get_file_type();
+                }
+                const parent_ = new GzzListFileRow({
+                    owner:                this, 
+                    title:                '..',
+                    is_dir:               true, 
+                    inode_number:         info.get_attribute_uint64('unix::inode'), 
+                    mode:                 info.get_attribute_uint32('unix::mode'), 
+                    file_type:            (filetype ? filetype : file_type), 
+                    file:                 (parent_dir ? parent_dir : filename), 
+                    icon:                 info.get_icon(), 
+                    icon_size:            this._icon_size, 
+                    create_time:          info.get_creation_date_time(),
+                    modification_time:    info.get_modification_date_time(),
+                    access_time:          info.get_access_date_time(),
+                    user_name:            info.get_attribute_string('owner::user'),
+                    group_name:           info.get_attribute_string('owner::group'),
+                    file_size:            info.get_size(), 
+                    nlink:                info.get_attribute_uint64('unix::nlink'), 
+                    double_click_time:    this._double_click_time, 
+                    display_times:        this._display_times, 
+                    display_inode:        this._display_inode, 
+                    display_user_group:   this._display_user_group, 
+                    display_mode:         this._display_mode,
+                    display_number_links: this._display_number_links,
+                    display_size:         this._display_size,
+                    base2_file_sizes:     this._base2_file_sizes, 
+                });
+                this.add_row(parent_);
+            }
             while ((info = enumerator.next_file(null))) {
                 log_message('notes', `GzzFileDialog::display_dir: info == ‷${info}‴`, new Error());
                 if (this._dialog_type.toString() === GzzDialogType.SelectDir.toString() && info.get_file_type() !== Gio.FileType.DIRETORY) {
