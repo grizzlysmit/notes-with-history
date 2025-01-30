@@ -381,6 +381,10 @@ export class Button extends St.BoxLayout {
             this._title = params.title;
         }
 
+        if('label' in params && (params.label instanceof String || typeof params.label === 'string')){
+            this._title = params.label;
+        }
+
         this._label = new St.Label({
             text:  this._title, 
             x_expand:    true,
@@ -501,6 +505,22 @@ export class Button extends St.BoxLayout {
 
     set title(ttl){
         this.set_title(ttl);
+    }
+    
+    get_label(){
+        return this.get_title();
+    }
+
+    set_label(label_){
+        this.set_title(label_);
+    }
+
+    get label(){
+        return this.get_title();
+    }
+
+    set label(label_){
+        this.set_title(label_);
     }
 
 } // export class Button extends St.BoxLayout //
