@@ -368,7 +368,7 @@ export class Button extends St.BoxLayout {
             this._title = params.title;
         }
 
-        this._label = St.Label({
+        this._label = new St.Label({
             text:  this._title, 
         });
 
