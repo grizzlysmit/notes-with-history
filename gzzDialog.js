@@ -312,7 +312,7 @@ export function array_equal(lhs, rhs){
 export class Button extends St.BoxLayout {
     static {
         GObject.registerClass({
-            GTypeName: 'GzzButton',
+            GTypeName: 'GzzButton button Button',
             Signals: {
                 'clicked': {
                     flags: GObject.SignalFlags.RUN_LAST,
