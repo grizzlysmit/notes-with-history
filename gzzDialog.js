@@ -349,6 +349,7 @@ export class Button extends St.BoxLayout {
             this.set_style_class_name(params.styleClass.toString());
             this.set_style_class_name('button');
         }
+        this.ensure_style();
 
         /* TODO: more params  //
             vertical:    false,
