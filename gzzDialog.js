@@ -424,7 +424,7 @@ export class Button extends St.BoxLayout {
         if(Number.isInteger(size) && size > 0){
             this._icon_size = size;
             if(this._icon){
-                this.set_icon_size(this._icon_size);
+                this._icon.set_icon_size(this._icon_size);
             }
         }
     } // set_icon_size(icon_size) //
