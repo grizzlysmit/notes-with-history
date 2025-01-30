@@ -17,13 +17,6 @@ import Clutter from 'gi://Clutter';
 import {gettext as _} from 'resource:///org/gnome/shell/extensions/extension.js';
 
 
-function _setLabel(label, value) {
-    label.set({
-        text: value || '',
-        visible: value !== null,
-    });
-}
-
 export function glob2RegExp(glob_pattern){
     let regex = glob_pattern.replace(/,\s*/g, '|').replace(/\./g, "\\.").replace(/\*/g, '.*');
     return new RegExp(`^(?:${regex})$`);
@@ -339,24 +332,16 @@ export class Button extends St.BoxLayout {
             reactive:    true, 
             name:        'GzzButton', 
             vertical:    false,
-            x_expand:    true,
+            x_expand:    false,
             y_expand:    false,
-            x_align:     Clutter.ActorAlign.FILL,
+            x_align:     Clutter.ActorAlign.START,
             y_align:     Clutter.ActorAlign.START,
         });
 
-        let margin = new Clutter.Margin({
-            left:     5, 
-            right:    5, 
-            top:      5, 
-            bottom:   5, 
-        });
-
-        this.set_margin(margin);
-
-        margin.free();
-
-        margin = null;
+        this.set_margin_left(5);
+        this.set_margin_right(5);
+        this.set_margin_top(5);
+        this.set_margin_bottom(5);
 
         /* TODO: more params  //
             vertical:    false,
@@ -388,22 +373,14 @@ export class Button extends St.BoxLayout {
             });
         }
 
-        this._title = '';
-
-        if('title' in params && (params.title instanceof String || typeof params.title === 'string')){
-            this._title = params.title;
-        }
+        let title_ = '';
 
         if('label' in params && (params.label instanceof String || typeof params.label === 'string')){
-            this._title = params.label;
+            title_ = params.label;
         }
 
         this._label = new St.Label({
-            text:  this._title, 
-            x_expand:    false,
-            y_expand:    false,
-            x_align:     Clutter.ActorAlign.START,
-            y_align:     Clutter.ActorAlign.START,
+            text:        title_, 
         });
 
         if(this._icon) this.add_child(this._icon);
@@ -501,41 +478,24 @@ export class Button extends St.BoxLayout {
         this.set_gicon(icon);
     }
 
-    get_title(){
+    get_label(){
         return this._label.get_text();
     }
 
-    set_title(title){
-        if(title instanceof String || typeof title === 'string'){
-            this._title = title;
-            this._label.set_text(this._title);
+    set_label(title_){
+        if(title_ instanceof String || typeof title_ === 'string'){
+            this._label.set_text(title_);
         }
     }
 
-    get title(){
-        return this.get_title();
+    get label(){
+        return this.get_label();
     }
 
-    set title(ttl){
-        this.set_title(ttl);
+    set label(ttl){
+        this.set_label(ttl);
     }
     
-    get_label(){
-        return this.get_title();
-    }
-
-    set_label(label_){
-        this.set_title(label_);
-    }
-
-    get label(){
-        return this.get_title();
-    }
-
-    set label(label_){
-        this.set_title(label_);
-    }
-
 } // export class Button extends St.BoxLayout //
 
 export class GzzMessageDialog extends ModalDialog.ModalDialog {
@@ -1080,9 +1040,9 @@ export class GzzHeaderItem extends Button {
         super({
             style_class: 'gzzdialog-header-item',
             vertical:    false,
-            x_expand:    true,
+            x_expand:    false,
             y_expand:    false,
-            x_align:     Clutter.ActorAlign.FILL,
+            x_align:     Clutter.ActorAlign.START,
             y_align:     Clutter.ActorAlign.START,
             toggle_mode: true, 
         });
@@ -2201,7 +2161,7 @@ export class GzzListFileRow extends St.BoxLayout {
     }
 
     set_title(title_) {
-        _setLabel(this._title, title_);
+        this._title.text = title_;
     }
 
     get title(){
