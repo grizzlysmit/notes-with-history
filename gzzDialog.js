@@ -1053,6 +1053,7 @@ export class GzzHeaderItem extends Button {
             x_align:     Clutter.ActorAlign.START,
             y_align:     Clutter.ActorAlign.START,
             toggle_mode: true, 
+            ...params, 
         });
 
         this._owner = null;
