@@ -1,36 +1,36 @@
 /* Add your custom extension styling here */
 gzzbutton {
-    margin-left:      5;
-    margin-right:     5;
-    margin-top:       5;
-    margin-bottom:    5;
+    margin-left:      2;
+    margin-right:     2;
+    margin-top:       2;
+    margin-bottom:    2;
     background-color: grey, 
     color:            black;
 }
 
 .gzzdialog-header-item {
-    margin-left:      5;
-    margin-right:     5;
-    margin-top:       5;
-    margin-bottom:    5;
+    margin-left:      2;
+    margin-right:     2;
+    margin-top:       2;
+    margin-bottom:    2;
     color:            black;
     background-color: lightgrey, 
 }
 
 .gzzdialog-header-item-selected {
-    margin-left:      5;
-    margin-right:     5;
-    margin-top:       5;
-    margin-bottom:    5;
+    margin-left:      2;
+    margin-right:     2;
+    margin-top:       2;
+    margin-bottom:    2;
     color:            cyan;
     background-color: grey, 
 }
 
 .gzz-button {
-    margin-left:      5;
-    margin-right:     5;
-    margin-top:       5;
-    margin-bottom:    5;
+    margin-left:      2;
+    margin-right:     2;
+    margin-top:       2;
+    margin-bottom:    2;
     color:            black;
     background-color: lightgrey, 
 }

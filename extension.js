@@ -404,7 +404,7 @@ class Indicator extends PanelMenu.Button {
                 dir:                  _dir, 
                 file_name:            _file_name, 
                 dialogtype:           _dialogtype, 
-                display_times:        this._caller._settings.get_enum('time-type'), 
+                display_times:        this._caller.settings.get_enum('time-type'), 
                 display_inode:        this._caller.settings.get_boolean('display-inode'), 
                 display_user_group:   this._caller.settings.get_enum('user-group'), 
                 display_mode:         this._caller.settings.get_boolean('display-mode'),
