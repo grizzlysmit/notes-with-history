@@ -345,6 +345,19 @@ export class Button extends St.BoxLayout {
             y_align:     Clutter.ActorAlign.START,
         });
 
+        let margin = new Clutter.Margin({
+            left:     5, 
+            right:    5, 
+            top:      5, 
+            bottom:   5, 
+        });
+
+        this.set_margin(margin);
+
+        margin.free();
+
+        margin = null;
+
         /* TODO: more params  //
             vertical:    false,
             x_expand:    true,
