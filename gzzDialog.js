@@ -345,6 +345,7 @@ export class Button extends St.BoxLayout {
 
         if('styleClass' in params && (params.styleClass instanceof String || typeof params.styleClass === 'string')){
             this.set_style_class_name(params.styleClass.toString());
+            this.set_style_class_name('button');
         }
 
         /* TODO: more params  //
@@ -1406,10 +1407,12 @@ export class GzzHeader extends St.BoxLayout {
                     child.checked = true;
                     child.remove_style_class_name('gzzdialog-header-item');
                     child.add_style_class_name('gzzdialog-header-item-selected');
+                    child.add_style_class_name('button');
                 }else{
                     child.checked = false;
                     child.remove_style_class_name('gzzdialog-header-item-selected');
                     child.add_style_class_name('gzzdialog-header-item');
+                    child.set_style_class_name('button');
                 }
             }
         }
