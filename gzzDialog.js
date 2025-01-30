@@ -1363,7 +1363,7 @@ export class GzzHeader extends St.BoxLayout {
             owner:     this._owner, 
             array, 
             checked:   array_equal(array, this._current_array), 
-            icon_size: this._owner.get_icon(), 
+            icon_size: this._owner.get_icon_size(), 
             action:    () => {
                 if(!array_equal(array, this._current_array)){
                     this._current_array = array;
