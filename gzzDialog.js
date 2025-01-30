@@ -387,6 +387,10 @@ export class Button extends St.BoxLayout {
         this.add_child(this._label);
 
         if(this._icon) this.set_child_at_index(this._icon, 0);
+        this._label.set_margin_left(20);
+        this._label.set_margin_right(20);
+        this._label.set_margin_top(20);
+        this._label.set_margin_bottom(20);
 
         this.connect('button-release-event', (_actor, event) => {
             log_message('notes', `Gzz::Button::button-release-event:  event == ${event}`, new Error());
