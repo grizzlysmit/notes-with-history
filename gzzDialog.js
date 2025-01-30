@@ -326,7 +326,7 @@ export class Button extends St.BoxLayout {
     }
 
     constructor(params) {
-        log_message('notes', `Gzz::Button::constructor: params == ${JSON.stringify(params)}`, new Error());
+        //log_message('notes', `Gzz::Button::constructor: params == ${JSON.stringify(params)}`, new Error());
         super({
             styleClass: 'gzz-button button',  
             reactive:    true, 
@@ -1046,13 +1046,7 @@ export class GzzHeaderItem extends Button {
 
     constructor(params) {
         super({
-            style_class: 'gzzdialog-header-item',
-            vertical:    false,
-            x_expand:    false,
-            y_expand:    false,
-            x_align:     Clutter.ActorAlign.START,
-            y_align:     Clutter.ActorAlign.START,
-            toggle_mode: true, 
+            name:        'gzzheaderitem', 
             ...params, 
         });
 
@@ -1387,6 +1381,7 @@ export class GzzHeader extends St.BoxLayout {
         this.add_child(new GzzHeaderItem({
             owner:      this._owner, 
             styleClass: 'gzzdialog-header-item', 
+            toggle_mode: true, 
             array, 
             checked:    array_equal(array, this._current_array), 
             icon_size:  this._owner.get_icon_size(), 
