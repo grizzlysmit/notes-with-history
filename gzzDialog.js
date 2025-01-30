@@ -400,9 +400,9 @@ export class Button extends St.BoxLayout {
 
         this._label = new St.Label({
             text:  this._title, 
-            x_expand:    true,
+            x_expand:    false,
             y_expand:    false,
-            x_align:     Clutter.ActorAlign.FILL,
+            x_align:     Clutter.ActorAlign.START,
             y_align:     Clutter.ActorAlign.START,
         });
 
