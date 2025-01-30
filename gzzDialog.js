@@ -316,6 +316,176 @@ export function array_equal(lhs, rhs){
     return false;
 } // export function array_equal(lhs, rhs) //
 
+export class Button extends St.BoxLayout {
+    static {
+        GObject.registerClass({
+            GTypeName: 'GzzButton',
+            Signals: {
+                'clicked': {
+                    flags: GObject.SignalFlags.RUN_LAST,
+                    param_types: [
+                        GObject.TYPE_UINT,
+                        Clutter.ModifierType.$gtype,
+                    ],
+                },
+            },
+        }, this);
+    }
+
+    constructor(params) {
+        log_message('notes', `Gzz::Button::constructor: params == ${JSON.stringify(params)}`, new Error());
+        super({
+            styleClass: 'gzz-button',  
+            reactive:    true, 
+            name:        'GzzButton', 
+            vertical:    false,
+        });
+
+        this._icon = null;
+
+        this._icon_name = null;
+
+        if('icon_name' in params && (params.icon_name instanceof String || typeof params.icon_name === 'string')){
+            this._icon_name = params.icon_name.trim();
+        }
+
+        this._icon_size = 32;
+
+        if('icon_size' in params && Number.isInteger(params.icon_size) && params.icon_size > 0){
+            this._icon_size = params.icon_size;
+        }
+
+        if(this._icon_name){
+            this._icon = new St.Icon({
+                icon_name:   this._icon_name, 
+                icon_size:   this._icon_size, 
+            });
+        }
+
+        this._title = '';
+
+        if('title' in params && (params.title instanceof String || typeof params.title === 'string')){
+            this._title = params.title;
+        }
+
+        this._label = St.Label({
+            text:  this._title, 
+        });
+
+        if(this._icon) this.add_child(this._icon);
+        this.add_child(this._label);
+
+        this.connect('button-release-event', (_actor, event) => {
+            log_message('notes', `Gzz::Button::button-release-event:  event == ${event}`, new Error());
+            this.emit('clicked', event.get_button(), event.get_state());
+            return Clutter.EVENT_PROPAGATE;
+        });
+
+    } // Button::constructor(params) //
+
+    get_icon_name(){
+        return this._icon_name;
+    }
+
+    set_icon_name(iconname){
+        if(!iconname){
+            if(this._icon){
+                this.remove_child(this._icon);
+                this._icon.destroy();
+            }
+            this._icon = this._icon_name = null;
+        }else if(iconname instanceof String || typeof iconname === 'string'){
+            this._icon_name = iconname;
+            if(this._icon){
+                this._icon.set_icon_name(this._icon_name);
+            }else{
+                this._icon = new St.Icon({
+                    icon_name:   this._icon_name, 
+                    icon_size:   this._icon_size, 
+                });
+                this.add_child(this._icon);
+            }
+        } // if(!iconname) ... else if(iconname instanceof String || typeof iconname === 'string') ... //
+    } // set_icon_name(name_) //
+
+    get icon_name(){
+        return this.get_icon_name();
+    }
+
+    set icon_name(name_){
+        this.set_icon_name(name_);
+    }
+
+    get_icon_size(){
+        return this._icon_size;
+    }
+
+    set_icon_size(size){
+        if(Number.isInteger(size) && size > 0){
+            this._icon_size = size;
+            if(this._icon){
+                this.set_icon_size(this._icon_size);
+            }
+        }
+    } // set_icon_size(icon_size) //
+
+    get icon_size(){
+        return this.get_icon_size();
+    }
+
+    set icon_size(size){
+        this.set_icon_size(size);
+    }
+
+    get_gicon(){
+        if(this._icon){
+            return this._icon.get_gicon();
+        }
+        return null;
+    } // get_gicon() //
+
+    set_gicon(icon){
+        if(icon instanceof Gio.Icon){
+            if(!this._icon){
+                this._icon = new St.Icon({
+                    icon_name:   this._icon_name, 
+                    icon_size:   this._icon_size, 
+                });
+                this.add_child(this._icon);
+            }
+            this._icon.set_gicon(icon);
+        } // if(icon instanceof Gio.Icon) //
+    } // set_gicon(icon) //
+
+    get gicon(){
+        return this.get_gicon();
+    }
+
+    set gicon(icon){
+        this.set_gicon(icon);
+    }
+
+    get_title(){
+        return this._label.get_text();
+    }
+
+    set_title(title){
+        if(title instanceof String || typeof title === 'string'){
+            this._title = title;
+            this._label.set_text(this._title);
+        }
+    }
+
+    get title(){
+        return this.get_title();
+    }
+
+    set title(ttl){
+        this.set_title(ttl);
+    }
+
+} // export class Button extends St.BoxLayout //
+
 export class GzzMessageDialog extends ModalDialog.ModalDialog {
     static {
         GObject.registerClass(this);
@@ -849,7 +1019,7 @@ export class GzzFileDialogBase extends ModalDialog.ModalDialog {
 
 } // export class GzzFileDialogBase extends ModalDialog.ModalDialog  //
 
-export class GzzHeaderItem extends St.Button {
+export class GzzHeaderItem extends Button {
     static {
         GObject.registerClass(this);
     }
@@ -880,10 +1050,8 @@ export class GzzHeaderItem extends St.Button {
             throw new Error('GzzHeaderItem::owner_error: owner must be supplied');
         }
 
-        this._icon_size = 16;
-
         if('icon_size' in params && Number.isInteger(params.icon_size)){
-            this._icon_size = Number(params.icon_size);
+            this.set_icon_size(Number(params.icon_size));
         }
 
 
@@ -901,6 +1069,7 @@ export class GzzHeaderItem extends St.Button {
 
     } // constructor(params) //
 
+    /*
     get_title() {
         return this.label;
     }
@@ -924,6 +1093,7 @@ export class GzzHeaderItem extends St.Button {
     set title(ttl){
         this.set_title(ttl);
     }
+    // */
 
     get_owner() {
         return this._owner;
@@ -955,6 +1125,7 @@ export class GzzHeaderItem extends St.Button {
         this.set_owner(_owner);
     }
 
+    /*
     get_icon_size(){
         return this._icon_size;
     }
@@ -972,13 +1143,14 @@ export class GzzHeaderItem extends St.Button {
     set icon_size(sz){
         this.set_icon_size(sz);
     }
+    // */
 
     get_array(){
         return this._array;
     }
 
     set_array(arr){
-        if(!arr){
+        if(!arr || (Array.isArray(arr) && arr.length === 0)){
             log_message('notes', 'GzzHeaderItem::set_array: array cannot be empty or null:', new Error());
             this._owner.apply_error_handler(this, 'GzzHeaderItem::set_array_error', 'array cannot be empty or null', new Error());
         }else if(Array.isArray(arr)){
@@ -1010,7 +1182,7 @@ export class GzzHeaderItem extends St.Button {
         this.set_array(arr);
     }
 
-} // export class GzzHeaderItem extends St.Button //
+} // export class GzzHeaderItem extends Button //
 
 export class GzzHeader extends St.BoxLayout {
     static {
@@ -1348,7 +1520,7 @@ export  class GzzListFileSection extends St.BoxLayout {
             this._edit = new St.Label({style_class: 'gzzdialog-list-item-edit'});
         }
 
-        this.show_root_button  = new St.Button({
+        this.show_root_button  = new Button({
             style_class: 'gzzdialog-list-item-button', 
             label:       "<", 
             checked:     false, 
@@ -1360,10 +1532,10 @@ export  class GzzListFileSection extends St.BoxLayout {
             this.show_root_button.checked = !showroot;
         })
 
-        this.new_dir_button  = new St.Button({
+        this.new_dir_button  = new Button({
             style_class: 'gzzdialog-list-item-button',
             icon_name:   'stock_new-dir', 
-            icon_size:   this._owner._icon_size, 
+            icon_size:   this._owner.get_icon_size(), 
         });
         this.new_dir_button.connectObject('clicked', () => this._owner.create_new_dir(), this._owner)
 
