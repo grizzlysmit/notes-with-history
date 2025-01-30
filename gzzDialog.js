@@ -338,10 +338,10 @@ export class Button extends St.BoxLayout {
             y_align:     Clutter.ActorAlign.START,
         });
 
-        this.set_margin_left(5);
-        this.set_margin_right(5);
-        this.set_margin_top(5);
-        this.set_margin_bottom(5);
+        this.set_margin_left(20);
+        this.set_margin_right(20);
+        this.set_margin_top(20);
+        this.set_margin_bottom(20);
 
         /* TODO: more params  //
             vertical:    false,
