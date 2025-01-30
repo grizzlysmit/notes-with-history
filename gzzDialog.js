@@ -1382,12 +1382,13 @@ export class GzzHeader extends St.BoxLayout {
         log_message('notes', `GzzHeader::add_button: array == ${JSON.stringify(array)}`, new Error());
         log_message('notes', `GzzHeader::add_button: this._show_root == ${this._show_root}`, new Error());
         const button_path = Gio.File.new_for_path(GLib.build_filenamev(array));
+        const current = array_equal(array, this._current_array);
         this.add_child(new GzzHeaderItem({
             owner:      this._owner, 
-            styleClass: 'gzzdialog-header-item', 
+            styleClass: (current ? 'gzzdialog-header-item-selected' : 'gzzdialog-header-item'), 
             toggle_mode: true, 
             array, 
-            checked:    array_equal(array, this._current_array), 
+            checked:    current, 
             icon_size:  this._owner.get_icon_size(), 
             action:     () => {
                 if(!array_equal(array, this._current_array)){
