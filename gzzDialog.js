@@ -342,16 +342,30 @@ export class Button extends St.BoxLayout {
             this.set_style_class_name(params.styleClass.toString());
             this.add_style_class_name('button');
         }
-        //this.ensure_style();
 
-        /* TODO: more params  //
-            vertical:    false,
-            x_expand:    true,
-            y_expand:    false,
-            x_align:     Clutter.ActorAlign.FILL,
-            y_align:     Clutter.ActorAlign.START,
-            toggle_mode: true, 
-        // */
+        if('vertical' in params){
+            this.set_vertical(!!params.vertical);
+        }
+
+        if('x_expand' in params){
+            this.set_x_expand(!!params.x_expand);
+        }
+
+        if('y_expand' in params){
+            this.set_y_expand(!!params.y_expand);
+        }
+
+        if('x_align' in params && params.x_align instanceof Clutter.ActorAlign){
+            this.set_x_align(params.x_align);
+        }
+
+        if('y_align' in params && params.y_align instanceof Clutter.ActorAlign){
+            this.set_y_align(params.y_align);
+        }
+
+        if('toggle_mode' in params){
+            this._toggle_mode = !!params.toggle_mode; // TODO: implement this functionality. //
+        }
 
         this._icon = null;
 
@@ -2808,7 +2822,18 @@ export class GzzFileDialog extends GzzFileDialogBase {
 
     double_clicked(_row, directory){
         log_message('notes', `GzzFileDialog::double_clicked: directory == ${directory}`, new Error());
-        if(directory){
+        if(directory === '.'){
+            return; // nothing to do //
+        }else if(directory === '..'){ // go up one dir //
+            this._list_section.list.destroy_all_children();
+            const current_dir = this._dir.get_parent();
+            log_message('notes', `GzzFileDialog::double_clicked: current_dir == ${current_dir.get_path()}`, new Error());
+            if(current_dir){
+                this.set_dir(current_dir);
+                this.display_dir(current_dir);
+                this.fixup_header(current_dir);
+            }
+        }else if(directory){
             this._list_section.list.destroy_all_children();
             const current_dir = Gio.File.new_for_path(GLib.build_filenamev([this._dir.get_path(), directory]));
             log_message('notes', `GzzFileDialog::double_clicked: current_dir == ${current_dir.get_path()}`, new Error());
