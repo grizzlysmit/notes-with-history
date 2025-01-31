@@ -1721,7 +1721,20 @@ export  class GzzListFileSection extends St.BoxLayout {
         }
 
         this.#list.destroy_all_children();
-    }
+    } // list_destroy_all_children(caller) //
+
+    list_add_child(caller, row){
+        if(!(caller instanceof GzzFileDialogBase)){
+            this.#_owner.apply_error_handler(
+                this,
+                'GzzListFileSection::list_add_child',
+                `only an instance of GzzFileDialogBase can call this function you supplied ${caller}`,
+                new Error()
+            );
+            return;
+        }
+        this.#list.add_child(row);
+    } // list_add_child(caller, row) //
 
     get_owner() {
         return this.#_owner;
@@ -2776,7 +2789,7 @@ export class GzzFileDialog extends GzzFileDialogBase {
     }
 
     add_row(row){
-        this.#_list_section.list.add_child(row);
+        this.#_list_section.list_add_child(this, row);
     }
 
     get_double_click_time(){
