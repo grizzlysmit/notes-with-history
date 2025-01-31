@@ -338,9 +338,18 @@ export class Button extends St.BoxLayout {
             y_align:     Clutter.ActorAlign.START,
         });
 
+        this._styleClass_unchecked = 'gzz-button';
+
+        this._styleClass_checked = 'gzz-button-selected';
+
         if('styleClass' in params && (params.styleClass instanceof String || typeof params.styleClass === 'string')){
+            this._styleClass_unchecked = params.styleClass.toString();
             this.set_style_class_name(params.styleClass.toString());
             this.add_style_class_name('button');
+        }
+
+        if('styleClass_checked' in params && (params.styleClass_checked instanceof String || typeof params.styleClass_checked === 'string')){
+            this._styleClass_checked = params.styleClass_checked.toString();
         }
 
         if('vertical' in params){
@@ -363,8 +372,16 @@ export class Button extends St.BoxLayout {
             this.set_y_align(params.y_align);
         }
 
+        this._toggle_mode = false;
+
         if('toggle_mode' in params){
-            this._toggle_mode = !!params.toggle_mode; // TODO: implement this functionality. //
+            this._toggle_mode = !!params.toggle_mode;
+        }
+
+        this._checked = false;
+
+        if('checked' in params){
+            this.set_checked(params.checked);
         }
 
         this._icon = null;
@@ -513,6 +530,56 @@ export class Button extends St.BoxLayout {
 
     set label(ttl){
         this.set_label(ttl);
+    }
+
+    get_toggle_mode(){
+        return this._toggle_mode;
+    }
+
+    set_toggle_mode(toggle){
+        this._toggle_mode = !!toggle;
+        if(this._toggle_mode){
+            if(this._checked){
+                this.remove_style_class_name(this._styleClass_unchecked);
+                this.add_style_class_name(this._styleClass_checked);
+            }else{
+                this.remove_style_class_name(this._styleClass_checked);
+                this.add_style_class_name(this._styleClass_unchecked);
+            }
+        } // if(this._toggle_mode) //
+    } // set_toggle_mode(toggle) //
+
+    get toggle_mode(){
+        return this.get_toggle_mode();
+    }
+
+    set toggle_mode(toggle){
+        this.set_toggle_mode(toggle);
+    }
+
+    get_checked(){
+        return this._checked;
+    }
+
+    set_checked(check){
+        this._checked = !!check;
+        if(this._toggle_mode){
+            if(this._checked){
+                this.remove_style_class_name(this._styleClass_unchecked);
+                this.add_style_class_name(this._styleClass_checked);
+            }else{
+                this.remove_style_class_name(this._styleClass_checked);
+                this.add_style_class_name(this._styleClass_unchecked);
+            }
+        } // if(this._toggle_mode) //
+    } // set_checked(check) //
+
+    get checked(){
+        return this.get_checked();
+    }
+
+    set checked(check){
+        this.set_checked(check);
     }
     
 } // export class Button extends St.BoxLayout //
@@ -1099,32 +1166,6 @@ export class GzzHeaderItem extends Button {
 
     } // constructor(params) //
 
-    /*
-    get_title() {
-        return this.label;
-    }
-
-    set_title(ttl) {
-        if(!ttl){
-            log_message('notes', `GzzHeaderItem::set_title: cannot set title to falsey value ttl == ${ttl}`, new Error());
-            this._owner.apply_error_handler(this, 'GzzHeaderItem::set_title', 'cannot set title to falsey value', new Error());
-        }else if(ttl instanceof String || typeof ttl === 'string'){
-            this.label = `${ttl.toString()}`;
-        }else{
-            log_message('notes', `GzzHeaderItem::set_title: title set to weird value ttl == ${ttl}`, new Error());
-            this.label = `${ttl}`;
-        }
-    }
-
-    get title(){
-        return this.get_title();
-    }
-
-    set title(ttl){
-        this.set_title(ttl);
-    }
-    // */
-
     get_owner() {
         return this._owner;
     }
@@ -1154,26 +1195,6 @@ export class GzzHeaderItem extends Button {
     set owner(_owner){
         this.set_owner(_owner);
     }
-
-    /*
-    get_icon_size(){
-        return this._icon_size;
-    }
-
-    set_icon_size(sz){
-        if(Number.isInteger(sz)){
-            this._icon_size = Number(sz);
-        }
-    } // set_icon_size(sz) //
-
-    get icon_size(){
-        return this.get_icon_size();
-    }
-
-    set icon_size(sz){
-        this.set_icon_size(sz);
-    }
-    // */
 
     get_array(){
         return this._array;
@@ -1391,13 +1412,14 @@ export class GzzHeader extends St.BoxLayout {
         const button_path = Gio.File.new_for_path(GLib.build_filenamev(array));
         const current = array_equal(array, this._current_array);
         this.add_child(new GzzHeaderItem({
-            owner:      this._owner, 
-            styleClass: (current ? 'gzzdialog-header-item-selected' : 'gzzdialog-header-item'), 
-            toggle_mode: true, 
+            owner:              this._owner, 
+            styleClass:         'gzzdialog-header-item', 
+            styleClass_checked: 'gzzdialog-header-item-selected', 
             array, 
-            checked:    current, 
-            icon_size:  this._owner.get_icon_size(), 
-            action:     () => {
+            toggle_mode:        true, 
+            checked:            current, 
+            icon_size:          this._owner.get_icon_size(), 
+            action:             () => {
                 if(!array_equal(array, this._current_array)){
                     this._current_array = array;
                     this._owner.set_dir(array2file(this._current_array));
@@ -1416,14 +1438,18 @@ export class GzzHeader extends St.BoxLayout {
             if(child instanceof GzzHeaderItem){
                 if(array_equal(child.get_array(), this._current_array)){
                     child.checked = true;
+                    /*
                     child.remove_style_class_name('gzzdialog-header-item');
                     child.add_style_class_name('gzzdialog-header-item-selected');
                     child.add_style_class_name('button');
+                    // */
                 }else{
                     child.checked = false;
+                    /*
                     child.remove_style_class_name('gzzdialog-header-item-selected');
                     child.add_style_class_name('gzzdialog-header-item');
                     child.set_style_class_name('button');
+                    // */
                 }
             }
         }
