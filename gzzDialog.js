@@ -317,6 +317,7 @@ export class Button extends St.BoxLayout {
                 'clicked': {
                     flags: GObject.SignalFlags.RUN_LAST,
                     param_types: [
+                        GObject.TYPE_OBJECT,
                         GObject.TYPE_UINT,
                         Clutter.ModifierType.$gtype,
                     ],
@@ -354,6 +355,13 @@ export class Button extends St.BoxLayout {
 
         if('vertical' in params){
             this.set_vertical(!!params.vertical);
+        }
+
+        this._label_orientation = Button.Label_orientation.RIGHT;
+
+        if('label_orientation' in params && Number.isInteger(params.label_orientation)
+            && 0 <= Number(params.label_orientation) && Number(params.label_orientation) <= 3){
+            this._label_orientation = params.label_orientation;
         }
 
         if('x_expand' in params){
@@ -418,19 +426,24 @@ export class Button extends St.BoxLayout {
         if(this._icon) this.add_child(this._icon);
         this.add_child(this._label);
 
-        if(this._icon) this.set_child_at_index(this._icon, 0);
-        this._label.set_margin_left(20);
-        this._label.set_margin_right(20);
-        this._label.set_margin_top(20);
-        this._label.set_margin_bottom(20);
+        if(this._icon){
+            this.set_child_at_index(this._icon, 0);
+        }
 
         this.connect('button-release-event', (_actor, event) => {
             log_message('notes', `Gzz::Button::button-release-event:  event == ${event}`, new Error());
-            this.emit('clicked', event.get_button(), event.get_state());
+            this.emit('clicked', this, event.get_button(), event.get_state());
             return Clutter.EVENT_PROPAGATE;
         });
 
     } // Button::constructor(params) //
+    
+    static Label_orientation = {
+        LEFT:   0, 
+        RIGHT:  1, 
+        ABOVE:  2, 
+        BELLOW: 3, 
+    };
 
     get_icon_name(){
         return this._icon_name;
@@ -1161,7 +1174,7 @@ export class GzzHeaderItem extends Button {
 
         if('action' in params){
             const action_ = params.action;
-            this.connect('clicked', () => { action_(); });
+            this.connect('clicked', (button, clicked_button, state) => { action_(button, clicked_button, state); });
         }
 
     } // constructor(params) //
