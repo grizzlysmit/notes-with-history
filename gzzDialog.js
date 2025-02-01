@@ -1526,11 +1526,11 @@ export class GzzHeader extends AbstractHeader {
     }
 
     display_dir(caller, dirname_){
-        if(!(caller instanceof AbstractListFileSection)){
+        if(!(caller instanceof AbstractListFileSection) && !(caller instanceof GzzListFileSection)){
             this.#_owner.apply_error_handler(
                 this, 
                 'GzzHeader::display_dir', 
-                `can only be called by an instance of AbstractListFileSection but you called from ${caller}`, 
+                `can only be called by an instance of AbstractListFileSection or GzzListFileSection but you called from ${caller}`, 
                 new Error()
             );
             return false;
@@ -3110,11 +3110,15 @@ export class GzzFileDialog extends GzzFileDialogBase {
     } // file_is_dir(file) //
 
     display_dir(caller, filename){
-        if(!(caller instanceof GzzFileDialogBase) && !(caller instanceof AbstractListFileSection) && !(caller instanceof AbstractHeader)){
+        if(!(caller instanceof GzzFileDialogBase)
+            && !(caller instanceof AbstractListFileSection)
+            && !(caller instanceof AbstractHeader)
+            && !(caller instanceof GzzListFileSection)){
             this.apply_error_handler(
                 this, 
                 'GzzFileDialog::display_dir', 
-                `can only be called by instance of GzzFileDialogBase, AbstractListFileSection or AbstractHeader but you called from ${caller}`, 
+                'can only be called by instance of GzzFileDialogBase, AbstractListFileSection,'
+                + ` AbstractHeader or GzzListFileSection but you called from ${caller}`, 
                 new Error()
             );
             return;
@@ -3391,7 +3395,7 @@ export class GzzFileDialog extends GzzFileDialogBase {
                         if(dir.make_directory(null)){
                             this.set_dir(dir);
                             this.#_list_section.list_destroy_all_children(this);
-                            this.display_dir(dir);
+                            this.display_dir(this, dir);
                             this.#fixup_header(dir);
                         }else{
                             this.apply_error_handler(
