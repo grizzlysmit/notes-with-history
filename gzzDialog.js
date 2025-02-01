@@ -352,7 +352,7 @@ export class Button extends St.BoxLayout {
         if('style_class' in params && (params.style_class instanceof String || typeof params.style_class === 'string')){
             this.#_style_class_unchecked = params.style_class.toString();
             this.set_style_class_name(params.style_class.toString());
-            this.add_style_class_name('button');
+            //this.add_style_class_name('button');
         }
 
         if('style_class_checked' in params && (params.style_class_checked instanceof String || typeof params.style_class_checked === 'string')){
