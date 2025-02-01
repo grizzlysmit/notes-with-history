@@ -1749,7 +1749,7 @@ export  class GzzListFileSection extends AbstractListFileSection {
             this.#_edit = new St.Label({style_class: 'gzzdialog-list-item-edit'});
         }
 
-        this.#_name_label = new St.label({
+        this.#_name_label = new St.Label({
             text:     _('Name: '), 
             x_expand: true, 
             x_align:  Clutter.ActorAlign.END, 
