@@ -3068,13 +3068,13 @@ export class GzzFileDialog extends GzzFileDialogBase {
             const current_dir = this.#_dir.get_parent();
             log_message('notes', `GzzFileDialog::double_clicked: current_dir == ${current_dir.get_path()}`, new Error());
             if(current_dir){
-                this.#_list_section.list.destroy_all_children();
+                this.#_list_section.list_destroy_all_children(this);
                 this.set_dir(current_dir);
                 this.display_dir(this, current_dir);
                 this.#fixup_header(current_dir);
             }
         }else if(directory){
-            this.#_list_section.list.destroy_all_children();
+            this.#_list_section.list_destroy_all_children(this);
             const current_dir = Gio.File.new_for_path(GLib.build_filenamev([this.#_dir.get_path(), directory]));
             log_message('notes', `GzzFileDialog::double_clicked: current_dir == ${current_dir.get_path()}`, new Error());
             this.set_dir(current_dir);
@@ -3390,7 +3390,7 @@ export class GzzFileDialog extends GzzFileDialogBase {
                     try {
                         if(dir.make_directory(null)){
                             this.set_dir(dir);
-                            this.#_list_section.list.destroy_all_children();
+                            this.#_list_section.list_destroy_all_children(this);
                             this.display_dir(dir);
                             this.#fixup_header(dir);
                         }else{
