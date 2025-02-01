@@ -1753,12 +1753,15 @@ export  class GzzListFileSection extends AbstractListFileSection {
             text:     _('Name: '), 
             x_expand: true, 
             x_align:  Clutter.ActorAlign.END, 
+            y_align:  Clutter.ActorAlign.CENTER, 
         });
 
         this.#show_root_button  = new Button({
-            style_class: 'gzzdialog-list-item-button', 
-            label:       "<", 
-            checked:     false, 
+            style_class:         'gzzdialog-list-item-button', 
+            style_class_checked: 'gzzdialog-list-item-button-selected', 
+            label:               "<", 
+            checked:             false, 
+            toggle_mode:         true, 
         });
 
         this.#header = new GzzHeader({
@@ -1776,9 +1779,10 @@ export  class GzzListFileSection extends AbstractListFileSection {
         })
 
         this.#new_dir_button  = new Button({
-            style_class: 'gzzdialog-list-item-button',
-            icon_name:   'stock_new-dir', 
-            icon_size:   this.#_owner.get_icon_size(), 
+            style_class:         'gzzdialog-list-item-button',
+            style_class_checked: 'gzzdialog-list-item-button-selected', 
+            icon_name:           'stock_new-dir', 
+            icon_size:           this.#_owner.get_icon_size(), 
         });
         this.#new_dir_button.connectObject('clicked', () => this.#_owner.create_new_dir(this), this.#_owner)
 

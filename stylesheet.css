@@ -9,19 +9,19 @@ gzzbutton {
 }
 
 .gzzdialog-header-item {
-    margin-left:      2;
-    margin-right:     2;
-    margin-top:       2;
-    margin-bottom:    2;
+    margin-left:      2 !important;
+    margin-right:     2 !important;
+    margin-top:       2 !important;
+    margin-bottom:    2 !important;
     color:            black;
     background-color: lightgrey, 
 }
 
 .gzzdialog-header-item-selected {
-    margin-left:      2;
-    margin-right:     2;
-    margin-top:       2;
-    margin-bottom:    2;
+    margin-left:      2 !important;
+    margin-right:     2 !important;
+    margin-top:       2 !important;
+    margin-bottom:    2 !important;
     color:            cyan;
     background-color: grey, 
 }
@@ -33,4 +33,22 @@ gzzbutton {
     margin-bottom:    2;
     color:            black;
     background-color: lightgrey, 
+}
+
+.gzzdialog-list-item-button {
+    margin-left:      2 !important;
+    margin-right:     2 !important;
+    margin-top:       2 !important;
+    margin-bottom:    2 !important;
+    color:            black;
+    background-color: lightgrey, 
+}
+
+.gzzdialog-list-item-button-selected {
+    margin-left:      2 !important;
+    margin-right:     2 !important;
+    margin-top:       2 !important;
+    margin-bottom:    2 !important;
+    color:            cyan;
+    background-color: grey, 
 }
