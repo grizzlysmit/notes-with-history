@@ -1775,7 +1775,7 @@ export  class GzzListFileSection extends AbstractListFileSection {
             const showroot = !this.#header.get_show_root();
             log_message('notes', `GzzListFileSection::constructor: this.#show_root_button.connect showroot == ${showroot}`, new Error());
             this.#header.set_show_root(showroot) 
-            this.#show_root_button.checked = !showroot;
+            this.#show_root_button.checked = showroot;
         })
 
         this.#new_dir_button  = new Button({
