@@ -1912,6 +1912,12 @@ export  class GzzListFileSection extends AbstractListFileSection {
         this.set_file_name(filename);
     }
 
+    connect2edit(caller, signal_, function_){
+        if(caller instanceof GzzFileDialogBase){
+            this.#_edit.connect(signal_, function_);
+        }
+    }
+
 } // export  class GzzListFileSection extends AbstractListFileSection //
 
 export class GzzListFileRow extends St.BoxLayout {
@@ -2691,9 +2697,9 @@ export class GzzFileDialog extends GzzFileDialogBase {
         this.display_dir(this, this.#_dir);
         this.#fixup_header(this.#_dir);
 
-        this.#_list_section._edit.connect('key-release-event', (_actor, _event) => {
+        this.#_list_section.connect2edit(this, 'key-release-event', (_actor, _event) => {
             log_message('notes', `GzzFileDialog::constructor: this.#_file_name == ${this.#_file_name}`, new Error());
-            this.#_file_name = this.#_list_section._edit.get_text();
+            this.#_file_name = this.#_list_section.get_file_name();
             log_message('notes', `GzzFileDialog::constructor: this.#_file_name == ${this.#_file_name}`, new Error());
         });
 
