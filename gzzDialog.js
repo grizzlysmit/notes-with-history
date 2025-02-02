@@ -1990,6 +1990,7 @@ export class GzzListFileRow extends St.BoxLayout {
     #_double_click_time    = 800;
     #_owner                = null;
     #_is_dir               = false;
+    //#_is_sym               = false;
     #_icon                 = null;
     #_inode_number         = 0;
     #_display_inode        = null;
@@ -2046,6 +2047,12 @@ export class GzzListFileRow extends St.BoxLayout {
             this.#_is_dir = !!params.is_dir;
         }
 
+        /*
+        if('is_sym' in params){
+            this.#_is_sym = !!params.is_sym;
+        }
+        // */
+
         let icon_size_ = 16;
         if('icon_size' in params && Number.isInteger(params.icon_size) && 16 <= Number(params.icon_size) && Number(params.icon_size) <= 256){
             icon_size_ = Number(params.icon_size);
@@ -2059,7 +2066,7 @@ export class GzzListFileRow extends St.BoxLayout {
             width:       icon_size_ + 10, 
         });
 
-        if('icon' in params){
+        if('icon' in params && params.icon){
             this.#_icon.set_gicon(params.icon);
             this.#_icon.icon_size = icon_size_;
         }
@@ -3159,6 +3166,7 @@ export class GzzFileDialog extends GzzFileDialogBase {
         }
         let enumerator = null;
         let is_dir_    = null;
+        let is_sym_    = null;
         let title_     = null;
         log_message('notes', `GzzFileDialog::display_dir: start: filename == ‷${filename.get_path()}‴`, new Error());
         const attributes = "standard::name,standard::type,standard::display_name,standard::icon" 
@@ -3268,8 +3276,11 @@ export class GzzFileDialog extends GzzFileDialogBase {
                 log_message('notes', `GzzFileDialog::display_dir: file == ‷${file}‴`, new Error());
 
                 if(file_type === Gio.FileType.SYMBOLIC_LINK){
+                    is_sym_ = true;
                     is_dir_ = this.file_is_dir(file); // will identify symlink directories as directory //
                     log_message('notes', `GzzFileDialog::display_dir: is_dir_ == ‷${is_dir_}‴`, new Error());
+                }else{
+                    is_sym_ = false;
                 }
                 log_message('notes', `GzzFileDialog::display_dir: this.#_filter == ‷${this.#_filter}‴`, new Error());
                 log_message('notes', `GzzFileDialog::display_dir: is_dir_ == ‷${is_dir_}‴`, new Error());
@@ -3293,6 +3304,7 @@ export class GzzFileDialog extends GzzFileDialogBase {
                     owner:                this, 
                     title:                title_,
                     is_dir:               is_dir_, 
+                    is_sym:               is_sym_, 
                     inode_number:         info.get_attribute_uint64('unix::inode'), 
                     mode:                 info.get_attribute_uint32('unix::mode'), 
                     file_type:            (filetype ? filetype : file_type), 
