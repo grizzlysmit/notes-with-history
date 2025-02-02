@@ -49,18 +49,14 @@ gzzbutton {
 }
 
 .gzzdialog-list-create-dir-button {
-    margin-left:      2px !important;
-    margin-right:     2px !important;
-    margin-top:       2px !important;
-    margin-bottom:    2px !important;
-    padding:          5px;
+    padding:          3px;
     border-radius:    5px;
     border:           1px solid darkblue;
     cursor:           pointer;
     outline:          none;
     color:            black;
     background-color: #b2b2b2; 
-    box-shadow:       0 9px #3e4444;
+    box-shadow:       0 6px #3e4444;
 }
 
 .gzzdialog-list-create-dir-button:hover {
@@ -73,8 +69,8 @@ gzzbutton {
     color:            black;
     background-color: #a2b9bc; 
     border:           1px solid blue;
-    box-shadow:       0 5px #3c4141;
-    transform:        translateY(4px);
+    box-shadow:       0 3px #3c4141;
+    transform:        translateY(2px) !important;
 }
 
 .gzzdialog-list-item-button {
@@ -99,4 +95,11 @@ gzzbutton {
     border:           1px solid darkblue;
     color:            cyan;
     background-color: grey, 
+}
+
+.dialog-list-item-elt {
+    padding-left:     3px;
+    padding-right:    3px;
+    color:            black;
+    background-color: #d6cbd3;
 }

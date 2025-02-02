@@ -2031,11 +2031,12 @@ export class GzzListFileRow extends St.BoxLayout {
         }
         
         this.#_icon = new St.Icon({
-            icon_name: (this.#_is_dir ? 'inode-directory' : 'notes-app'), 
-            icon_size:  icon_size_, 
-            x_align:    Clutter.ActorAlign.CENTER, 
-            width:      icon_size_ + 10, 
-            reactive:   true, 
+            style_class: 'dialog-list-item-elt',
+            icon_name:   (this.#_is_dir ? 'inode-directory' : 'notes-app'), 
+            icon_size:   icon_size_, 
+            x_align:     Clutter.ActorAlign.CENTER, 
+            width:       icon_size_ + 10, 
+            reactive:    true, 
         });
 
         if('icon' in params){
@@ -2054,7 +2055,7 @@ export class GzzListFileRow extends St.BoxLayout {
         if(this.#_display_inode){
             this.#_inode = new St.Label({
                 text:        `${this.#_inode_number}`, 
-                style_class: 'dialog-list-item-inode',
+                style_class: 'dialog-list-item-elt',
                 x_expand:    true,
                 x_align:     Clutter.ActorAlign.FILL, 
                 width:       200, 
@@ -2086,7 +2087,7 @@ export class GzzListFileRow extends St.BoxLayout {
         if(this.#_display_mode){
             this.#_mode_box = new St.Label({
                 text:        this.#_mode, 
-                style_class: 'dialog-list-item-mode',
+                style_class: 'dialog-list-item-elt',
                 x_expand:    true,
                 x_align:     Clutter.ActorAlign.FILL, 
                 width:       160, 
@@ -2105,7 +2106,7 @@ export class GzzListFileRow extends St.BoxLayout {
         if(this.#_display_number_links){
             this.#_nlink_box = new St.Label({
                 text:        `${this.#_nlink}`, 
-                style_class: 'dialog-list-item-title',
+                style_class: 'dialog-list-item-elt',
                 x_expand:    true,
                 x_align:     Clutter.ActorAlign.FILL, 
                 width:       40, 
@@ -2115,7 +2116,7 @@ export class GzzListFileRow extends St.BoxLayout {
 
         this.#_title = new St.Label({
             text:        params.title, 
-            style_class: 'dialog-list-item-title',
+            style_class: 'dialog-list-item-elt',
             x_expand:    true,
             x_align:     Clutter.ActorAlign.FILL, 
             width:       300, 
@@ -2134,7 +2135,7 @@ export class GzzListFileRow extends St.BoxLayout {
         if(this.#_display_times & GzzListFileRow.Create){
             this.#_create = new St.Label({
                 text:        this.#_create_time.format_iso8601(), 
-                style_class: 'dialog-list-item-create',
+                style_class: 'dialog-list-item-elt',
                 x_expand:    true,
                 x_align:     Clutter.ActorAlign.FILL, 
                 width:       315, 
@@ -2149,7 +2150,7 @@ export class GzzListFileRow extends St.BoxLayout {
         if(this.#_display_times & GzzListFileRow.Modify){
             this.#_modification = new St.Label({
                 text:        this.#_modification_time.format_iso8601(), 
-                style_class: 'dialog-list-item-title',
+                style_class: 'dialog-list-item-elt',
                 x_expand:    true,
                 x_align:     Clutter.ActorAlign.FILL, 
                 width:       315, 
@@ -2164,7 +2165,7 @@ export class GzzListFileRow extends St.BoxLayout {
         if(this.#_display_times & GzzListFileRow.Access){
             this.#_access = new St.Label({
                 text:        this.#_access_time.format_iso8601(), 
-                style_class: 'dialog-list-item-title',
+                style_class: 'dialog-list-item-elt',
                 x_expand:    true,
                 x_align:     Clutter.ActorAlign.FILL, 
                 width:       315, 
@@ -2190,7 +2191,7 @@ export class GzzListFileRow extends St.BoxLayout {
         if(this.#_display_user_group & GzzListFileRow.User){
             this.#_user = new St.Label({
                 text:        this.#_user_name, 
-                style_class: 'dialog-list-item-user',
+                style_class: 'dialog-list-item-elt',
                 x_expand:    true,
                 x_align:     Clutter.ActorAlign.FILL, 
                 width:       250, 
@@ -2217,7 +2218,7 @@ export class GzzListFileRow extends St.BoxLayout {
         if(this.#_display_user_group & GzzListFileRow.Group){
             this.#_group = new St.Label({
                 text:        this.#_group_name, 
-                style_class: 'dialog-list-item-group',
+                style_class: 'dialog-list-item-elt',
                 x_expand:    true,
                 x_align:     Clutter.ActorAlign.FILL, 
                 width:       250, 
@@ -2234,7 +2235,7 @@ export class GzzListFileRow extends St.BoxLayout {
         if(this.#_display_size){
             this.#_file_size_box = new St.Label({
                 text:        this.#_file_size, 
-                style_class: 'dialog-list-item-file-size',
+                style_class: 'dialog-list-item-elt',
                 x_expand:    true,
                 x_align:     Clutter.ActorAlign.FILL, 
                 width:       160, 
