@@ -1990,7 +1990,7 @@ export class GzzListFileRow extends St.BoxLayout {
     #_double_click_time    = 800;
     #_owner                = null;
     #_is_dir               = false;
-    //#_is_sym               = false;
+    #_is_sym               = false;
     #_icon                 = null;
     #_inode_number         = 0;
     #_display_inode        = null;
@@ -2047,11 +2047,9 @@ export class GzzListFileRow extends St.BoxLayout {
             this.#_is_dir = !!params.is_dir;
         }
 
-        /*
         if('is_sym' in params){
             this.#_is_sym = !!params.is_sym;
         }
-        // */
 
         let icon_size_ = 16;
         if('icon_size' in params && Number.isInteger(params.icon_size) && 16 <= Number(params.icon_size) && Number(params.icon_size) <= 256){
@@ -2066,9 +2064,11 @@ export class GzzListFileRow extends St.BoxLayout {
             width:       icon_size_ + 10, 
         });
 
-        if('icon' in params && params.icon){
-            this.#_icon.set_gicon(params.icon);
-            this.#_icon.icon_size = icon_size_;
+        if(!this.#_is_sym){
+            if('icon' in params && params.icon){
+                this.#_icon.set_gicon(params.icon);
+                this.#_icon.icon_size = icon_size_;
+            }
         }
 
         if("display_inode" in params){
