@@ -461,6 +461,8 @@ export class Button extends St.BoxLayout {
         });
         this.connect('button-release-event', (_actor, event) => {
             log_message('notes', `Gzz::Button::button-release-event:  event == ${event}`, new Error());
+            log_message('notes', `Gzz::Button::button-release-event:  this.#_toggle_mode == ${this.#_toggle_mode}`, new Error());
+            log_message('notes', `Gzz::Button::button-release-event:  this.#_checked == ${this.#_checked}`, new Error());
             if(this.#_toggle_mode){
                 if(this.#_checked){
                     this.add_style_pseudo_class('checked');
