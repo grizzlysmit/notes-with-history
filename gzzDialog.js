@@ -2090,7 +2090,7 @@ export class GzzListFileRow extends St.BoxLayout {
                 style_class: 'dialog-list-item-elt',
                 x_expand:    true,
                 x_align:     Clutter.ActorAlign.FILL, 
-                width:       160, 
+                width:       176, 
                 reactive:    true, 
             });
         }
