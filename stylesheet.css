@@ -60,7 +60,7 @@ gzzbutton {
     outline:          none;
     color:            black;
     background-color: #b2b2b2; 
-    box-shadow:       0 9px #999;
+    box-shadow:       0 9px #3e4444;
 }
 
 .gzzdialog-list-create-dir-button:hover {
@@ -73,7 +73,7 @@ gzzbutton {
     color:            black;
     background-color: #a2b9bc; 
     border:           1px solid blue;
-    box-shadow:       0 5px #666;
+    box-shadow:       0 5px #3c4141;
     transform:        translateY(4px);
 }
 
