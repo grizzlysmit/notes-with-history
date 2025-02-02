@@ -23,7 +23,7 @@ gzzbutton {
     background-color: lightgrey, 
 }
 
-.gzzdialog-header-item-selected {
+.gzzdialog-header-item:checked {
     margin-left:      2px !important;
     margin-right:     2px !important;
     margin-top:       2px !important;
@@ -48,6 +48,30 @@ gzzbutton {
     background-color: lightgrey, 
 }
 
+.gzzdialog-list-create-dir-button {
+    margin-left:      2px !important;
+    margin-right:     2px !important;
+    margin-top:       2px !important;
+    margin-bottom:    2px !important;
+    padding:          3px;
+    border-radius:    3px;
+    border:           1px solid darkblue;
+    cursor: pointer;
+    outline: none;
+    color:            black;
+    background-color: lightgrey, 
+    box-shadow: 0 2px #999;
+}
+
+.gzzdialog-list-create-dir-button:hover {background-color: #a2b9bc}
+
+.gzzdialog-list-create-dir-button:active {
+    border:           1px solid #92a8d1;
+    color:            black;
+    background-color: #a2b9bc, 
+    transform: translateY(2px);
+}
+
 .gzzdialog-list-item-button {
     margin-left:      2px !important;
     margin-right:     2px !important;
@@ -60,7 +84,7 @@ gzzbutton {
     background-color: lightgrey, 
 }
 
-.gzzdialog-list-item-button-selected {
+.gzzdialog-list-item-button:checked {
     margin-left:      2px !important;
     margin-right:     2px !important;
     margin-top:       2px !important;

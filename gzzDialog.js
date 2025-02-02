@@ -6,6 +6,7 @@
 
 
 // a useful Dialog box for showing a modal Dialog //
+"use strict";
 
 import St from 'gi://St';
 import * as Dialog from 'resource:///org/gnome/shell/ui/dialog.js';
@@ -327,8 +328,8 @@ export class Button extends St.BoxLayout {
     }
 
     #_icon                  = null;
-    #_style_class_unchecked = 'gzz-button';
-    #_style_class_checked   = 'gzz-button-selected';
+    //#_style_class_unchecked = 'gzz-button';
+    //#_style_class_checked   = 'gzz-button-selected';
     #_label_orientation     = Button.Label_orientation.RIGHT;
     #_toggle_mode           = false;
     #_checked               = false;
@@ -350,14 +351,16 @@ export class Button extends St.BoxLayout {
         });
 
         if('style_class' in params && (params.style_class instanceof String || typeof params.style_class === 'string')){
-            this.#_style_class_unchecked = params.style_class.toString();
+            //this.#_style_class_unchecked = params.style_class.toString();
             this.set_style_class_name(params.style_class.toString());
             //this.add_style_class_name('button');
         }
 
+        /*
         if('style_class_checked' in params && (params.style_class_checked instanceof String || typeof params.style_class_checked === 'string')){
             this.#_style_class_checked = params.style_class_checked.toString();
         }
+        // */
 
         if('label_orientation' in params && Number.isInteger(params.label_orientation)
             && 0 <= Number(params.label_orientation) && Number(params.label_orientation) <= 3){
@@ -437,8 +440,25 @@ export class Button extends St.BoxLayout {
             } // switch(this.#_label_orientation) //
         } // if(this.#_icon) //
 
+        this.connect('button-press-event', (_actor, event) => {
+            log_message('notes', `Gzz::Button::button-press-event:  event == ${event}`, new Error());
+            if(!this.#_toggle_mode){
+                this.add_style_pseudo_class('active');
+            }
+            this.emit('clicked', this, event.get_button(), event.get_state());
+            return Clutter.EVENT_PROPAGATE;
+        });
         this.connect('button-release-event', (_actor, event) => {
             log_message('notes', `Gzz::Button::button-release-event:  event == ${event}`, new Error());
+            if(this.#_toggle_mode){
+                if(this.#_checked){
+                    this.add_style_pseudo_class('checked');
+                }else{
+                    this.remove_style_pseudo_class('checked');
+                }
+            }else{
+                this.remove_style_pseudo_class('active');
+            }
             this.emit('clicked', this, event.get_button(), event.get_state());
             return Clutter.EVENT_PROPAGATE;
         });
@@ -577,11 +597,11 @@ export class Button extends St.BoxLayout {
         this.#_toggle_mode = !!toggle;
         if(this.#_toggle_mode){
             if(this.#_checked){
-                this.remove_style_class_name(this.#_style_class_unchecked);
-                this.add_style_class_name(this.#_style_class_checked);
+                //this.remove_style_class_name(this.#_style_class_unchecked);
+                //this.add_style_class_name(this.#_style_class_checked);
             }else{
-                this.remove_style_class_name(this.#_style_class_checked);
-                this.add_style_class_name(this.#_style_class_unchecked);
+                //this.remove_style_class_name(this.#_style_class_checked);
+                //this.add_style_class_name(this.#_style_class_unchecked);
             }
         } // if(this.#_toggle_mode) //
     } // set_toggle_mode(toggle) //
@@ -602,11 +622,11 @@ export class Button extends St.BoxLayout {
         this.#_checked = !!check;
         if(this.#_toggle_mode){
             if(this.#_checked){
-                this.remove_style_class_name(this.#_style_class_unchecked);
-                this.add_style_class_name(this.#_style_class_checked);
+                //this.remove_style_class_name(this.#_style_class_unchecked);
+                //this.add_style_class_name(this.#_style_class_checked);
             }else{
-                this.remove_style_class_name(this.#_style_class_checked);
-                this.add_style_class_name(this.#_style_class_unchecked);
+                //this.remove_style_class_name(this.#_style_class_checked);
+                //this.add_style_class_name(this.#_style_class_unchecked);
             }
         } // if(this.#_toggle_mode) //
     } // set_checked(check) //
@@ -1779,7 +1799,7 @@ export  class GzzListFileSection extends AbstractListFileSection {
         })
 
         this.#new_dir_button  = new Button({
-            style_class:         'gzzdialog-list-item-button',
+            style_class:         'gzzdialog-list-create-dir-button',
             style_class_checked: 'gzzdialog-list-item-button-selected', 
             icon_name:           'stock_new-dir', 
             icon_size:           this.#_owner.get_icon_size(), 
