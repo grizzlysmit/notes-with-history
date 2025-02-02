@@ -53,13 +53,13 @@ gzzbutton {
     margin-right:     2px !important;
     margin-top:       2px !important;
     margin-bottom:    2px !important;
-    padding:          3px;
-    border-radius:    3px;
+    padding:          5px;
+    border-radius:    5px;
     border:           1px solid darkblue;
     cursor:           pointer;
     outline:          none;
     color:            black;
-    background-color: #b2b2b2, 
+    background-color: #b2b2b2; 
     box-shadow:       0 9px #3e4444;
 }
 
