@@ -2006,6 +2006,7 @@ export class GzzListFileRow extends St.BoxLayout {
             vertical: false,
             x_expand: true,
             y_align: Clutter.ActorAlign.FILL,
+            reactive:    true, 
         });
 
         if('owner' in params){
@@ -2036,7 +2037,7 @@ export class GzzListFileRow extends St.BoxLayout {
             icon_size:   icon_size_, 
             x_align:     Clutter.ActorAlign.CENTER, 
             width:       icon_size_ + 10, 
-            reactive:    true, 
+            //reactive:    true, 
         });
 
         if('icon' in params){
@@ -2059,7 +2060,7 @@ export class GzzListFileRow extends St.BoxLayout {
                 x_expand:    true,
                 x_align:     Clutter.ActorAlign.FILL, 
                 width:       200, 
-                reactive:    true, 
+                //reactive:    true, 
             });
         }
 
@@ -2091,7 +2092,7 @@ export class GzzListFileRow extends St.BoxLayout {
                 x_expand:    true,
                 x_align:     Clutter.ActorAlign.FILL, 
                 width:       176, 
-                reactive:    true, 
+                //reactive:    true, 
             });
         }
 
@@ -2110,7 +2111,7 @@ export class GzzListFileRow extends St.BoxLayout {
                 x_expand:    true,
                 x_align:     Clutter.ActorAlign.FILL, 
                 width:       40, 
-                reactive:    true, 
+                //reactive:    true, 
             });
         }
 
@@ -2120,7 +2121,7 @@ export class GzzListFileRow extends St.BoxLayout {
             x_expand:    true,
             x_align:     Clutter.ActorAlign.FILL, 
             width:       300, 
-            reactive:    true, 
+            //reactive:    true, 
         });
 
         if('create_time' in params && params.create_time instanceof GLib.DateTime){
@@ -2139,7 +2140,7 @@ export class GzzListFileRow extends St.BoxLayout {
                 x_expand:    true,
                 x_align:     Clutter.ActorAlign.FILL, 
                 width:       315, 
-                reactive:    true, 
+                //reactive:    true, 
             });
         }
 
@@ -2154,7 +2155,7 @@ export class GzzListFileRow extends St.BoxLayout {
                 x_expand:    true,
                 x_align:     Clutter.ActorAlign.FILL, 
                 width:       315, 
-                reactive:    true, 
+                //reactive:    true, 
             });
         }
 
@@ -2169,7 +2170,7 @@ export class GzzListFileRow extends St.BoxLayout {
                 x_expand:    true,
                 x_align:     Clutter.ActorAlign.FILL, 
                 width:       315, 
-                reactive:    true, 
+                //reactive:    true, 
             });
         }
 
@@ -2195,7 +2196,7 @@ export class GzzListFileRow extends St.BoxLayout {
                 x_expand:    true,
                 x_align:     Clutter.ActorAlign.FILL, 
                 width:       250, 
-                reactive:    true, 
+                //reactive:    true, 
             });
         }
 
@@ -2222,7 +2223,7 @@ export class GzzListFileRow extends St.BoxLayout {
                 x_expand:    true,
                 x_align:     Clutter.ActorAlign.FILL, 
                 width:       250, 
-                reactive:    true, 
+                //reactive:    true, 
             });
         }
 
@@ -2239,7 +2240,7 @@ export class GzzListFileRow extends St.BoxLayout {
                 x_expand:    true,
                 x_align:     Clutter.ActorAlign.FILL, 
                 width:       160, 
-                reactive:    true, 
+                //reactive:    true, 
             });
         }
         log_message('notes', `GzzListFileRow::constructor: this.#_file_size_box == ${this.#_file_size_box}`, new Error());
@@ -2276,6 +2277,7 @@ export class GzzListFileRow extends St.BoxLayout {
             this.set_double_click_time(params.double_click_time);
         }
         this.click_count = 0;
+        /*
         this.#_icon.connect("button-press-event", (actor, event) => { this.handle_button_press_event(actor, event); });
         this.#_icon.connect("button-release-event", (actor, event) => { this.handle_button_release_event(actor, event); });
         if(this.#_inode){
@@ -2316,6 +2318,9 @@ export class GzzListFileRow extends St.BoxLayout {
         }
         this.#_title.connect("button-press-event", (actor, event) => { this.handle_button_press_event(actor, event); });
         this.#_title.connect("button-release-event", (actor, event) => { this.handle_button_release_event(actor, event); });
+        // */
+        this.connect("button-press-event", (actor, event) => { this.handle_button_press_event(actor, event); });
+        this.connect("button-release-event", (actor, event) => { this.handle_button_release_event(actor, event); });
     } // constructor(params) //
 
     static None          = 0b00000;

@@ -97,9 +97,12 @@ gzzbutton {
     background-color: grey, 
 }
 
+.gzzdialog-label-item {
+    color:            black;
+    background-color: #e6e2d3;
+}
+
 .dialog-list-item-elt {
     padding-left:     3px;
     padding-right:    3px;
-    color:            black;
-    background-color: #d9d9d9;
 }
