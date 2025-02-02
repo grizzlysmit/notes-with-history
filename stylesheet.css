@@ -97,19 +97,19 @@ gzzbutton {
     background-color: grey, 
 }
 
-.gzzdialog-label-item {
+.gzzdialog-file-row {
     color:            black;
     background-color: #e6e2d3;
 }
 
-.gzzdialog-label-item:hover {
-    color:            black;
+.gzzdialog-file-row:hover {
+    color:            darkcyan;
     background-color: #f6f2c3;
     box-shadow:       0 6px #3e4444;
 }
 
-.gzzdialog-label-item:active {
-    color:            black;
+.gzzdialog-file-row:active {
+    color:            darkcyan;
     background-color: #f6f2c3;
     box-shadow:       0 3px #3c4141;
     transform:        translateY(2px) !important;

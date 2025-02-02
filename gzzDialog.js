@@ -2022,7 +2022,7 @@ export class GzzListFileRow extends St.BoxLayout {
 
     constructor(params) {
         super({
-            style_class: 'gzzdialog-label-item',
+            style_class: 'gzzdialog-file-row',
             vertical: false,
             x_expand: true,
             y_align: Clutter.ActorAlign.FILL,
