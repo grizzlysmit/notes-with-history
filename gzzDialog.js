@@ -2020,6 +2020,10 @@ export class GzzListFileRow extends St.BoxLayout {
     #_group                = null;
     #_display_size         = false;
     #_file_size_box        = null;
+    #connectID_press       = null;
+    #connectID_release     = null;
+    #connectID_enter       = null;
+    #connectID_leave       = null;
 
     constructor(params) {
         super({
@@ -2293,14 +2297,14 @@ export class GzzListFileRow extends St.BoxLayout {
             this.set_double_click_time(params.double_click_time);
         }
         this.click_count = 0;
-        this.connect("button-press-event", (actor, event) => { this.handle_button_press_event(actor, event); });
-        this.connect("button-release-event", (actor, event) => { this.handle_button_release_event(actor, event); });
-        this.connect('enter-event', () => {
+        this.#connectID_press   = this.connect("button-press-event", (actor, event) => { this.handle_button_press_event(actor, event); });
+        this.#connectID_release = this.connect("button-release-event", (actor, event) => { this.handle_button_release_event(actor, event); });
+        this.#connectID_enter   = this.connect('enter-event', () => {
             log_message('notes', 'GzzListFileRow::enter-event:  hovering', new Error());
             this.add_style_pseudo_class('hover');
             return Clutter.EVENT_PROPAGATE;
         });
-        this.connect('leave-event', () => {
+        this.#connectID_leave   = this.connect('leave-event', () => {
             log_message('notes', 'GzzListFileRow::leave-event:  no longer hovering', new Error());
             this.remove_style_pseudo_class('hover');
             return Clutter.EVENT_PROPAGATE;
@@ -2314,6 +2318,14 @@ export class GzzListFileRow extends St.BoxLayout {
     static No_User_Group = 0b00000;
     static User          = 0b00001;
     static Group         = 0b00010;
+
+    destroy(){
+        this.disconnect(this.#connectID_press);
+        this.disconnect(this.#connectID_release);
+        this.disconnect(this.#connectID_enter);
+        this.disconnect(this.#connectID_leave);
+        super.destroy();
+    } // destroy() //
 
     handle_button_press_event(actor, event){
         switch(event.get_button()){
