@@ -102,6 +102,19 @@ gzzbutton {
     background-color: #e6e2d3;
 }
 
+.gzzdialog-label-item:hover {
+    color:            black;
+    background-color: #f6f2c3;
+    box-shadow:       0 6px #3e4444;
+}
+
+.gzzdialog-label-item:active {
+    color:            black;
+    background-color: #f6f2c3;
+    box-shadow:       0 3px #3c4141;
+    transform:        translateY(2px) !important;
+}
+
 .dialog-list-item-elt {
     padding-left:     3px;
     padding-right:    3px;
