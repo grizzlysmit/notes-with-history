@@ -98,6 +98,9 @@ gzzbutton {
 }
 
 .gzzdialog-file-row {
+    padding:          3px;
+    cursor:           pointer;
+    outline:          none;
     color:            black;
     background-color: #e6e2d3;
 }
