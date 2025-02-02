@@ -2547,7 +2547,7 @@ export class GzzListFileRow extends St.BoxLayout {
         this.set_is_dir(isdir);
     }
 
-} // export class GzzLstFileRow extends St.BoxLayout //
+} // export class GzzListFileRow extends St.BoxLayout //
 
 export class GzzFileDialog extends GzzFileDialogBase {
     static {
@@ -3203,7 +3203,7 @@ export class GzzFileDialog extends GzzFileDialogBase {
                     user_name:            info.get_attribute_string('owner::user'),
                     group_name:           info.get_attribute_string('owner::group'),
                     file_size:            info.get_size(), 
-                    nlink:                info.get_attribute_uint64('unix::nlink'), 
+                    nlink:                info.get_attribute_uint32('unix::nlink'), 
                     double_click_time:    this.#_double_click_time, 
                     display_times:        this.#_display_times, 
                     display_inode:        this.#_display_inode, 
@@ -3236,7 +3236,7 @@ export class GzzFileDialog extends GzzFileDialogBase {
                     user_name:            info.get_attribute_string('owner::user'),
                     group_name:           info.get_attribute_string('owner::group'),
                     file_size:            info.get_size(), 
-                    nlink:                info.get_attribute_uint64('unix::nlink'), 
+                    nlink:                info.get_attribute_uint32('unix::nlink'), 
                     double_click_time:    this.#_double_click_time, 
                     display_times:        this.#_display_times, 
                     display_inode:        this.#_display_inode, 
