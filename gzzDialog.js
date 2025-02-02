@@ -440,12 +440,23 @@ export class Button extends St.BoxLayout {
             } // switch(this.#_label_orientation) //
         } // if(this.#_icon) //
 
+        this.connect('enter-event', (_actor, event) => {
+            log_message('notes', `Gzz::Button::button-press-event:  event == ${event}`, new Error());
+            this.add_style_pseudo_class('hover');
+            return Clutter.EVENT_PROPAGATE;
+        });
+
+        this.connect('leave-event', (_actor, event) => {
+            log_message('notes', `Gzz::Button::button-press-event:  event == ${event}`, new Error());
+            this.remove_style_pseudo_class('hover');
+            return Clutter.EVENT_PROPAGATE;
+        });
+
         this.connect('button-press-event', (_actor, event) => {
             log_message('notes', `Gzz::Button::button-press-event:  event == ${event}`, new Error());
             if(!this.#_toggle_mode){
                 this.add_style_pseudo_class('active');
             }
-            this.emit('clicked', this, event.get_button(), event.get_state());
             return Clutter.EVENT_PROPAGATE;
         });
         this.connect('button-release-event', (_actor, event) => {
@@ -599,9 +610,11 @@ export class Button extends St.BoxLayout {
             if(this.#_checked){
                 //this.remove_style_class_name(this.#_style_class_unchecked);
                 //this.add_style_class_name(this.#_style_class_checked);
+                this.add_style_pseudo_class('checked');
             }else{
                 //this.remove_style_class_name(this.#_style_class_checked);
                 //this.add_style_class_name(this.#_style_class_unchecked);
+                this.remove_style_pseudo_class('checked');
             }
         } // if(this.#_toggle_mode) //
     } // set_toggle_mode(toggle) //
@@ -624,9 +637,11 @@ export class Button extends St.BoxLayout {
             if(this.#_checked){
                 //this.remove_style_class_name(this.#_style_class_unchecked);
                 //this.add_style_class_name(this.#_style_class_checked);
+                this.add_style_pseudo_class('checked');
             }else{
                 //this.remove_style_class_name(this.#_style_class_checked);
                 //this.add_style_class_name(this.#_style_class_unchecked);
+                this.remove_style_pseudo_class('checked');
             }
         } // if(this.#_toggle_mode) //
     } // set_checked(check) //
