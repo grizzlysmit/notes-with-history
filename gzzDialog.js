@@ -1964,7 +1964,27 @@ export  class GzzListFileSection extends AbstractListFileSection {
 
 export class GzzListFileRow extends St.BoxLayout {
     static {
-        GObject.registerClass(this);
+        GObject.registerClass({
+            GTypeName: 'GzzListFileRow',
+            Signals: {
+                'clicked': {
+                    flags: GObject.SignalFlags.RUN_LAST,
+                    param_types: [
+                        GObject.TYPE_OBJECT,
+                        GObject.TYPE_UINT,
+                        Clutter.ModifierType.$gtype,
+                    ],
+                },
+                'dblclick': {
+                    flags: GObject.SignalFlags.RUN_LAST,
+                    param_types: [
+                        GObject.TYPE_OBJECT,
+                        GObject.TYPE_UINT,
+                        Clutter.ModifierType.$gtype,
+                    ],
+                },
+            },
+        }, this);
     }
     
     #_double_click_time    = 800;
@@ -2321,6 +2341,16 @@ export class GzzListFileRow extends St.BoxLayout {
         // */
         this.connect("button-press-event", (actor, event) => { this.handle_button_press_event(actor, event); });
         this.connect("button-release-event", (actor, event) => { this.handle_button_release_event(actor, event); });
+        this.connect('enter-event', () => {
+            log_message('notes', `GzzListFileRow::enter-event:  event == ${event}`, new Error());
+            this.add_style_pseudo_class('hover');
+            return Clutter.EVENT_PROPAGATE;
+        });
+        this.connect('leave-event', () => {
+            log_message('notes', `GzzListFileRow::leave-event:  event == ${event}`, new Error());
+            this.remove_style_pseudo_class('hover');
+            return Clutter.EVENT_PROPAGATE;
+        });
     } // constructor(params) //
 
     static None          = 0b00000;
@@ -2334,6 +2364,7 @@ export class GzzListFileRow extends St.BoxLayout {
     handle_button_press_event(actor, event){
         switch(event.get_button()){
             case(1):
+                this.add_style_pseudo_class('active');
                 log_message('notes', `GzzListFileRow::handle_button_press_event: button == ${event.get_button()}`, new Error());
                 if(!this.click_event_start){
                     this.click_event_start = new Date().valueOf();
@@ -2428,22 +2459,28 @@ export class GzzListFileRow extends St.BoxLayout {
                         if(this.click_count >= 2){
                             this.click_event_start = this.double_click_start = null;
                             this.click_count = 0;
-                            this.#_owner.double_clicked(this, this.#_title.text);
+                            //this.#_owner.double_clicked(this, this.#_title.text);
+                            this.emit('dblclick', this, event.get_button(), event.get_state());
+                            this.remove_style_pseudo_class('active');
                             return Clutter.EVENT_STOP;
                         }else{
                             // dir doesn't do single click //
+                            this.remove_style_pseudo_class('active');
                             return Clutter.EVENT_STOP;
                         }
                     }else{ // if(this.#_is_dir) //
                         this.click_count = 0;
                         this.click_event_start = this.double_click_start = null;
-                        this.#_owner.clicked(this, this.#_title.text);
+                        //this.#_owner.clicked(this, this.#_title.text);
+                        this.emit('clicked', this, event.get_button(), event.get_state());
+                        this.remove_style_pseudo_class('active');
                         return Clutter.EVENT_STOP;
                     }
                 }else{ // if(button_time > 0 && button_double_time < this.#_double_click_time) //
                     // click time out //
                     this.click_event_start = this.double_click_start = null;
                     this.click_count = 0;
+                    this.remove_style_pseudo_class('active');
                     return Clutter.EVENT_PROPAGATE;
                 }
             default:
@@ -3087,7 +3124,7 @@ export class GzzFileDialog extends GzzFileDialogBase {
         this.set_display_size(dsz);
     }
 
-    clicked(row, filename){
+    #clicked(row, _mousebtn, _state){
         if(!(row instanceof GzzListFileRow)){
             log_message(
                 'notes',
@@ -3096,11 +3133,12 @@ export class GzzFileDialog extends GzzFileDialogBase {
             );
             return;
         } // if(!(row instanceof GzzListFileRow)) //
+        const filename = row.get_title();
         log_message('notes', `GzzFileDialog::clicked: filename == ${filename}`, new Error());
         this.set_file_name(filename);
     }
 
-    double_clicked(row, directory){
+    #double_clicked(row, _mousebtn, _state){
         if(!(row instanceof GzzListFileRow)){
             log_message(
                 'notes',
@@ -3109,6 +3147,7 @@ export class GzzFileDialog extends GzzFileDialogBase {
             );
             return;
         } // if(!(row instanceof GzzListFileRow)) //
+        const directory = row.get_title();
         log_message('notes', `GzzFileDialog::double_clicked: directory == ${directory}`, new Error());
         if(directory === '.'){
             return; // nothing to do //
@@ -3218,6 +3257,12 @@ export class GzzFileDialog extends GzzFileDialogBase {
                     display_size:         this.#_display_size,
                     base2_file_sizes:     this.#_base2_file_sizes, 
                 });
+                self_.connect('clicked', (thisrow, mousebtn, state) => {
+                    this.#clicked(thisrow, mousebtn, state);
+                });
+                self_.connect('dblclick', (thisrow, mousebtn, state) => {
+                    this.#double_clicked(thisrow, mousebtn, state);
+                });
                 this.add_row(self_);
                 const parent_dir = filename.get_parent();
                 if(parent_dir){
@@ -3250,6 +3295,12 @@ export class GzzFileDialog extends GzzFileDialogBase {
                     display_number_links: this.#_display_number_links,
                     display_size:         this.#_display_size,
                     base2_file_sizes:     this.#_base2_file_sizes, 
+                });
+                parent_.connect('clicked', (thisrow, mousebtn, state) => {
+                    this.#clicked(thisrow, mousebtn, state);
+                });
+                parent_.connect('dblclick', (thisrow, mousebtn, state) => {
+                    this.#double_clicked(thisrow, mousebtn, state);
                 });
                 this.add_row(parent_);
             }
@@ -3316,6 +3367,12 @@ export class GzzFileDialog extends GzzFileDialogBase {
                     display_number_links: this.#_display_number_links,
                     display_size:         this.#_display_size,
                     base2_file_sizes:     this.#_base2_file_sizes, 
+                });
+                row.connect('clicked', (thisrow, mousebtn, state) => {
+                    this.#clicked(thisrow, mousebtn, state);
+                });
+                row.connect('dblclick', (thisrow, mousebtn, state) => {
+                    this.#double_clicked(thisrow, mousebtn, state);
                 });
 
                 this.add_row(row);
