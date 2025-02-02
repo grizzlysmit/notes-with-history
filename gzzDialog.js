@@ -454,6 +454,7 @@ export class Button extends St.BoxLayout {
 
         this.connect('button-press-event', (_actor, event) => {
             log_message('notes', `Gzz::Button::button-press-event:  event == ${event}`, new Error());
+            log_message('notes', `Gzz::Button::button-press-event:  this.#_toggle_mode == ${this.#_toggle_mode}`, new Error());
             if(!this.#_toggle_mode){
                 this.add_style_pseudo_class('active');
             }
