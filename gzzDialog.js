@@ -1783,7 +1783,7 @@ export class GzzColumnNames extends St.BoxLayout {
             icon_name:   'notes-app', 
             icon_size:   icon_size_, 
             x_align:     Clutter.ActorAlign.CENTER, 
-            width:       icon_size_ + 10, 
+            width:       2 * icon_size_ + 10, 
         });
 
         if("display_inode" in params){
@@ -1796,6 +1796,8 @@ export class GzzColumnNames extends St.BoxLayout {
                 label:        _('Inode Number'), 
                 style_class: 'dialog-item-column-name',
                 x_align:     Clutter.ActorAlign.FILL, 
+                toggle_mode: true, 
+                checked:     false, 
                 width:       200, 
             });
         }
@@ -1810,6 +1812,8 @@ export class GzzColumnNames extends St.BoxLayout {
                 label:        _('Permisions'), 
                 style_class: 'dialog-item-column-name',
                 x_align:     Clutter.ActorAlign.FILL, 
+                toggle_mode: true, 
+                checked:     false, 
                 width:       176, 
             });
         }
@@ -1824,7 +1828,9 @@ export class GzzColumnNames extends St.BoxLayout {
                 label:        _('#Link'), 
                 style_class: 'dialog-item-column-name',
                 x_align:     Clutter.ActorAlign.FILL, 
-                width:       40, 
+                toggle_mode: true, 
+                checked:     false, 
+                width:       100, 
             });
         }
 
@@ -1832,6 +1838,8 @@ export class GzzColumnNames extends St.BoxLayout {
             label:        _('File Name'), 
             style_class: 'dialog-item-column-name',
             x_align:     Clutter.ActorAlign.FILL, 
+            toggle_mode: true, 
+            checked:     true, 
             width:       300, 
         });
 
@@ -1847,6 +1855,8 @@ export class GzzColumnNames extends St.BoxLayout {
                 label:        _('Create'), 
                 style_class: 'dialog-item-column-name',
                 x_align:     Clutter.ActorAlign.FILL, 
+                toggle_mode: true, 
+                checked:     false, 
                 width:       315, 
             });
         }
@@ -1857,6 +1867,8 @@ export class GzzColumnNames extends St.BoxLayout {
                 label:        _('Modification Time'), 
                 style_class: 'dialog-item-column-name',
                 x_align:     Clutter.ActorAlign.FILL, 
+                toggle_mode: true, 
+                checked:     false, 
                 width:       315, 
             });
         }
@@ -1867,6 +1879,8 @@ export class GzzColumnNames extends St.BoxLayout {
                 text:        _('Access Time'), 
                 style_class: 'dialog-item-column-name',
                 x_align:     Clutter.ActorAlign.FILL, 
+                toggle_mode: true, 
+                checked:     false, 
                 width:       315, 
             });
         }
@@ -1883,6 +1897,8 @@ export class GzzColumnNames extends St.BoxLayout {
                 label:        _('User'), 
                 style_class: 'dialog-item-column-name',
                 x_align:     Clutter.ActorAlign.FILL, 
+                toggle_mode: true, 
+                checked:     false, 
                 width:       250, 
             });
         }
@@ -1893,6 +1909,8 @@ export class GzzColumnNames extends St.BoxLayout {
                 label:        _('Group'), 
                 style_class: 'dialog-item-column-name',
                 x_align:     Clutter.ActorAlign.FILL, 
+                toggle_mode: true, 
+                checked:     false, 
                 width:       250, 
             });
         }
@@ -1907,6 +1925,8 @@ export class GzzColumnNames extends St.BoxLayout {
                 label:        _('File Size'), 
                 style_class: 'dialog-item-column-name',
                 x_align:     Clutter.ActorAlign.FILL, 
+                toggle_mode: true, 
+                checked:     false, 
                 width:       160, 
             });
         }
@@ -1926,36 +1946,38 @@ export class GzzColumnNames extends St.BoxLayout {
 
         //this.label_actor = this.#_file_name;
 
-        this.#connectID_file_name                             = this.#_file_name.connect("clicked", (colName, mousebtn, btnstate) => {
-            this.#handle_clicked(colName, mousebtn, btnstate, 'file_name');
+        this.#connectID_file_name                             = this.#_file_name.connect("clicked", (button, mousebtn, btnstate) => {
+            this.#handle_clicked(button, mousebtn, btnstate, 'file_name');
         });
-        if(this.#_inode) this.#connectID_inode                = this.#_inode.connect("clicked", (colName, mousebtn, btnstate) => {
-            this.#handle_clicked(colName, mousebtn, btnstate, 'inode');
+        if(this.#_inode) this.#connectID_inode                = this.#_inode.connect("clicked", (button, mousebtn, btnstate) => {
+            this.#handle_clicked(button, mousebtn, btnstate, 'inode');
         });
-        if(this.#_mode_box) this.#connectID_mode              = this.#_mode_box.connect("clicked", (colName, mousebtn, btnstate) => {
-            this.#handle_clicked(colName, mousebtn, btnstate, 'mode');
+        if(this.#_mode_box) this.#connectID_mode              = this.#_mode_box.connect("clicked", (button, mousebtn, btnstate) => {
+            this.#handle_clicked(button, mousebtn, btnstate, 'mode');
         });
-        if(this.#_nlink_box) this.#connectID_nlink            = this.#_nlink_box.connect("clicked", (colName, mousebtn, btnstate) => {
-            this.#handle_clicked(colName, mousebtn, btnstate, 'nlink');
+        if(this.#_nlink_box) this.#connectID_nlink            = this.#_nlink_box.connect("clicked", (button, mousebtn, btnstate) => {
+            this.#handle_clicked(button, mousebtn, btnstate, 'nlink');
         });
-        if(this.#_create) this.#connectID_create              = this.#_create.connect("clicked", (colName, mousebtn, btnstate) => {
-            this.#handle_clicked(colName, mousebtn, btnstate, 'create');
+        if(this.#_create) this.#connectID_create              = this.#_create.connect("clicked", (button, mousebtn, btnstate) => {
+            this.#handle_clicked(button, mousebtn, btnstate, 'create');
         });
-        if(this.#_modification) this.#connectID__modification = this.#_modification.connect("clicked", (colName, mousebtn, btnstate) => {
-            this.#handle_clicked(colName, mousebtn, btnstate, 'modification');
+        if(this.#_modification) this.#connectID__modification = this.#_modification.connect("clicked", (button, mousebtn, btnstate) => {
+            this.#handle_clicked(button, mousebtn, btnstate, 'modification');
         });
-        if(this.#_access) this.#connectID_access              = this.#_access.connect("clicked", (colName, mousebtn, btnstate) => {
-            this.#handle_clicked(colName, mousebtn, btnstate, 'access');
+        if(this.#_access) this.#connectID_access              = this.#_access.connect("clicked", (button, mousebtn, btnstate) => {
+            this.#handle_clicked(button, mousebtn, btnstate, 'access');
         });
-        if(this.#_user) this.#connectID_user                  = this.#_user.connect("clicked", (colName, mousebtn, btnstate) => {
-            this.#handle_clicked(colName, mousebtn, btnstate, 'user');
+        if(this.#_user) this.#connectID_user                  = this.#_user.connect("clicked", (button, mousebtn, btnstate) => {
+            this.#handle_clicked(button, mousebtn, btnstate, 'user');
         });
-        if(this.#_group) this.#connectID_group                = this.#_group.connect("clicked", (colName, mousebtn, btnstate) => {
-            this.#handle_clicked(colName, mousebtn, btnstate, 'group');
+        if(this.#_group) this.#connectID_group                = this.#_group.connect("clicked", (button, mousebtn, btnstate) => {
+            this.#handle_clicked(button, mousebtn, btnstate, 'group');
         });
-        if(this.#_file_size_box) this.#connectID_file_size    = this.#_file_size_box.connect("clicked", (colName, mousebtn, btnstate) => {
-            this.#handle_clicked(colName, mousebtn, btnstate, 'file_size');
+        if(this.#_file_size_box) this.#connectID_file_size    = this.#_file_size_box.connect("clicked", (button, mousebtn, btnstate) => {
+            this.#handle_clicked(button, mousebtn, btnstate, 'file_size');
         });
+
+        this.#refresh_button_checked_states(this.#_file_name);
     } // constructor(params) //
 
     static None          = 0b00000;
@@ -1980,12 +2002,24 @@ export class GzzColumnNames extends St.BoxLayout {
         super.destroy();
     } // destroy() //
 
-    #handle_clicked(colName, mousebtn, btnstate, field_name){
-        switch(event.get_button()){
-            case(mousebtn):
+    #refresh_button_checked_states(button){
+        const children = this.get_children();
+        for(const child of children){
+            if(child instanceof Button){
+                if(child.get_toggle_mode()){
+                    child.checked = (child === button);
+                }
+            } // if(child instanceof Button) //
+        } // for(const child of children) //
+    }
+
+    #handle_clicked(button, mousebtn, btnstate, field_name){
+        switch(mousebtn){
+            case(1):
                 switch(btnstate){
                     case 0:
                         this.#_list_file_section.sort_by_col(this, field_name);
+                        this.#refresh_button_checked_states(button);
                         break;
                     default:
                         return Clutter.EVENT_PROPAGATE;
@@ -2760,7 +2794,7 @@ export class GzzListFileRow extends St.BoxLayout {
                 style_class: 'dialog-list-item-elt',
                 x_expand:    true,
                 x_align:     Clutter.ActorAlign.FILL, 
-                width:       40, 
+                width:       100, 
             });
         }
 
