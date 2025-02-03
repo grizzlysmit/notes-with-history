@@ -1611,8 +1611,9 @@ export class GzzHeader extends AbstractHeader {
             owner:               this.#_owner, 
             label_orientation:   Button.Label_orientation.RIGHT, 
             style_class:         'gzzdialog-header-item', 
-            style_class_checked: 'gzzdialog-header-item-selected', 
             array, 
+            x_expand:            true, 
+            x_align:             Clutter.ActorAlign.FILL,
             toggle_mode:         true, 
             checked:             current, 
             icon_size:           this.#_owner.get_icon_size(), 
@@ -1735,7 +1736,7 @@ export class GzzColumnNames extends St.BoxLayout {
             style_class: 'gzzdialog-column-names',
             vertical: false,
             x_expand: true,
-            y_align: Clutter.ActorAlign.FILL,
+            y_align:  Clutter.ActorAlign.FILL,
         });
 
         if('owner' in params){
@@ -2166,7 +2167,6 @@ export  class GzzListFileSection extends AbstractListFileSection {
 
         this.#show_root_button  = new Button({
             style_class:         'gzzdialog-list-item-button', 
-            style_class_checked: 'gzzdialog-list-item-button-selected', 
             label:               "<", 
             checked:             false, 
             toggle_mode:         true, 
@@ -2201,7 +2201,6 @@ export  class GzzListFileSection extends AbstractListFileSection {
 
         this.#new_dir_button  = new Button({
             style_class:         'gzzdialog-list-create-dir-button',
-            style_class_checked: 'gzzdialog-list-item-button-selected', 
             icon_name:           'stock_new-dir', 
             icon_size:           this.#_owner.get_icon_size(), 
         });
@@ -2220,13 +2219,13 @@ export  class GzzListFileSection extends AbstractListFileSection {
 
         this.#_header_box.add_child(this.#show_root_button);
         this.#_header_box.add_child(this.#header);
-        this.#_header_box.add_child(this.#colNames);
         this.#_header_box.add_child(this.#new_dir_button);
 
         if(this.#_dialog_type.toString() !== GzzDialogType.SelectDir.toString()){
             this.add_child(this.#file_name_box);
         }
         this.add_child(this.#_header_box);
+        this.add_child(this.#colNames);
         this.add_child(this.#_listScrollView);
     } // constructor(params) //
     
