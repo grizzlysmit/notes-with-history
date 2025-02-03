@@ -3244,29 +3244,40 @@ export class GzzFileDialog extends GzzFileDialogBase {
     constructor(params) {
         super(params);
 
-        this.#_list_section = new GzzListFileSection({
-            owner:      this, 
-            title:      params.title,
-            dialogtype: this.get_dialog_type(), 
-            icon_size:  this.get_icon_size(), 
-        });
-
-        let show_icon = true;
-
-        if('show_icon' in params){
-            show_icon = !!params.show_icons;
+        if('save_done' in params && params.save_done instanceof Function){
+            this.#_save_done = params.save_done;
         }
 
-        if(show_icon){
-            let icon = new St.Icon({
-                icon_name: 'inode-directory', 
-                icon_size:  this.get_icon_size(), 
-            });
+        if('base2_file_sizes' in params){
+            this.#_base2_file_sizes = !!params.base2_file_sizes;
+        }
 
-            this.contentLayout.add_child(icon);
-        } // if(show_icon) //
+        if('display_times' in params && Number.isInteger(params.display_times) 
+            && 0 <= Number(params.display_times) && Number(params.display_times) <= 7){
+            this.#_display_times = Number(params.display_times);
+        }
 
-        this.contentLayout.add_child(this.#_list_section);
+        if('display_inode' in params){
+            this.#_display_inode = !!params.display_inode;
+        }
+
+        if('display_user_group' in params && Number.isInteger(params.display_user_group) 
+            && 0 <= Number(params.display_times) && Number(params.display_times) <= 3){
+            this.#_display_user_group = Number(params.display_user_group);
+        }
+        log_message('notes', `GzzFileDialog::constructor: this.#_display_user_group == ${this.#_display_user_group}`, new Error());
+
+        if('display_mode' in params){
+            this.#_display_mode = !!params.display_mode;
+        }
+
+        if('display_number_links' in params){
+            this.#_display_number_links = !!params.display_number_links;
+        }
+
+        if('display_size' in params){
+            this.#_display_size = !!params.display_size;
+        }
 
         if('dir' in params){
             const dir_ = params.dir;
@@ -3347,46 +3358,35 @@ export class GzzFileDialog extends GzzFileDialogBase {
             }
         }
 
+        this.#_list_section = new GzzListFileSection({
+            owner:      this, 
+            title:      params.title,
+            dialogtype: this.get_dialog_type(), 
+            icon_size:  this.get_icon_size(), 
+        });
+
+        let show_icon = true;
+
+        if('show_icon' in params){
+            show_icon = !!params.show_icons;
+        }
+
+        if(show_icon){
+            let icon = new St.Icon({
+                icon_name: 'inode-directory', 
+                icon_size:  this.get_icon_size(), 
+            });
+
+            this.contentLayout.add_child(icon);
+        } // if(show_icon) //
+
+        this.contentLayout.add_child(this.#_list_section);
+
         let label_ = _('Save');
         let icon_name_ = 'stock_save';
         if(this.get_dialog_type().toString() !== GzzDialogType.Save.toString()){
             label_     = _('Open');
             icon_name_ = _('folder-open');
-        }
-
-        if('save_done' in params && params.save_done instanceof Function){
-            this.#_save_done = params.save_done;
-        }
-
-        if('base2_file_sizes' in params){
-            this.#_base2_file_sizes = !!params.base2_file_sizes;
-        }
-
-        if('display_times' in params && Number.isInteger(params.display_times) 
-            && 0 <= Number(params.display_times) && Number(params.display_times) <= 7){
-            this.#_display_times = Number(params.display_times);
-        }
-
-        if('display_inode' in params){
-            this.#_display_inode = !!params.display_inode;
-        }
-
-        if('display_user_group' in params && Number.isInteger(params.display_user_group) 
-            && 0 <= Number(params.display_times) && Number(params.display_times) <= 3){
-            this.#_display_user_group = Number(params.display_user_group);
-        }
-        log_message('notes', `GzzFileDialog::constructor: this.#_display_user_group == ${this.#_display_user_group}`, new Error());
-
-        if('display_mode' in params){
-            this.#_display_mode = !!params.display_mode;
-        }
-
-        if('display_number_links' in params){
-            this.#_display_number_links = !!params.display_number_links;
-        }
-
-        if('display_size' in params){
-            this.#_display_size = !!params.display_size;
         }
                 
         this.setButtons([{
