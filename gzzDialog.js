@@ -466,7 +466,7 @@ export class Button extends St.BoxLayout {
             }else{
                 this.remove_style_pseudo_class('active');
             }
-            this.emit('clicked', this, event.get_button(), event.get_state());
+            this.emit('clicked', event.get_button(), event.get_state());
             return Clutter.EVENT_PROPAGATE;
         });
 
