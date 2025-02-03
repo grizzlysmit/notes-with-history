@@ -2014,6 +2014,10 @@ export class GzzColumnNames extends St.BoxLayout {
     }
 
     #handle_clicked(button, mousebtn, btnstate, field_name){
+        log_message('notes', `GzzColumnNames::#handle_clicked: button == ${button}`, new Error());
+        log_message('notes', `GzzColumnNames::#handle_clicked: mousebtn == ${mousebtn}`, new Error());
+        log_message('notes', `GzzColumnNames::#handle_clicked: btnstate == ${btnstate}`, new Error());
+        log_message('notes', `GzzColumnNames::#handle_clicked: field_name == ${field_name}`, new Error());
         switch(mousebtn){
             case(1):
                 switch(btnstate){
@@ -2028,7 +2032,7 @@ export class GzzColumnNames extends St.BoxLayout {
             default:
                 return Clutter.EVENT_PROPAGATE;
         } //switch(event.get_button()) //
-    } // handle_button_press_event(actor, event) //
+    } // handle_button_press_event(button, mousebtn, btnstate, field_name) //
 
     get_owner() {
         return this.#_owner;
