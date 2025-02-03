@@ -1735,7 +1735,9 @@ export class GzzColumnNames extends St.BoxLayout {
             style_class: 'gzzdialog-column-names',
             vertical: false,
             x_expand: true,
-            y_align:  Clutter.ActorAlign.FILL,
+            y_expand: false,
+            x_align:  Clutter.ActorAlign.FILL,
+            y_align: Clutter.ActorAlign.START,
         });
 
         if('owner' in params){
@@ -1780,6 +1782,7 @@ export class GzzColumnNames extends St.BoxLayout {
         if("display_inode" in params){
             this.#_display_inode = !!params.display_inode;
         }
+        log_message('notes', `GzzColumnNames::constructor: this.#_display_inode == ${this.#_display_inode}`, new Error());
 
         if(this.#_display_inode){
             this.#_inode = new Button({
@@ -1791,8 +1794,9 @@ export class GzzColumnNames extends St.BoxLayout {
         }
 
         if('display_mode' in params){
-            this.#_display_mode = !! params.display_mode;
+            this.#_display_mode = !!params.display_mode;
         }
+        log_message('notes', `GzzColumnNames::constructor: this.#_display_mode == ${this.#_display_mode}`, new Error());
 
         if(this.#_display_mode){
             this.#_mode_box = new Button({
@@ -1806,6 +1810,7 @@ export class GzzColumnNames extends St.BoxLayout {
         if('display_number_links' in params){
             this.#_display_number_links = !!params.display_number_links;
         }
+        log_message('notes', `GzzColumnNames::constructor: this.#_display_number_links == ${this.#_display_number_links}`, new Error());
 
         if(this.#_display_number_links){
             this.#_nlink_box = new Button({
@@ -1827,8 +1832,10 @@ export class GzzColumnNames extends St.BoxLayout {
             && 0 <= Number(params.display_times) && Number(params.display_times) <= 7){
             this.#_display_times = Number(params.display_times);
         }
+        log_message('notes', `GzzColumnNames::constructor: this.#_display_times == ${this.#_display_times}`, new Error());
 
         if(this.#_display_times & GzzColumnNames.Create){
+            log_message('notes', `GzzColumnNames::constructor: this.#_display_times == ${this.#_display_times}`, new Error());
             this.#_create = new Button({
                 text:        _('Create'), 
                 style_class: 'dialog-item-column-name',
@@ -1838,6 +1845,7 @@ export class GzzColumnNames extends St.BoxLayout {
         }
         
         if(this.#_display_times & GzzColumnNames.Modify){
+            log_message('notes', `GzzColumnNames::constructor: this.#_display_times == ${this.#_display_times}`, new Error());
             this.#_modification = new Button({
                 text:        _('Modification Time'), 
                 style_class: 'dialog-item-column-name',
@@ -1847,6 +1855,7 @@ export class GzzColumnNames extends St.BoxLayout {
         }
         
         if(this.#_display_times & GzzColumnNames.Access){
+            log_message('notes', `GzzColumnNames::constructor: this.#_display_times == ${this.#_display_times}`, new Error());
             this.#_access = new Button({
                 text:        _('Access Time'), 
                 style_class: 'dialog-item-column-name',
@@ -1859,10 +1868,10 @@ export class GzzColumnNames extends St.BoxLayout {
             && 0 <= Number(params.display_user_group) && Number(params.display_user_group) <= 3){
             this.#_display_user_group = Number(params.display_user_group);
         }
+        log_message('notes', `GzzColumnNames::constructor: this.#_display_user_group == ${this.#_display_user_group}`, new Error());
         
-        log_message('notes', `GzzFileDialog::constructor: this.#_display_user_group == ${this.#_display_user_group}`, new Error());
-
         if(this.#_display_user_group & GzzColumnNames.User){
+            log_message('notes', `GzzColumnNames::constructor: this.#_display_user_group == ${this.#_display_user_group}`, new Error());
             this.#_user = new Button({
                 text:        _('User'), 
                 style_class: 'dialog-item-column-name',
@@ -1872,6 +1881,7 @@ export class GzzColumnNames extends St.BoxLayout {
         }
 
         if(this.#_display_user_group & GzzColumnNames.Group){
+            log_message('notes', `GzzColumnNames::constructor: this.#_display_user_group == ${this.#_display_user_group}`, new Error());
             this.#_group = new Button({
                 text:        _('Group'), 
                 style_class: 'dialog-item-column-name',
@@ -1895,38 +1905,20 @@ export class GzzColumnNames extends St.BoxLayout {
         }
         log_message('notes', `GzzColumnNames::constructor: this.#_file_size_box == ${this.#_file_size_box}`, new Error());
 
-        let textLayout = new St.BoxLayout({
-            vertical: false,
-            y_expand: true,
-            y_align: Clutter.ActorAlign.CENTER,
-        });
+        this.add_child(this.#_icon);
+        if(this.#_inode)         this.add_child(this.#_inode);
+        if(this.#_mode_box)      this.add_child(this.#_mode_box);
+        if(this.#_nlink_box)     this.add_child(this.#_nlink_box);
+        if(this.#_create)        this.add_child(this.#_create);
+        if(this.#_modification)  this.add_child(this.#_modification);
+        if(this.#_access)        this.add_child(this.#_access);
+        if(this.#_user)          this.add_child(this.#_user);
+        if(this.#_group)         this.add_child(this.#_group);
+        if(this.#_file_size_box) this.add_child(this.#_file_size_box);
+        this.add_child(this.#_file_name);
 
-        textLayout.add_child(this.#_icon);
-        if(this.#_inode)         textLayout.add_child(this.#_inode);
-        if(this.#_mode_box)      textLayout.add_child(this.#_mode_box);
-        if(this.#_nlink_box)     textLayout.add_child(this.#_nlink_box);
-        if(this.#_create)        textLayout.add_child(this.#_create);
-        if(this.#_modification)  textLayout.add_child(this.#_modification);
-        if(this.#_access)        textLayout.add_child(this.#_access);
-        if(this.#_user)          textLayout.add_child(this.#_user);
-        if(this.#_group)         textLayout.add_child(this.#_group);
-        if(this.#_file_size_box) textLayout.add_child(this.#_file_size_box);
-        textLayout.add_child(this.#_file_name);
+        //this.label_actor = this.#_file_name;
 
-        this.label_actor = this.#_file_name;
-        this.add_child(textLayout);
-
-        this.click_event_start  = null;
-        this.double_click_start = null;
-        if('double_click_time' in params){
-            log_message(
-                'notes',
-                `GzzColumnNames::handle_button_press_event: params.double_click_time == ${params.double_click_time}`,
-                new Error()
-            );
-            this.set_double_click_time(params.double_click_time);
-        }
-        this.click_count = 0;
         this.#connectID_file_name                             = this.#_file_name.connect("clicked", (colName, mousebtn, btnstate) => {
             this.#handle_clicked(colName, mousebtn, btnstate, 'file_name');
         });
