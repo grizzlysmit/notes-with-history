@@ -1766,10 +1766,11 @@ export class GzzColumnNames extends St.BoxLayout {
             throw new Error('GzzColumnNames::constructor constructor error: list_file_section must be supplied');
         }
 
-        let icon_size_ = 16;
-        if('icon_size' in params && Number.isInteger(params.icon_size) && 16 <= Number(params.icon_size) && Number(params.icon_size) <= 256){
+        let icon_size_ = 10;
+        if('icon_size' in params && Number.isInteger(params.icon_size) && 6 <= Number(params.icon_size) && Number(params.icon_size) <= 256){
             icon_size_ = Number(params.icon_size);
         }
+        log_message('notes', `GzzColumnNames::constructor: icon_size_ == ${icon_size_}`, new Error());
         
         this.#_icon = new Button({
             style_class: 'dialog-item-column-name',
@@ -2164,7 +2165,7 @@ export  class GzzListFileSection extends AbstractListFileSection {
             list_file_section:    this, 
             owner:                this.#_owner, 
             style_class:          'gzzdialog-column-names',
-            icon_size:            this.#_owner.get_icon_size(), 
+            icon_size:            this.#_owner.get_icon_size()/2, 
             display_inode:        this.#_owner.get_display_inode(), 
             display_times:        this.#_owner.get_display_times(), 
             display_user_group:   this.#_owner.get_display_user_group(), 
