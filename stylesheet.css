@@ -11,6 +11,31 @@ gzzbutton {
     color:            black;
 }
 
+.dialog-item-column-name {
+    margin-left:      2px !important;
+    margin-right:     2px !important;
+    margin-top:       2px !important;
+    margin-bottom:    2px !important;
+    padding:          3px;
+    border-radius:    3px;
+    border:           1px solid darkblue;
+    color:            black;
+    background-color: lightgrey, 
+}
+
+.dialog-item-column-name:checked {
+    margin-left:      2px !important;
+    margin-right:     2px !important;
+    margin-top:       2px !important;
+    margin-bottom:    2px !important;
+    padding:          3px;
+    border-radius:    3px;
+    border:           1px solid darkblue;
+    color:            black;
+    color:            cyan;
+    background-color: grey, 
+}
+
 .gzzdialog-header-item {
     margin-left:      2px !important;
     margin-right:     2px !important;

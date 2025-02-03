@@ -1612,7 +1612,6 @@ export class GzzHeader extends AbstractHeader {
             label_orientation:   Button.Label_orientation.RIGHT, 
             style_class:         'gzzdialog-header-item', 
             array, 
-            x_expand:            true, 
             x_align:             Clutter.ActorAlign.FILL,
             toggle_mode:         true, 
             checked:             current, 
@@ -1786,7 +1785,6 @@ export class GzzColumnNames extends St.BoxLayout {
             this.#_inode = new Button({
                 text:        _('Inode Number'), 
                 style_class: 'dialog-item-column-name',
-                x_expand:    true,
                 x_align:     Clutter.ActorAlign.FILL, 
                 width:       200, 
             });
@@ -1800,7 +1798,6 @@ export class GzzColumnNames extends St.BoxLayout {
             this.#_mode_box = new Button({
                 text:        _('Permisions'), 
                 style_class: 'dialog-item-column-name',
-                x_expand:    true,
                 x_align:     Clutter.ActorAlign.FILL, 
                 width:       176, 
             });
@@ -1814,7 +1811,6 @@ export class GzzColumnNames extends St.BoxLayout {
             this.#_nlink_box = new Button({
                 text:        _('#Link'), 
                 style_class: 'dialog-item-column-name',
-                x_expand:    true,
                 x_align:     Clutter.ActorAlign.FILL, 
                 width:       40, 
             });
@@ -1823,7 +1819,6 @@ export class GzzColumnNames extends St.BoxLayout {
         this.#_file_name = new Button({
             text:        _('File Name'), 
             style_class: 'dialog-item-column-name',
-            x_expand:    true,
             x_align:     Clutter.ActorAlign.FILL, 
             width:       300, 
         });
@@ -1837,7 +1832,6 @@ export class GzzColumnNames extends St.BoxLayout {
             this.#_create = new Button({
                 text:        _('Create'), 
                 style_class: 'dialog-item-column-name',
-                x_expand:    true,
                 x_align:     Clutter.ActorAlign.FILL, 
                 width:       315, 
             });
@@ -1847,7 +1841,6 @@ export class GzzColumnNames extends St.BoxLayout {
             this.#_modification = new Button({
                 text:        _('Modification Time'), 
                 style_class: 'dialog-item-column-name',
-                x_expand:    true,
                 x_align:     Clutter.ActorAlign.FILL, 
                 width:       315, 
             });
@@ -1857,7 +1850,6 @@ export class GzzColumnNames extends St.BoxLayout {
             this.#_access = new Button({
                 text:        _('Access Time'), 
                 style_class: 'dialog-item-column-name',
-                x_expand:    true,
                 x_align:     Clutter.ActorAlign.FILL, 
                 width:       315, 
             });
@@ -1874,7 +1866,6 @@ export class GzzColumnNames extends St.BoxLayout {
             this.#_user = new Button({
                 text:        _('User'), 
                 style_class: 'dialog-item-column-name',
-                x_expand:    true,
                 x_align:     Clutter.ActorAlign.FILL, 
                 width:       250, 
             });
@@ -1884,7 +1875,6 @@ export class GzzColumnNames extends St.BoxLayout {
             this.#_group = new Button({
                 text:        _('Group'), 
                 style_class: 'dialog-item-column-name',
-                x_expand:    true,
                 x_align:     Clutter.ActorAlign.FILL, 
                 width:       250, 
             });
@@ -1899,7 +1889,6 @@ export class GzzColumnNames extends St.BoxLayout {
             this.#_file_size_box = new Button({
                 text:        _('File Size'), 
                 style_class: 'dialog-item-column-name',
-                x_expand:    true,
                 x_align:     Clutter.ActorAlign.FILL, 
                 width:       160, 
             });
