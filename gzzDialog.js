@@ -1974,6 +1974,10 @@ export class GzzColumnNames extends St.BoxLayout {
             this.#handle_clicked(button, mousebtn, btnstate, 'group');
         });
         if(this.#_file_size_box) this.#connectID_file_size    = this.#_file_size_box.connect("clicked", (button, mousebtn, btnstate) => {
+            log_message('notes', `GzzColumnNames::constructor: button == ${button}`, new Error());
+            log_message('notes', `GzzColumnNames::constructor: mousebtn == ${mousebtn}`, new Error());
+            log_message('notes', `GzzColumnNames::constructor: button === mousebtn == ${button === mousebtn}`, new Error());
+            log_message('notes', `GzzColumnNames::constructor: btnstate == ${btnstate}`, new Error());
             this.#handle_clicked(button, mousebtn, btnstate, 'file_size');
         });
 
@@ -2017,6 +2021,7 @@ export class GzzColumnNames extends St.BoxLayout {
         log_message('notes', `GzzColumnNames::#handle_clicked: button == ${button}`, new Error());
         log_message('notes', `GzzColumnNames::#handle_clicked: mousebtn == ${mousebtn}`, new Error());
         log_message('notes', `GzzColumnNames::#handle_clicked: btnstate == ${btnstate}`, new Error());
+            log_message('notes', `GzzColumnNames::#handle_clicked: button === mousebtn == ${button === mousebtn}`, new Error());
         log_message('notes', `GzzColumnNames::#handle_clicked: field_name == ${field_name}`, new Error());
         switch(mousebtn){
             case(1):
