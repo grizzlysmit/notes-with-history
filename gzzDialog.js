@@ -328,8 +328,6 @@ export class Button extends St.BoxLayout {
     }
 
     #_icon                  = null;
-    //#_style_class_unchecked = 'gzz-button';
-    //#_style_class_checked   = 'gzz-button-selected';
     #_label_orientation     = Button.Label_orientation.RIGHT;
     #_toggle_mode           = false;
     #_checked               = false;
@@ -338,7 +336,6 @@ export class Button extends St.BoxLayout {
     #_label                 = null;
 
     constructor(params) {
-        //log_message('notes', `Gzz::Button::constructor: params == ${JSON.stringify(params)}`, new Error());
         super({
             style_class: 'gzz-button button',  
             reactive:    true, 
@@ -351,16 +348,12 @@ export class Button extends St.BoxLayout {
         });
 
         if('style_class' in params && (params.style_class instanceof String || typeof params.style_class === 'string')){
-            //this.#_style_class_unchecked = params.style_class.toString();
             this.set_style_class_name(params.style_class.toString());
-            //this.add_style_class_name('button');
         }
 
-        /*
-        if('style_class_checked' in params && (params.style_class_checked instanceof String || typeof params.style_class_checked === 'string')){
-            this.#_style_class_checked = params.style_class_checked.toString();
+        if('width' in params && Number.isInteger(params.width)){
+            this.set_width(Number(params.width));
         }
-        // */
 
         if('label_orientation' in params && Number.isInteger(params.label_orientation)
             && 0 <= Number(params.label_orientation) && Number(params.label_orientation) <= 3){
@@ -611,12 +604,8 @@ export class Button extends St.BoxLayout {
         this.#_toggle_mode = !!toggle;
         if(this.#_toggle_mode){
             if(this.#_checked){
-                //this.remove_style_class_name(this.#_style_class_unchecked);
-                //this.add_style_class_name(this.#_style_class_checked);
                 this.add_style_pseudo_class('checked');
             }else{
-                //this.remove_style_class_name(this.#_style_class_checked);
-                //this.add_style_class_name(this.#_style_class_unchecked);
                 this.remove_style_pseudo_class('checked');
             }
         } // if(this.#_toggle_mode) //
@@ -638,12 +627,8 @@ export class Button extends St.BoxLayout {
         this.#_checked = !!check;
         if(this.#_toggle_mode){
             if(this.#_checked){
-                //this.remove_style_class_name(this.#_style_class_unchecked);
-                //this.add_style_class_name(this.#_style_class_checked);
                 this.add_style_pseudo_class('checked');
             }else{
-                //this.remove_style_class_name(this.#_style_class_checked);
-                //this.add_style_class_name(this.#_style_class_unchecked);
                 this.remove_style_pseudo_class('checked');
             }
         } // if(this.#_toggle_mode) //
@@ -1708,6 +1693,352 @@ export class GzzHeader extends AbstractHeader {
 
 } // export class GzzHeader extends AbstractHeader //
 
+export class GzzColumnNames extends St.BoxLayout {
+    static {
+        GObject.registerClass({
+            GTypeName: 'GzzColumnNames',
+        }, this);
+    }
+    
+    #_owner                  = null;
+    #_list_file_section      = null;
+    #_icon                   = null;
+    #_display_inode          = null;
+    #_inode                  = null;
+    #_mode_box               = null;
+    #_display_mode           = false;
+    #_nlink_box              = null;
+    #_display_number_links   = false;
+    #_file_name              = null;
+    #_display_times          = GzzColumnNames.None;
+    #_create                 = null;
+    #_modification           = null;
+    #_access                 = null;
+    #_display_user_group     = GzzColumnNames.No_User_Group;
+    #_user                   = null;
+    #_group                  = null;
+    #_display_size           = false;
+    #_file_size_box          = null;
+    #connectID_file_name     = null;
+    #connectID_inode         = null;
+    #connectID_mode          = null;
+    #connectID_nlink         = null;
+    #connectID_create        = null;
+    #connectID__modification = null;
+    #connectID_access        = null;
+    #connectID_user          = null;
+    #connectID_group         = null;
+    #connectID_file_size     = null;
+
+    constructor(params) {
+        super({
+            style_class: 'gzzdialog-column-names',
+            vertical: false,
+            x_expand: true,
+            y_align: Clutter.ActorAlign.FILL,
+        });
+
+        if('owner' in params){
+            const owner_ = params.owner;
+            if(!owner_){
+                throw new Error('GzzColumnNames::owner_error: owner cannot be null');
+            }else if(owner_ instanceof GzzFileDialogBase){
+                this.#_owner = owner_;
+            }else{
+                throw new Error('GzzColumnNames::owner_error: owner must be a GzzFileDialogBase');
+            }
+        }else{
+            throw new Error('GzzColumnNames::owner_error: owner must be supplied and must be a GzzFileDialogBase');
+        }
+
+        if('list_file_section' in params){
+            const list_file_section_ = params.list_file_section;
+            if(!list_file_section_){
+                throw new Error('GzzColumnNames::constructor list_file_section error: list_file_section cannot be null');
+           }else if(list_file_section_ instanceof AbstractListFileSection){
+                this.#_list_file_section = list_file_section_;
+            }else{
+                throw new Error('GzzColumnNames::constructor list_file_section error: list_file_section must be an AbstractListFileSection');
+            }
+        }else{
+            throw new Error('GzzColumnNames::constructor constructor error: list_file_section must be supplied');
+        }
+
+        let icon_size_ = 16;
+        if('icon_size' in params && Number.isInteger(params.icon_size) && 16 <= Number(params.icon_size) && Number(params.icon_size) <= 256){
+            icon_size_ = Number(params.icon_size);
+        }
+        
+        this.#_icon = new Button({
+            style_class: 'dialog-item-column-name',
+            icon_name:   'notes-app', 
+            icon_size:   icon_size_, 
+            x_align:     Clutter.ActorAlign.CENTER, 
+            width:       icon_size_ + 10, 
+        });
+
+        if("display_inode" in params){
+            this.#_display_inode = !!params.display_inode;
+        }
+
+        if(this.#_display_inode){
+            this.#_inode = new Button({
+                text:        _('Inode Number'), 
+                style_class: 'dialog-item-column-name',
+                x_expand:    true,
+                x_align:     Clutter.ActorAlign.FILL, 
+                width:       200, 
+            });
+        }
+
+        if('display_mode' in params){
+            this.#_display_mode = !! params.display_mode;
+        }
+
+        if(this.#_display_mode){
+            this.#_mode_box = new Button({
+                text:        _('Permisions'), 
+                style_class: 'dialog-item-column-name',
+                x_expand:    true,
+                x_align:     Clutter.ActorAlign.FILL, 
+                width:       176, 
+            });
+        }
+
+        if('display_number_links' in params){
+            this.#_display_number_links = !!params.display_number_links;
+        }
+
+        if(this.#_display_number_links){
+            this.#_nlink_box = new Button({
+                text:        _('#Link'), 
+                style_class: 'dialog-item-column-name',
+                x_expand:    true,
+                x_align:     Clutter.ActorAlign.FILL, 
+                width:       40, 
+            });
+        }
+
+        this.#_file_name = new Button({
+            text:        _('File Name'), 
+            style_class: 'dialog-item-column-name',
+            x_expand:    true,
+            x_align:     Clutter.ActorAlign.FILL, 
+            width:       300, 
+        });
+
+        if('display_times' in params && Number.isInteger(params.display_times)
+            && 0 <= Number(params.display_times) && Number(params.display_times) <= 7){
+            this.#_display_times = Number(params.display_times);
+        }
+
+        if(this.#_display_times & GzzColumnNames.Create){
+            this.#_create = new Button({
+                text:        _('Create'), 
+                style_class: 'dialog-item-column-name',
+                x_expand:    true,
+                x_align:     Clutter.ActorAlign.FILL, 
+                width:       315, 
+            });
+        }
+        
+        if(this.#_display_times & GzzColumnNames.Modify){
+            this.#_modification = new Button({
+                text:        _('Modification Time'), 
+                style_class: 'dialog-item-column-name',
+                x_expand:    true,
+                x_align:     Clutter.ActorAlign.FILL, 
+                width:       315, 
+            });
+        }
+        
+        if(this.#_display_times & GzzColumnNames.Access){
+            this.#_access = new Button({
+                text:        _('Access Time'), 
+                style_class: 'dialog-item-column-name',
+                x_expand:    true,
+                x_align:     Clutter.ActorAlign.FILL, 
+                width:       315, 
+            });
+        }
+
+        if('display_user_group' in params && Number.isInteger(params.display_user_group)
+            && 0 <= Number(params.display_user_group) && Number(params.display_user_group) <= 3){
+            this.#_display_user_group = Number(params.display_user_group);
+        }
+        
+        log_message('notes', `GzzFileDialog::constructor: this.#_display_user_group == ${this.#_display_user_group}`, new Error());
+
+        if(this.#_display_user_group & GzzColumnNames.User){
+            this.#_user = new Button({
+                text:        _('User'), 
+                style_class: 'dialog-item-column-name',
+                x_expand:    true,
+                x_align:     Clutter.ActorAlign.FILL, 
+                width:       250, 
+            });
+        }
+
+        if(this.#_display_user_group & GzzColumnNames.Group){
+            this.#_group = new Button({
+                text:        _('Group'), 
+                style_class: 'dialog-item-column-name',
+                x_expand:    true,
+                x_align:     Clutter.ActorAlign.FILL, 
+                width:       250, 
+            });
+        }
+
+        if('display_size' in params){
+            this.#_display_size = !!params.display_size;
+        }
+        log_message('notes', `GzzColumnNames::constructor: this.#_display_size == ${this.#_display_size}`, new Error());
+
+        if(this.#_display_size){
+            this.#_file_size_box = new Button({
+                text:        _('File Size'), 
+                style_class: 'dialog-item-column-name',
+                x_expand:    true,
+                x_align:     Clutter.ActorAlign.FILL, 
+                width:       160, 
+            });
+        }
+        log_message('notes', `GzzColumnNames::constructor: this.#_file_size_box == ${this.#_file_size_box}`, new Error());
+
+        let textLayout = new St.BoxLayout({
+            vertical: false,
+            y_expand: true,
+            y_align: Clutter.ActorAlign.CENTER,
+        });
+
+        textLayout.add_child(this.#_icon);
+        if(this.#_inode)         textLayout.add_child(this.#_inode);
+        if(this.#_mode_box)      textLayout.add_child(this.#_mode_box);
+        if(this.#_nlink_box)     textLayout.add_child(this.#_nlink_box);
+        if(this.#_create)        textLayout.add_child(this.#_create);
+        if(this.#_modification)  textLayout.add_child(this.#_modification);
+        if(this.#_access)        textLayout.add_child(this.#_access);
+        if(this.#_user)          textLayout.add_child(this.#_user);
+        if(this.#_group)         textLayout.add_child(this.#_group);
+        if(this.#_file_size_box) textLayout.add_child(this.#_file_size_box);
+        textLayout.add_child(this.#_file_name);
+
+        this.label_actor = this.#_file_name;
+        this.add_child(textLayout);
+
+        this.click_event_start  = null;
+        this.double_click_start = null;
+        if('double_click_time' in params){
+            log_message(
+                'notes',
+                `GzzColumnNames::handle_button_press_event: params.double_click_time == ${params.double_click_time}`,
+                new Error()
+            );
+            this.set_double_click_time(params.double_click_time);
+        }
+        this.click_count = 0;
+        this.#connectID_file_name                             = this.#_file_name.connect("clicked", (colName, mousebtn, btnstate) => {
+            this.#handle_clicked(colName, mousebtn, btnstate, 'file_name');
+        });
+        if(this.#_inode) this.#connectID_inode                = this.#_inode.connect("clicked", (colName, mousebtn, btnstate) => {
+            this.#handle_clicked(colName, mousebtn, btnstate, 'inode');
+        });
+        if(this.#_mode_box) this.#connectID_mode              = this.#_mode_box.connect("clicked", (colName, mousebtn, btnstate) => {
+            this.#handle_clicked(colName, mousebtn, btnstate, 'mode');
+        });
+        if(this.#_nlink_box) this.#connectID_nlink            = this.#_nlink_box.connect("clicked", (colName, mousebtn, btnstate) => {
+            this.#handle_clicked(colName, mousebtn, btnstate, 'nlink');
+        });
+        if(this.#_create) this.#connectID_create              = this.#_create.connect("clicked", (colName, mousebtn, btnstate) => {
+            this.#handle_clicked(colName, mousebtn, btnstate, 'create');
+        });
+        if(this.#_modification) this.#connectID__modification = this.#_modification.connect("clicked", (colName, mousebtn, btnstate) => {
+            this.#handle_clicked(colName, mousebtn, btnstate, 'modification');
+        });
+        if(this.#_access) this.#connectID_access              = this.#_access.connect("clicked", (colName, mousebtn, btnstate) => {
+            this.#handle_clicked(colName, mousebtn, btnstate, 'access');
+        });
+        if(this.#_user) this.#connectID_user                  = this.#_user.connect("clicked", (colName, mousebtn, btnstate) => {
+            this.#handle_clicked(colName, mousebtn, btnstate, 'user');
+        });
+        if(this.#_group) this.#connectID_group                = this.#_group.connect("clicked", (colName, mousebtn, btnstate) => {
+            this.#handle_clicked(colName, mousebtn, btnstate, 'group');
+        });
+        if(this.#_file_size_box) this.#connectID_file_size    = this.#_file_size_box.connect("clicked", (colName, mousebtn, btnstate) => {
+            this.#handle_clicked(colName, mousebtn, btnstate, 'file_size');
+        });
+    } // constructor(params) //
+
+    static None          = 0b00000;
+    static Create        = 0b00001;
+    static Modify        = 0b00010;
+    static Access        = 0b00100;
+    static No_User_Group = 0b00000;
+    static User          = 0b00001;
+    static Group         = 0b00010;
+
+    destroy(){
+        this.#_file_name.disconnect(this.#connectID_file_name);
+        if(this.#_inode)         this.#_inode.disconnect(this.#connectID_inode);
+        if(this.#_mode_box)      this.#_mode_box.disconnect(this.#connectID_mode);
+        if(this.#_nlink_box)     this.#_nlink_box.disconnect(this.#connectID_nlink);
+        if(this.#_create)        this.#_create.disconnect(this.#connectID_create);
+        if(this.#_modification)  this.#_modification.disconnect(this.#connectID__modification);
+        if(this.#_access)        this.#_access.disconnect(this.#connectID_access);
+        if(this.#_user)          this.#_user.disconnect(this.#connectID_user);
+        if(this.#_group)         this.#_group.disconnect(this.#connectID_group);
+        if(this.#_file_size_box) this.#_file_size_box.disconnect(this.#connectID_file_size);
+        super.destroy();
+    } // destroy() //
+
+    #handle_clicked(colName, mousebtn, btnstate, field_name){
+        switch(event.get_button()){
+            case(mousebtn):
+                switch(btnstate){
+                    case 0:
+                        this.#_list_file_section.sort_by_col(this, field_name);
+                        break;
+                    default:
+                        return Clutter.EVENT_PROPAGATE;
+                } // switch(btnstate) //
+                return Clutter.EVENT_STOP;
+            default:
+                return Clutter.EVENT_PROPAGATE;
+        } //switch(event.get_button()) //
+    } // handle_button_press_event(actor, event) //
+
+    get_owner() {
+        return this.#_owner;
+    }
+
+    set_owner(owner_) {
+        if(owner_ === null){
+            if(this.#_owner){
+                this.#_owner.apply_error_handler(this, 'GzzColumnNames::set_owner_error', "owner cannot be null", new Error());
+            }else{
+                throw new Error('GzzColumnNames::set_owner_error: owner cannot be null');
+            }
+        }else if(owner_ instanceof GzzFileDialogBase){
+            this.#_owner = owner_;
+        }else{
+            if(this.#_owner){
+                this.#_owner.apply_error_handler(this, 'GzzColumnNames::set_owner_error', "owner must be a GzzFileDialogBase", new Error());
+            }else{
+                throw new Error('GzzColumnNames::set_owner_error: owner must be a GzzFileDialogBase');
+            }
+        }
+    } // set owner(#_owner) //
+
+    get owner(){
+        return this.get_owner();
+    }
+
+    set owner(owner_){
+        this.set_owner(owner_);
+    }
+
+} // export class GzzColumnNames extends St.BoxLayout //
+
 export  class GzzListFileSection extends AbstractListFileSection {
     static {
         GObject.registerClass(this);
@@ -1725,6 +2056,8 @@ export  class GzzListFileSection extends AbstractListFileSection {
     #header           = null;
     #show_root_button = null;
     #new_dir_button   = null;
+    #_cmp             = this.#file_name_cmp;
+    #colNames         = null;
 
     constructor(params) {
         super({
@@ -1765,6 +2098,43 @@ export  class GzzListFileSection extends AbstractListFileSection {
             }
         }else{
             throw new Error('GzzListFileSection::owner_error: owner must be supplied');
+        }
+        
+        if('field_name' in params && params.field_name in GzzListFileSection.KnownFields){
+            switch(params.field_name){
+                case 'file_name':
+                    this.#_cmp = this.#file_name_cmp;
+                    break;
+                case 'inode':
+                    this.#_cmp = this.#inode_cmp;
+                    break;
+                case 'mode':
+                    this.#_cmp = this.#mode_cmp;
+                    break;
+                case 'nlink':
+                    this.#_cmp = this.#nlink_cmp;
+                    break;
+                case 'create':
+                    this.#_cmp = this.#create_cmp;
+                    break;
+                case 'modification':
+                    this.#_cmp = this.#modification_cmp;
+                    break;
+                case 'access':
+                    this.#_cmp = this.#access_cmp;
+                    break;
+                case 'user':
+                    this.#_cmp = this.#user_cmp;
+                    break;
+                case 'group':
+                    this.#_cmp = this.#group_cmp;
+                    break;
+                case 'file_size':
+                    this.#_cmp = this.#file_size_cmp;
+                    break;
+                default:
+                    this.#_cmp = this.#file_name_cmp;
+            } // switch(params.field_name) //
         }
 
         this.#file_name_box = new St.BoxLayout({
@@ -1809,6 +2179,19 @@ export  class GzzListFileSection extends AbstractListFileSection {
             dir:               this.#_owner.get_dir(),
         });
 
+        this.#colNames = new GzzColumnNames({
+            list_file_section:    this, 
+            owner:                this.#_owner, 
+            style_class:          'gzzdialog-column-names',
+            icon_size:            this.#_owner.get_icon_size(), 
+            display_inode:        this.#_owner.get_display_inode(), 
+            display_times:        this.#_owner.get_display_times(), 
+            display_user_group:   this.#_owner.get_display_user_group(), 
+            display_mode:         this.#_owner.get_display_mode(),
+            display_number_links: this.#_owner.get_display_number_links(),
+            display_size:         this.#_owner.get_display_size(),
+        });
+
         this.#show_root_button.connect('clicked', () => {
             const showroot = !this.#header.get_show_root();
             log_message('notes', `GzzListFileSection::constructor: this.#show_root_button.connect showroot == ${showroot}`, new Error());
@@ -1837,6 +2220,7 @@ export  class GzzListFileSection extends AbstractListFileSection {
 
         this.#_header_box.add_child(this.#show_root_button);
         this.#_header_box.add_child(this.#header);
+        this.#_header_box.add_child(this.#colNames);
         this.#_header_box.add_child(this.#new_dir_button);
 
         if(this.#_dialog_type.toString() !== GzzDialogType.SelectDir.toString()){
@@ -1845,6 +2229,242 @@ export  class GzzListFileSection extends AbstractListFileSection {
         this.add_child(this.#_header_box);
         this.add_child(this.#_listScrollView);
     } // constructor(params) //
+    
+    static KnownFields = [
+        'file_name', 
+        'inode_number', 
+        'mode', 
+        'nlink', 
+        'user_name', 
+        'group_name', 
+        'create_time', 
+        'modification_time', 
+        'access_time', 
+        'file_size', 
+    ];
+
+    sort_by_col(caller, field_name){
+        if(!(caller instanceof GzzFileDialogBase) && !(caller instanceof GzzColumnNames)){
+            this.#_owner.apply_error_handler(
+                this,
+                'GzzListFileSection::list_add_child',
+                `only an instance of GzzFileDialogBase can call this function you supplied ${caller}`,
+                new Error()
+            );
+            return;
+        }
+        if(field_name in GzzListFileSection.KnownFields){
+            switch(field_name){
+                case 'file_name':
+                    this.#_cmp = this.#file_name_cmp;
+                    break;
+                case 'inode':
+                    this.#_cmp = this.#inode_cmp;
+                    break;
+                case 'mode':
+                    this.#_cmp = this.#mode_cmp;
+                    break;
+                case 'nlink':
+                    this.#_cmp = this.#nlink_cmp;
+                    break;
+                case 'create':
+                    this.#_cmp = this.#create_cmp;
+                    break;
+                case 'modification':
+                    this.#_cmp = this.#modification_cmp;
+                    break;
+                case 'access':
+                    this.#_cmp = this.#access_cmp;
+                    break;
+                case 'user':
+                    this.#_cmp = this.#user_cmp;
+                    break;
+                case 'group':
+                    this.#_cmp = this.#group_cmp;
+                    break;
+                case 'file_size':
+                    this.#_cmp = this.#file_size_cmp;
+                    break;
+                default:
+                    this.#_cmp = this.#file_name_cmp;
+            } // switch(field_name) //
+        } // if(field_name in GzzListFileSection.KnownFields) //
+        const children = this.#list.get_children();
+        this.#list.remove_all_children();
+        for(const child of children){
+            this.list_add_child(this, child);
+        }
+    } // sort_by_col(field_name) //
+    
+    #file_name_cmp(row_a, row_b){
+        if(row_a.get_is_dir() && !row_b.get_is_dir()){
+            return -1;
+        }else if(!row_a.get_is_dir() && row_b.get_is_dir()){
+            return 1;
+        }else if(row_a.get_is_dir() === row_b.get_is_dir()){
+            return row_a.get_title().localeCompare(row_b.get_title());
+        }
+    } // #file_name_cmp //
+    
+    #inode_cmp(row_a, row_b){
+        if(row_a.get_is_dir() && !row_b.get_is_dir()){
+            return -1;
+        }else if(!row_a.get_is_dir() && row_b.get_is_dir()){
+            return 1;
+        }else if(row_a.get_is_dir() === row_b.get_is_dir()){
+            const inode_a = row_a.get_inode_number();
+            const inode_b = row_b.get_inode_number();
+            if(inode_a < inode_b){
+                return -1;
+            }else if(inode_a > inode_b){
+                return 1;
+            }else if(inode_a === inode_b){
+                return row_a.get_title().localeCompare(row_b.get_title());
+            }
+        }
+    } // #inode_cmp //
+    
+    #mode_cmp(row_a, row_b){
+        if(row_a.get_is_dir() && !row_b.get_is_dir()){
+            return -1;
+        }else if(!row_a.get_is_dir() && row_b.get_is_dir()){
+            return 1;
+        }else if(row_a.get_is_dir() === row_b.get_is_dir()){
+            const mode_a = row_a.get_mode();
+            const mode_b = row_b.get_mode();
+            if(mode_a < mode_b){
+                return -1;
+            }else if(mode_a > mode_b){
+                return 1;
+            }else if(mode_a === mode_b){
+                return row_a.get_title().localeCompare(row_b.get_title());
+            }
+        }
+    } // #mode_cmp //
+    
+    #nlink_cmp(row_a, row_b){
+        if(row_a.get_is_dir() && !row_b.get_is_dir()){
+            return -1;
+        }else if(!row_a.get_is_dir() && row_b.get_is_dir()){
+            return 1;
+        }else if(row_a.get_is_dir() === row_b.get_is_dir()){
+            const nlink_a = row_a.get_nlink();
+            const nlink_b = row_b.get_nlink();
+            if(nlink_a < nlink_b){
+                return -1;
+            }else if(nlink_a > nlink_b){
+                return 1;
+            }else if(nlink_a === nlink_b){
+                return row_a.get_title().localeCompare(row_b.get_title());
+            }
+        }
+    } // #nlink_cmp //
+    
+    #create_cmp(row_a, row_b){
+        if(row_a.get_is_dir() && !row_b.get_is_dir()){
+            return -1;
+        }else if(!row_a.get_is_dir() && row_b.get_is_dir()){
+            return 1;
+        }else if(row_a.get_is_dir() === row_b.get_is_dir()){
+            const create_a = row_a.get_create();
+            const create_b = row_b.get_create();
+            if(create_a < create_b){
+                return -1;
+            }else if(create_a > create_b){
+                return 1;
+            }else if(create_a === create_b){
+                return row_a.get_title().localeCompare(row_b.get_title());
+            }
+        }
+    } // #create_cmp //
+    
+    #modification_cmp(row_a, row_b){
+        if(row_a.get_is_dir() && !row_b.get_is_dir()){
+            return -1;
+        }else if(!row_a.get_is_dir() && row_b.get_is_dir()){
+            return 1;
+        }else if(row_a.get_is_dir() === row_b.get_is_dir()){
+            const modification_a = row_a.get_modification();
+            const modification_b = row_b.get_modification();
+            if(modification_a < modification_b){
+                return -1;
+            }else if(modification_a > modification_b){
+                return 1;
+            }else if(modification_a === modification_b){
+                return row_a.get_title().localeCompare(row_b.get_title());
+            }
+        }
+    } // #modification_cmp //
+    
+    #access_cmp(row_a, row_b){
+        if(row_a.get_is_dir() && !row_b.get_is_dir()){
+            return -1;
+        }else if(!row_a.get_is_dir() && row_b.get_is_dir()){
+            return 1;
+        }else if(row_a.get_is_dir() === row_b.get_is_dir()){
+            const access_a = row_a.get_access();
+            const access_b = row_b.get_access();
+            if(access_a < access_b){
+                return -1;
+            }else if(access_a > access_b){
+                return 1;
+            }else if(access_a === access_b){
+                return row_a.get_title().localeCompare(row_b.get_title());
+            }
+        }
+    } // #access_cmp //
+    
+    #user_cmp(row_a, row_b){
+        if(row_a.get_is_dir() && !row_b.get_is_dir()){
+            return -1;
+        }else if(!row_a.get_is_dir() && row_b.get_is_dir()){
+            return 1;
+        }else if(row_a.get_is_dir() === row_b.get_is_dir()){
+            const user_a = row_a.get_user_name();
+            const user_b = row_b.get_user_name();
+            const cmp = user_a.localeCompare(user_b);
+            if(cmp === 0){
+                return row_a.get_title().localeCompare(row_b.get_title());
+            }else{
+                return cmp;
+            }
+        }
+    } // #user_cmp //
+    
+    #group_cmp(row_a, row_b){
+        if(row_a.get_is_dir() && !row_b.get_is_dir()){
+            return -1;
+        }else if(!row_a.get_is_dir() && row_b.get_is_dir()){
+            return 1;
+        }else if(row_a.get_is_dir() === row_b.get_is_dir()){
+            const group_a = row_a.get_group_name();
+            const group_b = row_b.get_group_name();
+            const cmp = group_a.localeCompare(group_b);
+            if(cmp === 0){
+                return row_a.get_title().localeCompare(row_b.get_title());
+            }else{
+                return cmp;
+            }
+        }
+    } // #group_cmp //
+    
+    #file_size_cmp(row_a, row_b){
+        if(row_a.get_is_dir() && !row_b.get_is_dir()){
+            return -1;
+        }else if(!row_a.get_is_dir() && row_b.get_is_dir()){
+            return 1;
+        }else if(row_a.get_is_dir() === row_b.get_is_dir()){
+            const file_size_a = row_a.get_file_size();
+            const file_size_b = row_b.get_file_size();
+            if(file_size_a < file_size_b){
+                return -1;
+            }else if(file_size_a > file_size_b){
+                return 1;
+            }else if(file_size_a === file_size_b){
+                return row_a.get_title().localeCompare(row_b.get_title());
+            }
+        }
+    } // #file_size_cmp //
     
     list_destroy_all_children(caller){
         if(!(caller instanceof GzzFileDialogBase) && !(caller instanceof AbstractHeader)){
@@ -1861,7 +2481,7 @@ export  class GzzListFileSection extends AbstractListFileSection {
     } // list_destroy_all_children(caller) //
 
     list_add_child(caller, row){
-        if(!(caller instanceof GzzFileDialogBase)){
+        if(!(caller instanceof GzzFileDialogBase) && !(caller instanceof AbstractListFileSection)){
             this.#_owner.apply_error_handler(
                 this,
                 'GzzListFileSection::list_add_child',
@@ -1870,7 +2490,22 @@ export  class GzzListFileSection extends AbstractListFileSection {
             );
             return;
         }
-        this.#list.add_child(row);
+        const n  = this.#list.get_n_children();
+        let i    =  0;
+        while(i < n){
+            const sibling = this.#list.get_child_at_index(i);
+            const cmp = this.#_cmp(row, sibling);
+            if(cmp < 0){ // 
+                this.#list.insert_child_below(row, sibling);
+                return;
+            }else if(cmp === 0){
+                this.#list.insert_child_below(row, sibling);
+                return;
+            }/*else if(cmp > 0){
+            }*/
+            i++;
+        }
+        this.#list.insert_child_at_index(row, i);
     } // list_add_child(caller, row) //
 
     header_display_dir(caller, dirname){
@@ -2016,7 +2651,7 @@ export class GzzListFileRow extends St.BoxLayout {
     #_user                 = null;
     #_group_name           = '';
     #_base2_file_sizes     = false;
-    #_file_size            = '';
+    #_file_size            = 0;
     #_group                = null;
     #_display_size         = false;
     #_file_size_box        = null;
@@ -2235,7 +2870,7 @@ export class GzzListFileRow extends St.BoxLayout {
         }
 
         if('file_size' in params && Number.isInteger(params.file_size)){
-            this.#_file_size = format_file_size(params.file_size, this.#_base2_file_sizes);
+            this.#_file_size = Number(params.file_size);
         }
 
         if(this.#_display_user_group & GzzListFileRow.Group){
@@ -2256,7 +2891,7 @@ export class GzzListFileRow extends St.BoxLayout {
 
         if(this.#_display_size){
             this.#_file_size_box = new St.Label({
-                text:        this.#_file_size, 
+                text:        format_file_size(this.#_file_size, this.#_base2_file_sizes), 
                 style_class: 'dialog-list-item-elt',
                 x_expand:    true,
                 x_align:     Clutter.ActorAlign.FILL, 
@@ -2553,6 +3188,54 @@ export class GzzListFileRow extends St.BoxLayout {
 
     set is_dir(isdir){
         this.set_is_dir(isdir);
+    }
+
+    get_inode_number(){
+        return this.#_inode_number;
+    }
+
+    get_mode(){
+        return this.#_mode;
+    }
+
+    get_nlink(){
+        return this.#_nlink;
+    }
+
+    get_create_time(){
+        return this.#_create_time;
+    }
+
+    get_create(){
+        return this.#_create_time.to_unix_usec();
+    }
+
+    get_modification_time(){
+        return this.#_modification_time;
+    }
+
+    get_modification(){
+        return this.#_modification_time.to_unix_usec();
+    }
+
+    get_access_time(){
+        return this.#_access_time;
+    }
+
+    get_access(){
+        return this.#_access_time.to_unix_usec();
+    }
+
+    get_user_name(){
+        return this.#_user_name;
+    }
+
+    get_group_name(){
+        return this.#_group_name;
+    }
+
+    get_file_size(){
+        return this.#_file_size;
     }
 
 } // export class GzzListFileRow extends St.BoxLayout //
