@@ -368,11 +368,11 @@ export class Button extends St.BoxLayout {
             this.set_y_expand(!!params.y_expand);
         }
 
-        if('x_align' in params && params.x_align instanceof Clutter.ActorAlign){
+        if('x_align' in params && Number.isInteger(params.x_align) && 0 <= Number(params.x_align) && Number(params.x_align) <= 3){
             this.set_x_align(params.x_align);
         }
 
-        if('y_align' in params && params.y_align instanceof Clutter.ActorAlign){
+        if('y_align' in params && Number.isInteger(params.x_align) && 0 <= Number(params.x_align) && Number(params.x_align) <= 3){
             this.set_y_align(params.y_align);
         }
 
