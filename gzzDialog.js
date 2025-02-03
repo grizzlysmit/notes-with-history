@@ -1389,6 +1389,7 @@ export class GzzHeader extends AbstractHeader {
     #_current_array     = [];
     #_home              = [];
     #_show_root         = false;
+    #_initialised       = false;
 
     constructor(params) {
         super({
@@ -1535,7 +1536,7 @@ export class GzzHeader extends AbstractHeader {
             if(this.#_array && this.#_array.length > 0){
                 log_message('notes', `GzzHeader::set_show_root: this.#_array == ${JSON.stringify(this.#_array)}`, new Error());
                 this.destroy_all_children();
-                this.add_buttons();
+                this.#add_buttons();
             }
         }
     }
@@ -1576,7 +1577,12 @@ export class GzzHeader extends AbstractHeader {
         log_message('notes', `GzzHeader::display_dir: this.#_array.length == ${this.#_array.length}`, new Error());
         log_message('notes', `GzzHeader::display_dir: length == ${length}`, new Error());
         this.#_current_array = array;
-        if(subpathof(array, this.#_array)){
+        if(!this.#_initialised){
+            this.destroy_all_children();
+            this.#add_buttons()
+            this.#_initialised = true;
+            return true;
+        }else if(subpathof(array, this.#_array)){
             log_message('notes', `GzzHeader::display_dir: refreshing button states length == ${length}`, new Error());
             this.refresh_button_states();
             return true;
@@ -1584,12 +1590,12 @@ export class GzzHeader extends AbstractHeader {
         this.#_array = array;
         log_message('notes', `GzzHeader::display_dir: rebuilding all buutons this.#_array == ${JSON.stringify(this.#_array)}`, new Error());
         this.destroy_all_children();
-        this.add_buttons()
+        this.#add_buttons()
         return true;
     } // display_dir(caller, dirname_) //
 
-    add_buttons(){
-        log_message('notes', `GzzHeader::add_buttons: this.#_array.length == ${this.#_array.length}`, new Error());
+    #add_buttons(){
+        log_message('notes', `GzzHeader::#add_buttons: this.#_array.length == ${this.#_array.length}`, new Error());
         let start = 1;
         if(this.#_show_root){
             start = 1;
@@ -1598,13 +1604,13 @@ export class GzzHeader extends AbstractHeader {
         }
         this.#_current_array = this.#_array;
         for(let i = start; i <= this.#_array.length; i++){
-            this.add_button(this.#_array.slice(0, i));
+            this.#add_button(this.#_array.slice(0, i));
         }
     }
 
-    add_button(array){
-        log_message('notes', `GzzHeader::add_button: array == ${JSON.stringify(array)}`, new Error());
-        log_message('notes', `GzzHeader::add_button: this.#_show_root == ${this.#_show_root}`, new Error());
+    #add_button(array){
+        log_message('notes', `GzzHeader::#add_button: array == ${JSON.stringify(array)}`, new Error());
+        log_message('notes', `GzzHeader::#add_button: this.#_show_root == ${this.#_show_root}`, new Error());
         const button_path = Gio.File.new_for_path(GLib.build_filenamev(array));
         const current = array_equal(array, this.#_current_array);
         this.add_child(new GzzHeaderItem({
@@ -1627,7 +1633,7 @@ export class GzzHeader extends AbstractHeader {
             }, 
 
         }));
-    } // add_button(array) //
+    } // #add_button(array) //
 
     refresh_button_states(){
         const children = this.get_children();
@@ -1668,7 +1674,7 @@ export class GzzHeader extends AbstractHeader {
             }else{
                 this.destroy_all_children();
                 this.#_array = this.#_current_array = array;
-                this.add_buttons();
+                this.#add_buttons();
                 this.#_list_file_section.list_destroy_all_children(this);
                 this.#_owner.display_dir(this, file);
             }
@@ -1676,7 +1682,7 @@ export class GzzHeader extends AbstractHeader {
             log_message('notes', 'GzzHeader::set_dir_path file error: file must have a value:', new Error());
             this.#_owner.apply_error_handler(
                 this,
-                'GzzHeader::add_button',
+                'GzzHeader::set_dir_path',
                 'notes: GzzHeader::set_dir_path file error: file must have a value:' 
                 , new Error()
             );
@@ -1787,7 +1793,7 @@ export class GzzColumnNames extends St.BoxLayout {
 
         if(this.#_display_inode){
             this.#_inode = new Button({
-                text:        _('Inode Number'), 
+                label:        _('Inode Number'), 
                 style_class: 'dialog-item-column-name',
                 x_align:     Clutter.ActorAlign.FILL, 
                 width:       200, 
@@ -1801,7 +1807,7 @@ export class GzzColumnNames extends St.BoxLayout {
 
         if(this.#_display_mode){
             this.#_mode_box = new Button({
-                text:        _('Permisions'), 
+                label:        _('Permisions'), 
                 style_class: 'dialog-item-column-name',
                 x_align:     Clutter.ActorAlign.FILL, 
                 width:       176, 
@@ -1815,7 +1821,7 @@ export class GzzColumnNames extends St.BoxLayout {
 
         if(this.#_display_number_links){
             this.#_nlink_box = new Button({
-                text:        _('#Link'), 
+                label:        _('#Link'), 
                 style_class: 'dialog-item-column-name',
                 x_align:     Clutter.ActorAlign.FILL, 
                 width:       40, 
@@ -1823,7 +1829,7 @@ export class GzzColumnNames extends St.BoxLayout {
         }
 
         this.#_file_name = new Button({
-            text:        _('File Name'), 
+            label:        _('File Name'), 
             style_class: 'dialog-item-column-name',
             x_align:     Clutter.ActorAlign.FILL, 
             width:       300, 
@@ -1838,7 +1844,7 @@ export class GzzColumnNames extends St.BoxLayout {
         if(this.#_display_times & GzzColumnNames.Create){
             log_message('notes', `GzzColumnNames::constructor: this.#_display_times == ${this.#_display_times}`, new Error());
             this.#_create = new Button({
-                text:        _('Create'), 
+                label:        _('Create'), 
                 style_class: 'dialog-item-column-name',
                 x_align:     Clutter.ActorAlign.FILL, 
                 width:       315, 
@@ -1848,7 +1854,7 @@ export class GzzColumnNames extends St.BoxLayout {
         if(this.#_display_times & GzzColumnNames.Modify){
             log_message('notes', `GzzColumnNames::constructor: this.#_display_times == ${this.#_display_times}`, new Error());
             this.#_modification = new Button({
-                text:        _('Modification Time'), 
+                label:        _('Modification Time'), 
                 style_class: 'dialog-item-column-name',
                 x_align:     Clutter.ActorAlign.FILL, 
                 width:       315, 
@@ -1874,7 +1880,7 @@ export class GzzColumnNames extends St.BoxLayout {
         if(this.#_display_user_group & GzzColumnNames.User){
             log_message('notes', `GzzColumnNames::constructor: this.#_display_user_group == ${this.#_display_user_group}`, new Error());
             this.#_user = new Button({
-                text:        _('User'), 
+                label:        _('User'), 
                 style_class: 'dialog-item-column-name',
                 x_align:     Clutter.ActorAlign.FILL, 
                 width:       250, 
@@ -1884,7 +1890,7 @@ export class GzzColumnNames extends St.BoxLayout {
         if(this.#_display_user_group & GzzColumnNames.Group){
             log_message('notes', `GzzColumnNames::constructor: this.#_display_user_group == ${this.#_display_user_group}`, new Error());
             this.#_group = new Button({
-                text:        _('Group'), 
+                label:        _('Group'), 
                 style_class: 'dialog-item-column-name',
                 x_align:     Clutter.ActorAlign.FILL, 
                 width:       250, 
@@ -1898,7 +1904,7 @@ export class GzzColumnNames extends St.BoxLayout {
 
         if(this.#_display_size){
             this.#_file_size_box = new Button({
-                text:        _('File Size'), 
+                label:        _('File Size'), 
                 style_class: 'dialog-item-column-name',
                 x_align:     Clutter.ActorAlign.FILL, 
                 width:       160, 
