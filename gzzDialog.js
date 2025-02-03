@@ -1946,31 +1946,31 @@ export class GzzColumnNames extends St.BoxLayout {
 
         //this.label_actor = this.#_file_name;
 
-        this.#connectID_file_name                             = this.#_file_name.connect("clicked", (button, mousebtn, btnstate) => {
+        this.#connectID_file_name                             = this.#_file_name.connect("clicked", (button, _, mousebtn, btnstate) => {
             this.#handle_clicked(button, mousebtn, btnstate, 'file_name');
         });
-        if(this.#_inode) this.#connectID_inode                = this.#_inode.connect("clicked", (button, mousebtn, btnstate) => {
+        if(this.#_inode) this.#connectID_inode                = this.#_inode.connect("clicked", (button, _, mousebtn, btnstate) => {
             this.#handle_clicked(button, mousebtn, btnstate, 'inode');
         });
-        if(this.#_mode_box) this.#connectID_mode              = this.#_mode_box.connect("clicked", (button, mousebtn, btnstate) => {
+        if(this.#_mode_box) this.#connectID_mode              = this.#_mode_box.connect("clicked", (button, _, mousebtn, btnstate) => {
             this.#handle_clicked(button, mousebtn, btnstate, 'mode');
         });
-        if(this.#_nlink_box) this.#connectID_nlink            = this.#_nlink_box.connect("clicked", (button, mousebtn, btnstate) => {
+        if(this.#_nlink_box) this.#connectID_nlink            = this.#_nlink_box.connect("clicked", (button, _, mousebtn, btnstate) => {
             this.#handle_clicked(button, mousebtn, btnstate, 'nlink');
         });
-        if(this.#_create) this.#connectID_create              = this.#_create.connect("clicked", (button, mousebtn, btnstate) => {
+        if(this.#_create) this.#connectID_create              = this.#_create.connect("clicked", (button, _, mousebtn, btnstate) => {
             this.#handle_clicked(button, mousebtn, btnstate, 'create');
         });
-        if(this.#_modification) this.#connectID__modification = this.#_modification.connect("clicked", (button, mousebtn, btnstate) => {
+        if(this.#_modification) this.#connectID__modification = this.#_modification.connect("clicked", (button, _, mousebtn, btnstate) => {
             this.#handle_clicked(button, mousebtn, btnstate, 'modification');
         });
-        if(this.#_access) this.#connectID_access              = this.#_access.connect("clicked", (button, mousebtn, btnstate) => {
+        if(this.#_access) this.#connectID_access              = this.#_access.connect("clicked", (button, _, mousebtn, btnstate) => {
             this.#handle_clicked(button, mousebtn, btnstate, 'access');
         });
-        if(this.#_user) this.#connectID_user                  = this.#_user.connect("clicked", (button, mousebtn, btnstate) => {
+        if(this.#_user) this.#connectID_user                  = this.#_user.connect("clicked", (button, _, mousebtn, btnstate) => {
             this.#handle_clicked(button, mousebtn, btnstate, 'user');
         });
-        if(this.#_group) this.#connectID_group                = this.#_group.connect("clicked", (button, mousebtn, btnstate) => {
+        if(this.#_group) this.#connectID_group                = this.#_group.connect("clicked", (button, _, mousebtn, btnstate) => {
             this.#handle_clicked(button, mousebtn, btnstate, 'group');
         });
         if(this.#_file_size_box) this.#connectID_file_size    = this.#_file_size_box.connect("clicked", (button, _, mousebtn, btnstate) => {
