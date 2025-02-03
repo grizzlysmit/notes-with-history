@@ -3240,6 +3240,7 @@ export class GzzFileDialog extends GzzFileDialogBase {
     #_display_mode         = false;
     #_display_number_links = false;
     #_display_size         = false;
+    #_file_name_deferred   = false;
 
     constructor(params) {
         super(params);
@@ -3299,7 +3300,7 @@ export class GzzFileDialog extends GzzFileDialogBase {
             const file_name_ = params.file_name;
             if(file_name_ instanceof String || typeof file_name_ == 'string'){
                 this.#_file_name = file_name_.trim();
-                this.#_list_section.set_file_name(this.#_file_name);
+                this.#_file_name_deferred = true;
             }
         }
          
@@ -3364,6 +3365,10 @@ export class GzzFileDialog extends GzzFileDialogBase {
             dialogtype: this.get_dialog_type(), 
             icon_size:  this.get_icon_size(), 
         });
+
+        if(this.#_file_name_deferred){
+            this.#_list_section.set_file_name(this.#_file_name);
+        }
 
         let show_icon = true;
 
