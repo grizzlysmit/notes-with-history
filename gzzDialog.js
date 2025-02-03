@@ -466,7 +466,7 @@ export class Button extends St.BoxLayout {
             }else{
                 this.remove_style_pseudo_class('active');
             }
-            this.emit('clicked', event.get_button(), event.get_state());
+            this.emit('clicked', this, event.get_button(), event.get_state());
             return Clutter.EVENT_PROPAGATE;
         });
 
@@ -1973,9 +1973,11 @@ export class GzzColumnNames extends St.BoxLayout {
         if(this.#_group) this.#connectID_group                = this.#_group.connect("clicked", (button, mousebtn, btnstate) => {
             this.#handle_clicked(button, mousebtn, btnstate, 'group');
         });
-        if(this.#_file_size_box) this.#connectID_file_size    = this.#_file_size_box.connect("clicked", (button, mousebtn, btnstate) => {
+        if(this.#_file_size_box) this.#connectID_file_size    = this.#_file_size_box.connect("clicked", (button, _, mousebtn, btnstate) => {
             log_message('notes', `GzzColumnNames::constructor: button == ${button}`, new Error());
+            log_message('notes', `GzzColumnNames::constructor: _ == ${_}`, new Error());
             log_message('notes', `GzzColumnNames::constructor: mousebtn == ${mousebtn}`, new Error());
+            log_message('notes', `GzzColumnNames::constructor: button === _ == ${button === _}`, new Error());
             log_message('notes', `GzzColumnNames::constructor: button === mousebtn == ${button === mousebtn}`, new Error());
             log_message('notes', `GzzColumnNames::constructor: btnstate == ${btnstate}`, new Error());
             this.#handle_clicked(button, mousebtn, btnstate, 'file_size');
