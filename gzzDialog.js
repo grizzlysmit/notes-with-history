@@ -2022,6 +2022,7 @@ export class GzzColumnNames extends St.BoxLayout {
             case(1):
                 switch(btnstate){
                     case 0:
+                    case 1:
                         this.#_list_file_section.sort_by_col(this, field_name);
                         this.#refresh_button_checked_states(button);
                         break;
