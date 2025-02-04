@@ -705,7 +705,6 @@ class EditNote extends PageBase {
         this.edit           = new Adw.EntryRow({ 
                                 title:      _("Add text"), 
                                 text:       (this.note ? this.note : ''), 
-                                max_length:  this._caller._window._settings.get_int('max-note-length'),
                                 hexpand:     true,
                                 hexpand_set: true, 
                                 vexpand:     true,
@@ -713,6 +712,7 @@ class EditNote extends PageBase {
                                 valign:      Gtk.Align.FILL,
                                 halign:      Gtk.Align.FILL,
         });
+        this.edit.set_max_length(this._caller._window._settings.get_int('max-note-length'));
         this.button_box     = new Gtk.Box({orientation: Gtk.Orientation.HORIZONTAL, vexpand: false, hexpand: true, });
         this.cancel_button  = new Gtk.Button({
                                                 label:        _("Cancel"),
