@@ -33,15 +33,18 @@ class PageBase extends Adw.PreferencesPage {
         GObject.registerClass(this);
     }
 
-    constructor(caller, _title, _name, _icon_name) {
+    constructor(caller, title_, name_, icon_name_) {
         super({
-            title: _title,
+            title: title_,
         });
         this._caller = caller;
-        this.set_name(_name);
-        if(_icon_name){
-            this.set_icon_name(_icon_name);
+        this.set_name(name_);
+        if(icon_name_){
+            this.set_icon_name(icon_name_);
         }
+        this._title = title_;
+        this._name  = name_;
+        this._icon_name = icon_name_;
     } // constructor(caller, _title, _name, _icon_name) //
 
     _close_button(){
@@ -613,7 +616,7 @@ class NotesScroller extends PageBase {
         this.notesGroup    = new Adw.PreferencesGroup();
         this.notesGroup.set_title(_title);
         this.notesGroup.set_name(_name);
-        this.add(this.notesGroup);
+        //this.add(this.notesGroup);
         for(let _index = 0; _index < this._caller.notes.length; _index++){
             const note   = this._caller.notes[_index];
             const button = new Gtk.Button({
@@ -654,15 +657,11 @@ class NotesScroller extends PageBase {
     } // constructor(caller, _title, _name, _icon_name) //
     
     refresh(){
-        this.notesGroup.freeze_notify();
-        let child = this.notesGroup.get_first_child();
-        this._caller.log_message('notes', `NotesScroller::refresh: child == ${child}`, new Error());
-        while(child){
-            this.notesGroup.remove(child);
-            child = this.notesGroup.get_next_sibling();
-            this._caller.log_message('notes', `NotesScroller::refresh: child == ${child}`, new Error());
-        }
-        this.notesGroup.thaw_notify();
+        this.scrolledWindow.set_child(null);
+        this.notesGroup    = null;
+        this.notesGroup    = new Adw.PreferencesGroup();
+        this.notesGroup.set_title(this._title);
+        this.notesGroup.set_name(this._name);
         for(let _index = 0; _index < this._caller.notes.length; _index++){
             const note   = this._caller.notes[_index];
             const button = new Gtk.Button({
@@ -681,6 +680,7 @@ class NotesScroller extends PageBase {
             row.add_suffix(button);
             this.notesGroup.add(row);
         } // for(let _index = 0; _index < this._caller.notes.length; _index++) //
+        this.scrolledWindow.set_child(this.notesGroup);
     } // refresh() //
 
 } // class NotesScroller extends PageBase //
