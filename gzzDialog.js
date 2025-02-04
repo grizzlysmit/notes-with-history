@@ -1946,38 +1946,38 @@ export class GzzColumnNames extends St.BoxLayout {
 
         //this.label_actor = this.#_file_name;
 
-        this.#connectID_file_name                             = this.#_file_name.connect("clicked", (button, _, mousebtn, btnstate) => {
+        this.#connectID_file_name                             = this.#_file_name.connect("clicked", (_emiter, button, mousebtn, btnstate) => {
             this.#handle_clicked(button, mousebtn, btnstate, 'file_name');
         });
-        if(this.#_inode) this.#connectID_inode                = this.#_inode.connect("clicked", (button, _, mousebtn, btnstate) => {
+        if(this.#_inode) this.#connectID_inode                = this.#_inode.connect("clicked", (_emiter, button, mousebtn, btnstate) => {
             this.#handle_clicked(button, mousebtn, btnstate, 'inode');
         });
-        if(this.#_mode_box) this.#connectID_mode              = this.#_mode_box.connect("clicked", (button, _, mousebtn, btnstate) => {
+        if(this.#_mode_box) this.#connectID_mode              = this.#_mode_box.connect("clicked", (_emiter, button, mousebtn, btnstate) => {
             this.#handle_clicked(button, mousebtn, btnstate, 'mode');
         });
-        if(this.#_nlink_box) this.#connectID_nlink            = this.#_nlink_box.connect("clicked", (button, _, mousebtn, btnstate) => {
+        if(this.#_nlink_box) this.#connectID_nlink            = this.#_nlink_box.connect("clicked", (_emiter, button, mousebtn, btnstate) => {
             this.#handle_clicked(button, mousebtn, btnstate, 'nlink');
         });
-        if(this.#_create) this.#connectID_create              = this.#_create.connect("clicked", (button, _, mousebtn, btnstate) => {
+        if(this.#_create) this.#connectID_create              = this.#_create.connect("clicked", (_emiter, button, mousebtn, btnstate) => {
             this.#handle_clicked(button, mousebtn, btnstate, 'create');
         });
-        if(this.#_modification) this.#connectID__modification = this.#_modification.connect("clicked", (button, _, mousebtn, btnstate) => {
+        if(this.#_modification) this.#connectID__modification = this.#_modification.connect("clicked", (_emiter, button, mousebtn, btnstate) => {
             this.#handle_clicked(button, mousebtn, btnstate, 'modification');
         });
-        if(this.#_access) this.#connectID_access              = this.#_access.connect("clicked", (button, _, mousebtn, btnstate) => {
+        if(this.#_access) this.#connectID_access              = this.#_access.connect("clicked", (_emiter, button, mousebtn, btnstate) => {
             this.#handle_clicked(button, mousebtn, btnstate, 'access');
         });
-        if(this.#_user) this.#connectID_user                  = this.#_user.connect("clicked", (button, _, mousebtn, btnstate) => {
+        if(this.#_user) this.#connectID_user                  = this.#_user.connect("clicked", (_emiter, button, mousebtn, btnstate) => {
             this.#handle_clicked(button, mousebtn, btnstate, 'user');
         });
-        if(this.#_group) this.#connectID_group                = this.#_group.connect("clicked", (button, _, mousebtn, btnstate) => {
+        if(this.#_group) this.#connectID_group                = this.#_group.connect("clicked", (_emiter, button, mousebtn, btnstate) => {
             this.#handle_clicked(button, mousebtn, btnstate, 'group');
         });
-        if(this.#_file_size_box) this.#connectID_file_size    = this.#_file_size_box.connect("clicked", (button, _, mousebtn, btnstate) => {
+        if(this.#_file_size_box) this.#connectID_file_size    = this.#_file_size_box.connect("clicked", (_emiter, button, mousebtn, btnstate) => {
+            log_message('notes', `GzzColumnNames::constructor: _emiter == ${_emiter}`, new Error());
             log_message('notes', `GzzColumnNames::constructor: button == ${button}`, new Error());
-            log_message('notes', `GzzColumnNames::constructor: _ == ${_}`, new Error());
             log_message('notes', `GzzColumnNames::constructor: mousebtn == ${mousebtn}`, new Error());
-            log_message('notes', `GzzColumnNames::constructor: button === _ == ${button === _}`, new Error());
+            log_message('notes', `GzzColumnNames::constructor: (button === _emiter) == ${button === _emiter}`, new Error());
             log_message('notes', `GzzColumnNames::constructor: button === mousebtn == ${button === mousebtn}`, new Error());
             log_message('notes', `GzzColumnNames::constructor: btnstate == ${btnstate}`, new Error());
             this.#handle_clicked(button, mousebtn, btnstate, 'file_size');
@@ -2330,6 +2330,8 @@ export  class GzzListFileSection extends AbstractListFileSection {
     } // sort_by_col(field_name) //
     
     #file_name_cmp(row_a, row_b){
+        log_message('notes', `GzzListFileSection::#file_name_cmp: row_a == ${row_a}`, new Error());
+        log_message('notes', `GzzListFileSection::#file_name_cmp: row_b == ${row_b}`, new Error());
         if(row_a.get_is_dir() && !row_b.get_is_dir()){
             return -1;
         }else if(!row_a.get_is_dir() && row_b.get_is_dir()){
@@ -2340,6 +2342,8 @@ export  class GzzListFileSection extends AbstractListFileSection {
     } // #file_name_cmp //
     
     #inode_cmp(row_a, row_b){
+        log_message('notes', `GzzListFileSection::#inode_cmp: row_a == ${row_a}`, new Error());
+        log_message('notes', `GzzListFileSection::#inode_cmp: row_b == ${row_b}`, new Error());
         if(row_a.get_is_dir() && !row_b.get_is_dir()){
             return -1;
         }else if(!row_a.get_is_dir() && row_b.get_is_dir()){
@@ -2358,6 +2362,8 @@ export  class GzzListFileSection extends AbstractListFileSection {
     } // #inode_cmp //
     
     #mode_cmp(row_a, row_b){
+        log_message('notes', `GzzListFileSection::#mode_cmp: row_a == ${row_a}`, new Error());
+        log_message('notes', `GzzListFileSection::#mode_cmp: row_b == ${row_b}`, new Error());
         if(row_a.get_is_dir() && !row_b.get_is_dir()){
             return -1;
         }else if(!row_a.get_is_dir() && row_b.get_is_dir()){
@@ -2376,6 +2382,8 @@ export  class GzzListFileSection extends AbstractListFileSection {
     } // #mode_cmp //
     
     #nlink_cmp(row_a, row_b){
+        log_message('notes', `GzzListFileSection::#nlink_cmp: row_a == ${row_a}`, new Error());
+        log_message('notes', `GzzListFileSection::#nlink_cmp: row_b == ${row_b}`, new Error());
         if(row_a.get_is_dir() && !row_b.get_is_dir()){
             return -1;
         }else if(!row_a.get_is_dir() && row_b.get_is_dir()){
@@ -2394,6 +2402,8 @@ export  class GzzListFileSection extends AbstractListFileSection {
     } // #nlink_cmp //
     
     #create_cmp(row_a, row_b){
+        log_message('notes', `GzzListFileSection::#create_cmp: row_a == ${row_a}`, new Error());
+        log_message('notes', `GzzListFileSection::#create_cmp: row_b == ${row_b}`, new Error());
         if(row_a.get_is_dir() && !row_b.get_is_dir()){
             return -1;
         }else if(!row_a.get_is_dir() && row_b.get_is_dir()){
@@ -2412,6 +2422,8 @@ export  class GzzListFileSection extends AbstractListFileSection {
     } // #create_cmp //
     
     #modification_cmp(row_a, row_b){
+        log_message('notes', `GzzListFileSection::#modification_cmp: row_a == ${row_a}`, new Error());
+        log_message('notes', `GzzListFileSection::#modification_cmp: row_b == ${row_b}`, new Error());
         if(row_a.get_is_dir() && !row_b.get_is_dir()){
             return -1;
         }else if(!row_a.get_is_dir() && row_b.get_is_dir()){
@@ -2430,6 +2442,8 @@ export  class GzzListFileSection extends AbstractListFileSection {
     } // #modification_cmp //
     
     #access_cmp(row_a, row_b){
+        log_message('notes', `GzzListFileSection::#access_cmp: row_a == ${row_a}`, new Error());
+        log_message('notes', `GzzListFileSection::#access_cmp: row_b == ${row_b}`, new Error());
         if(row_a.get_is_dir() && !row_b.get_is_dir()){
             return -1;
         }else if(!row_a.get_is_dir() && row_b.get_is_dir()){
@@ -2448,6 +2462,8 @@ export  class GzzListFileSection extends AbstractListFileSection {
     } // #access_cmp //
     
     #user_cmp(row_a, row_b){
+        log_message('notes', `GzzListFileSection::#user_cmp: row_a == ${row_a}`, new Error());
+        log_message('notes', `GzzListFileSection::#user_cmp: row_b == ${row_b}`, new Error());
         if(row_a.get_is_dir() && !row_b.get_is_dir()){
             return -1;
         }else if(!row_a.get_is_dir() && row_b.get_is_dir()){
@@ -2465,6 +2481,8 @@ export  class GzzListFileSection extends AbstractListFileSection {
     } // #user_cmp //
     
     #group_cmp(row_a, row_b){
+        log_message('notes', `GzzListFileSection::#group_cmp: row_a == ${row_a}`, new Error());
+        log_message('notes', `GzzListFileSection::#group_cmp: row_b == ${row_b}`, new Error());
         if(row_a.get_is_dir() && !row_b.get_is_dir()){
             return -1;
         }else if(!row_a.get_is_dir() && row_b.get_is_dir()){
@@ -2482,6 +2500,8 @@ export  class GzzListFileSection extends AbstractListFileSection {
     } // #group_cmp //
     
     #file_size_cmp(row_a, row_b){
+        log_message('notes', `GzzListFileSection::#file_size_cmp: row_a == ${row_a}`, new Error());
+        log_message('notes', `GzzListFileSection::#file_size_cmp: row_b == ${row_b}`, new Error());
         if(row_a.get_is_dir() && !row_b.get_is_dir()){
             return -1;
         }else if(!row_a.get_is_dir() && row_b.get_is_dir()){
