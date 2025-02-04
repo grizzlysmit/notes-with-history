@@ -624,6 +624,7 @@ class NotesScroller extends PageBase {
                                 vexpand: false,
                                 valign: Gtk.Align.END,
             });
+            this._caller.log_message('notes', `NotesScroller::constructor: _index == ${_index}`, new Error());
             button.connect("clicked", () => { this._caller.editNote(_index); });
             const row = new Adw.ActionRow({
                                 title: note, 
@@ -832,7 +833,7 @@ class EditNote extends PageBase {
             this.note = null;
             this.edit.set_text('');
             this.index = -1;
-            this._caller._window._settings.set_boolean('index', this.index);
+            this._caller._window._settings.set_int('index', this.index);
         }
         if(this._caller.edit_note){
             this._caller.edit_note = false;
@@ -1042,6 +1043,7 @@ export default class NotesPreferences extends ExtensionPreferences {
     } // fillPreferencesWindow(window) //
 
     editNote(_index){
+        this._caller.log_message('notes', `NotesPreferences::editNote: _index == ${_index}`, new Error());
         this.page = this._EditNote;
         this._EditNote.set_index(_index);
         this._window.set_visible_page(this.page);
