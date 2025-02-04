@@ -66,8 +66,8 @@
         </key>
         <key type="as" name="notes">
             <default>[]</default>
-            <summary>Buffer to keep note being edited.</summary>
-            <description>Buffer where note being edited is kept.</description>
+            <summary>The notes.</summary>
+            <description>The actual notes.</description>
         </key>
         <key type="i" name="max-note-length">
             <default>150</default>
@@ -135,7 +135,7 @@
             <description>The Size for Icons.</description>
         </key>
         <key type="b" name="display-icon">
-            <default>true</default>
+            <default>false</default>
             <summary>Show the icon above content.</summary>
             <description>Display the little Icon above the content.</description>
         </key>
