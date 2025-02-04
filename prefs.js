@@ -630,6 +630,7 @@ class NotesScroller extends PageBase {
                                 activatable_widget: button, 
                                 title_lines: this._caller.max_note_length, 
             });
+            row.add_suffix(button);
             this.notesGroup.add(row);
         } // for(const note of this._caller.notes) //
         this.scrolledWindow    = new Gtk.ScrolledWindow({
@@ -653,10 +654,13 @@ class NotesScroller extends PageBase {
     } // constructor(caller, _title, _name, _icon_name) //
     
     refresh(){
+        this.notesGroup.freeze_notify();
         let child = this.notesGroup.get_first_child();
+        this._caller.log_message('notes', `NotesScroller::refresh: child == ${child}`, new Error());
         while(child){
             this.notesGroup.remove(child);
             child = this.notesGroup.get_first_child();
+            this._caller.log_message('notes', `NotesScroller::refresh: child == ${child}`, new Error());
         }
         let _index = -1;
         for(const note of this._caller.notes){
@@ -674,7 +678,9 @@ class NotesScroller extends PageBase {
                                 activatable_widget: button, 
                                 title_lines: this._caller.max_note_length, 
             });
+            row.add_suffix(button);
             this.notesGroup.add(row);
+            this.notesGroup.thaw_notify();
         } // for(const note of this._caller.notes) //
     } // refresh() //
 
