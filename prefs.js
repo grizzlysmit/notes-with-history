@@ -637,13 +637,19 @@ class NotesScroller extends PageBase {
             this.notesGroup.add(row);
         } // for(let _index = 0; _index < this._caller.notes.length; _index++) //
         this.scrolledWindow    = new Gtk.ScrolledWindow({
-            name: 'scrolledWindow', 
+            name:    'scrolledWindow', 
+            hexpand: true, 
+            vexpand: true, 
+            halign:  Gtk.Align.FILL, 
+            valign:  Gtk.Align.FILL, 
         });
+        /*
         this.scrolledWindow.min_content_height = 20;
         const height = Math.max(Math.floor((3 * this._caller._window.default_height)/10), this.scrolledWindow.min_content_height);
         this._caller.log_message('notes', `NotesScroller::constructor: height == ${height}`, new Error());
         this.scrolledWindow.set_max_content_height(height);
         this.scrolledWindow.height_request = height;
+        // */
         this.scrolledWindow.set_child(this.notesGroup);
         this.containerGroup.add(this.scrolledWindow);
         //this.containerGroup.add(this._close_row());
