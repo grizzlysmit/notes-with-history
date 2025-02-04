@@ -2266,18 +2266,18 @@ export  class GzzListFileSection extends AbstractListFileSection {
         this.add_child(this.#_listScrollView);
     } // constructor(params) //
     
-    static KnownFields = [
-        'file_name', 
-        'inode_number', 
-        'mode', 
-        'nlink', 
-        'user_name', 
-        'group_name', 
-        'create_time', 
-        'modification_time', 
-        'access_time', 
-        'file_size', 
-    ];
+    static KnownFields = {
+        'file_name': 1, 
+        'inode_number': 1, 
+        'mode': 1, 
+        'nlink': 1, 
+        'user_name': 1, 
+        'group_name': 1, 
+        'create_time': 1, 
+        'modification_time': 1, 
+        'access_time': 1, 
+        'file_size': 1, 
+    };
 
     sort_by_col(caller, field_name){
         log_message('notes', `GzzListFileSection::sort_by_col: caller == ${caller}`, new Error());
