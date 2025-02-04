@@ -823,12 +823,16 @@ class EditNote extends PageBase {
     } // restart() //
 
     delete_note(){
+        this._caller.log_message('notes', `EditNote::delete_note: this.index: ‷${this.index}‴.`, new Error());
         if(0 <= this.index && this.index < this._caller.notes.length){
+            this._caller.log_message('notes', `EditNote::delete_note: this._caller.notes: ‷${this._caller.notes}‴.`, new Error());
             this._caller.notes.splice(this.index, 1);
+            this._caller.log_message('notes', `EditNote::delete_note: this._caller.notes: ‷${this._caller.notes}‴.`, new Error());
             this._caller._window._settings.set_strv("notes", this._caller.notes);
             this.note = null;
             this.edit.set_text('');
             this.index = -1;
+            this._caller._window._settings.set_boolean('index', this.index);
         }
         if(this._caller.edit_note){
             this._caller.edit_note = false;
