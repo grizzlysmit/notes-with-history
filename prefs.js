@@ -597,7 +597,7 @@ class NotesScroller extends PageBase {
                                 vexpand:     false,
                                 valign:      Gtk.Align.CENTER,
         });
-        insbutton.connect("clicked", () => { this._caller.editNote(-1); });
+        insbutton.connect("clicked", () => { this._caller.editNote(this, -1); });
         this.button_box     = new Gtk.Box({orientation: Gtk.Orientation.HORIZONTAL, vexpand: false, hexpand: true, });
         //this._addButton.connect('activated', () => { this._caller.editNote(-1); });
         this.button_box.prepend(insbutton);
@@ -625,7 +625,7 @@ class NotesScroller extends PageBase {
                                 valign: Gtk.Align.END,
             });
             this._caller.log_message('notes', `NotesScroller::constructor: _index == ${_index}`, new Error());
-            button.connect("clicked", () => { this._caller.editNote(Number(_index)); });
+            button.connect("clicked", () => { this._caller.editNote(Number(this, _index)); });
             const row = new Adw.ActionRow({
                                 title: note, 
                                 activatable_widget: button, 
@@ -673,7 +673,7 @@ class NotesScroller extends PageBase {
                                 vexpand: false,
                                 valign: Gtk.Align.END,
             });
-            button.connect("clicked", () => { this._caller.editNote(_index); });
+            button.connect("clicked", () => { this._caller.editNote(this, _index); });
             const row = new Adw.ActionRow({
                                 title: note, 
                                 activatable_widget: button, 
@@ -1072,12 +1072,13 @@ export default class NotesPreferences extends ExtensionPreferences {
 
     } // fillPreferencesWindow(window) //
 
-    editNote(_index){
+    editNote(calling_page, _index){
         this.log_message('notes', `NotesPreferences::editNote: _index == ${_index}`, new Error());
         this.page = this._EditNote;
         this._EditNote.set_index(_index);
+        this._EditNote.refresh_page(calling_page);
         this._window.set_visible_page(this.page);
-    } // editNote(_index) //
+    } // editNote(calling_page, _index) //
 
     _close_request(_win){
         this._window.close();
@@ -1105,7 +1106,7 @@ export default class NotesPreferences extends ExtensionPreferences {
                     break;
                 case("editNote"):
                     this.page = this._EditNote;
-                    this.editNote(this.index);
+                    this.editNote(null, this.index);
                     break;
                 case("aboutPage"):
                     this.page = this.aboutPage;
