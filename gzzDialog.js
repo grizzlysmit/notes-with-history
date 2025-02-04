@@ -2287,6 +2287,7 @@ export  class GzzListFileSection extends AbstractListFileSection {
             return;
         }
         if(field_name in GzzListFileSection.KnownFields){
+            log_message('notes', `GzzListFileSection::sort_by_col: field_name == ${field_name}`, new Error());
             switch(field_name){
                 case 'file_name':
                     this.#_cmp = this.#file_name_cmp;
@@ -2543,6 +2544,8 @@ export  class GzzListFileSection extends AbstractListFileSection {
             );
             return;
         }
+        log_message('notes', `GzzListFileSection::list_add_child: row == ${row}`, new Error());
+        log_message('notes', `GzzListFileSection::list_add_child: this.#_cmp == ${this.#_cmp}`, new Error());
         const n  = this.#list.get_n_children();
         let i    =  0;
         while(i < n){
