@@ -25,7 +25,7 @@ import Gio from 'gi://Gio';
 import Clutter from 'gi://Clutter';
 // import Gda from 'gi://Gda';
 // import * as Gda from 'gi://Gda';
-import * as Gzz from './gzzDialog.js';
+import * as Gzz from './gzz.js';
 
 
 import {Extension, gettext as _} from 'resource:///org/gnome/shell/extensions/extension.js';
