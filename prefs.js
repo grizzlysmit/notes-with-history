@@ -614,9 +614,8 @@ class NotesScroller extends PageBase {
         this.notesGroup.set_title(_title);
         this.notesGroup.set_name(_name);
         this.add(this.notesGroup);
-        let _index = -1;
-        for(const note of this._caller.notes){
-            _index++;
+        for(let _index = 0; _index < this._caller.notes.length; _index++){
+            const note   = this._caller.notes[_index];
             const button = new Gtk.Button({
                                 label: ">...",
                                 css_classes: ['note-label'],
@@ -633,7 +632,7 @@ class NotesScroller extends PageBase {
             });
             row.add_suffix(button);
             this.notesGroup.add(row);
-        } // for(const note of this._caller.notes) //
+        } // for(let _index = 0; _index < this._caller.notes.length; _index++) //
         this.scrolledWindow    = new Gtk.ScrolledWindow({
             name: 'scrolledWindow', 
         });
@@ -663,9 +662,9 @@ class NotesScroller extends PageBase {
             child = this.notesGroup.get_first_child();
             this._caller.log_message('notes', `NotesScroller::refresh: child == ${child}`, new Error());
         }
-        let _index = -1;
-        for(const note of this._caller.notes){
-            _index++;
+        this.notesGroup.thaw_notify();
+        for(let _index = 0; _index < this._caller.notes.length; _index++){
+            const note   = this._caller.notes[_index];
             const button = new Gtk.Button({
                                 label: ">...",
                                 css_classes: ['note_label'],
@@ -681,8 +680,7 @@ class NotesScroller extends PageBase {
             });
             row.add_suffix(button);
             this.notesGroup.add(row);
-            this.notesGroup.thaw_notify();
-        } // for(const note of this._caller.notes) //
+        } // for(let _index = 0; _index < this._caller.notes.length; _index++) //
     } // refresh() //
 
 } // class NotesScroller extends PageBase //
