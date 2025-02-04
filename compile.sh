@@ -5,7 +5,7 @@ glib-compile-schemas schemas
 DIR="po"
 SUFFIX="po"
 
-xgettext --from-code='utf-8' -k_ -kN_ -o $DIR/noteswithhistory.pot prefs.js extension.js gzzDialog.js
+xgettext --from-code='utf-8' -k_ -kN_ -o $DIR/noteswithhistory.pot prefs.js extension.js gzz.js
 
 for file in "$DIR"/*.$SUFFIX
 do 

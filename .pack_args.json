@@ -3,7 +3,7 @@
   "force": true,
   "package-dir": "notes-with-history@grizzlysmit.smit.id.au",
   "extra-sources": [
-    "gzzDialog.js"
+    "gzz.js"
   ],
   "podir": "po",
   "out-dir": "/home/grizzlysmit/Projects/gnome-shell/extensions",
