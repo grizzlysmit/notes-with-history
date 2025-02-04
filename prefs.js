@@ -625,7 +625,7 @@ class NotesScroller extends PageBase {
                                 valign: Gtk.Align.END,
             });
             this._caller.log_message('notes', `NotesScroller::constructor: _index == ${_index}`, new Error());
-            button.connect("clicked", () => { this._caller.editNote(Number(this, _index)); });
+            button.connect("clicked", () => { this._caller.editNote(this, Number(_index)); });
             const row = new Adw.ActionRow({
                                 title: note, 
                                 activatable_widget: button, 
@@ -673,7 +673,7 @@ class NotesScroller extends PageBase {
                                 vexpand: false,
                                 valign: Gtk.Align.END,
             });
-            button.connect("clicked", () => { this._caller.editNote(this, _index); });
+            button.connect("clicked", () => { this._caller.editNote(this, Number(_index)); });
             const row = new Adw.ActionRow({
                                 title: note, 
                                 activatable_widget: button, 
