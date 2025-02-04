@@ -841,7 +841,9 @@ class EditNote extends PageBase {
 
     save(_exit){
         this.note = this.get_text();
+        this._caller.log_message('notes', `EditNote::save: _exit: ‷${_exit}‴.`, new Error());
         this._caller.log_message('notes', `EditNote::save: this.note: ‷${this.note}‴.`, new Error());
+        this._caller.log_message('notes', `EditNote::save: this.index: ‷${this.index}‴.`, new Error());
         if(0 <= this.index && this.index < this._caller.notes.length){
             if(this.note && this.note.trim() != ''){
                 this._caller.notes[this.index] = this.note;
@@ -870,6 +872,7 @@ class EditNote extends PageBase {
             }
         }else{ //if(0 <= this.index && this.index < this._caller.notes.length) //
             this._caller.log_message('notes', `EditNote::save: this.note: ‷${this.note}‴.`, new Error());
+            this._caller.log_message('notes', `EditNote::save: this.index: ‷${this.index}‴.`, new Error());
             if(this.note && this.note.trim() != ''){
                 this._caller.notes.unshift(this.note);
                 this._caller.log_message('notes', `EditNote::save: this._caller.notes: ‷${this._caller.notes}‴.`, new Error());
@@ -879,7 +882,7 @@ class EditNote extends PageBase {
             }
             if(this._caller.edit_note){
                 this._caller.edit_note = false;
-                this._caller._window._settings.set_boolean(false);
+                this._caller._window._settings.set_boolean('edit-note', false);
                 if(_exit) this._caller._close_request(this._caller._window);
             }else if(this.calling_page){ // if(this._caller.edit_note) //
                 this._caller._NotesScroller.refresh();
