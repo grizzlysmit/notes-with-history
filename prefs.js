@@ -877,8 +877,8 @@ class EditNote extends PageBase {
                 this._caller.notes.unshift(this.note);
                 this._caller.log_message('notes', `EditNote::save: this._caller.notes: ‷${this._caller.notes}‴.`, new Error());
                 this.index = 0;
-                this._caller._settings.set_strv("notes", this._caller.notes);
-                this._caller._settings.set_int("index", this.index);
+                this._caller._window._settings.set_strv("notes", this._caller.notes);
+                this._caller._window._settings.set_int("index", this.index);
             }
             if(this._caller.edit_note){
                 this._caller.edit_note = false;
