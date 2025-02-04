@@ -1043,7 +1043,7 @@ export default class NotesPreferences extends ExtensionPreferences {
     } // fillPreferencesWindow(window) //
 
     editNote(_index){
-        this._caller.log_message('notes', `NotesPreferences::editNote: _index == ${_index}`, new Error());
+        this.log_message('notes', `NotesPreferences::editNote: _index == ${_index}`, new Error());
         this.page = this._EditNote;
         this._EditNote.set_index(_index);
         this._window.set_visible_page(this.page);
