@@ -690,16 +690,28 @@ class EditNote extends PageBase {
         this.index = this._caller._window._settings.get_int("index");
         this.note         = '';
         this.calling_page = null;
-        if(0 <= this.index && this.index < this._caller.notes.length){
-            this.note = this._caller.notes[this.index];
-        }
         this.group          = new Adw.PreferencesGroup();
+        this.insert = false;
+        if(this.index < 0){
+            this.note = '';
+            this.insert = true;
+        }else if(0 <= this.index && this.index < this._caller.notes.length){
+            this.note = this._caller.notes[this.index];
+            this.insert = false;
+        }else{
+            this.index = -1;
+            this.insert = true;
+        }
         this.edit           = new Adw.EntryRow({ 
                                 title:      _("Add text"), 
                                 text:       (this.note ? this.note : ''), 
+                                max_length:  this._caller._window._settings.get_int('max-note-length'),
                                 hexpand:     true,
+                                hexpand_set: true, 
                                 vexpand:     true,
-                                valign:      Gtk.Align.CENTER,
+                                vexpand_set: true, 
+                                valign:      Gtk.Align.FILL,
+                                halign:      Gtk.Align.FILL,
         });
         this.button_box     = new Gtk.Box({orientation: Gtk.Orientation.HORIZONTAL, vexpand: false, hexpand: true, });
         this.cancel_button  = new Gtk.Button({
