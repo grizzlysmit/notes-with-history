@@ -799,7 +799,7 @@ class EditNote extends PageBase {
             this.insert = true;
             this._caller.log_message('notes', `EditNote::constructor: this.index == ${this.index}`, new Error());
         }
-        this._edit.text = this.note;
+        this.edit.set_text(this.note);
     } // refresh_page(calling_page) //
 
     get_text(){
