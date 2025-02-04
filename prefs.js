@@ -778,6 +778,30 @@ class EditNote extends PageBase {
         this.add(this.group);
     } // constructor(caller, _title, _name, _icon_name) //
 
+    refresh_page(calling_page){
+        this.index = this._caller._window._settings.get_int("index");
+        this.note         = '';
+        this.calling_page = calling_page;
+        this.insert = false;
+        if(this.index < 0){
+            this._caller.log_message('notes', `EditNote::constructor: this.index == ${this.index}`, new Error());
+            this.note = '';
+            this.insert = true;
+        }else if(0 <= this.index && this.index < this._caller.notes.length){
+            this._caller.log_message('notes', `EditNote::constructor: this.index == ${this.index}`, new Error());
+            this._caller.log_message('notes', `EditNote::constructor: this.note == ${this.note}`, new Error());
+            this.note = this._caller.notes[this.index];
+            this._caller.log_message('notes', `EditNote::constructor: this.note == ${this.note}`, new Error());
+            this.insert = false;
+        }else{
+            this.index = -1;
+            this._caller._window._settings.set_int("index", this.index);
+            this.insert = true;
+            this._caller.log_message('notes', `EditNote::constructor: this.index == ${this.index}`, new Error());
+        }
+        this._edit.text = this.note;
+    } // refresh_page(calling_page) //
+
     get_text(){
         return this.edit.get_text();
     }
