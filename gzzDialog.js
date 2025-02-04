@@ -1950,7 +1950,7 @@ export class GzzColumnNames extends St.BoxLayout {
             this.#handle_clicked(button, mousebtn, btnstate, 'file_name');
         });
         if(this.#_inode) this.#connectID_inode                = this.#_inode.connect("clicked", (_emiter, button, mousebtn, btnstate) => {
-            this.#handle_clicked(button, mousebtn, btnstate, 'inode');
+            this.#handle_clicked(button, mousebtn, btnstate, 'inode_number');
         });
         if(this.#_mode_box) this.#connectID_mode              = this.#_mode_box.connect("clicked", (_emiter, button, mousebtn, btnstate) => {
             this.#handle_clicked(button, mousebtn, btnstate, 'mode');
@@ -1959,19 +1959,19 @@ export class GzzColumnNames extends St.BoxLayout {
             this.#handle_clicked(button, mousebtn, btnstate, 'nlink');
         });
         if(this.#_create) this.#connectID_create              = this.#_create.connect("clicked", (_emiter, button, mousebtn, btnstate) => {
-            this.#handle_clicked(button, mousebtn, btnstate, 'create');
+            this.#handle_clicked(button, mousebtn, btnstate, 'create_time');
         });
         if(this.#_modification) this.#connectID__modification = this.#_modification.connect("clicked", (_emiter, button, mousebtn, btnstate) => {
-            this.#handle_clicked(button, mousebtn, btnstate, 'modification');
+            this.#handle_clicked(button, mousebtn, btnstate, 'modification_time');
         });
         if(this.#_access) this.#connectID_access              = this.#_access.connect("clicked", (_emiter, button, mousebtn, btnstate) => {
-            this.#handle_clicked(button, mousebtn, btnstate, 'access');
+            this.#handle_clicked(button, mousebtn, btnstate, 'access_time');
         });
         if(this.#_user) this.#connectID_user                  = this.#_user.connect("clicked", (_emiter, button, mousebtn, btnstate) => {
-            this.#handle_clicked(button, mousebtn, btnstate, 'user');
+            this.#handle_clicked(button, mousebtn, btnstate, 'user_name');
         });
         if(this.#_group) this.#connectID_group                = this.#_group.connect("clicked", (_emiter, button, mousebtn, btnstate) => {
-            this.#handle_clicked(button, mousebtn, btnstate, 'group');
+            this.#handle_clicked(button, mousebtn, btnstate, 'group_name');
         });
         if(this.#_file_size_box) this.#connectID_file_size    = this.#_file_size_box.connect("clicked", (_emiter, button, mousebtn, btnstate) => {
             log_message('notes', `GzzColumnNames::constructor: _emiter == ${_emiter}`, new Error());
@@ -2023,13 +2023,16 @@ export class GzzColumnNames extends St.BoxLayout {
         log_message('notes', `GzzColumnNames::#handle_clicked: button == ${button}`, new Error());
         log_message('notes', `GzzColumnNames::#handle_clicked: mousebtn == ${mousebtn}`, new Error());
         log_message('notes', `GzzColumnNames::#handle_clicked: btnstate == ${btnstate}`, new Error());
-            log_message('notes', `GzzColumnNames::#handle_clicked: button === mousebtn == ${button === mousebtn}`, new Error());
+        log_message('notes', `GzzColumnNames::#handle_clicked: button === mousebtn == ${button === mousebtn}`, new Error());
         log_message('notes', `GzzColumnNames::#handle_clicked: field_name == ${field_name}`, new Error());
         switch(mousebtn){
             case(1):
                 switch(btnstate){
                     case 0:
                     case 1:
+                        log_message('notes', `GzzColumnNames::#handle_clicked: field_name == ${field_name}`, new Error());
+                        log_message('notes', `GzzColumnNames::#handle_clicked: this.#_list_file_section == ${this.#_list_file_section}`, new Error());
+                        log_message('notes', `GzzColumnNames::#handle_clicked: this.#_list_file_section.sort_by_col == ${this.#_list_file_section.sort_by_col}`, new Error());
                         this.#_list_file_section.sort_by_col(this, field_name);
                         this.#refresh_button_checked_states(button);
                         break;
@@ -2140,7 +2143,7 @@ export  class GzzListFileSection extends AbstractListFileSection {
                 case 'file_name':
                     this.#_cmp = this.#file_name_cmp;
                     break;
-                case 'inode':
+                case 'inode_number':
                     this.#_cmp = this.#inode_cmp;
                     break;
                 case 'mode':
@@ -2149,19 +2152,19 @@ export  class GzzListFileSection extends AbstractListFileSection {
                 case 'nlink':
                     this.#_cmp = this.#nlink_cmp;
                     break;
-                case 'create':
+                case 'create_time':
                     this.#_cmp = this.#create_cmp;
                     break;
-                case 'modification':
+                case 'modification_time':
                     this.#_cmp = this.#modification_cmp;
                     break;
-                case 'access':
+                case 'access_time':
                     this.#_cmp = this.#access_cmp;
                     break;
-                case 'user':
+                case 'user_name':
                     this.#_cmp = this.#user_cmp;
                     break;
-                case 'group':
+                case 'group_name':
                     this.#_cmp = this.#group_cmp;
                     break;
                 case 'file_size':
@@ -2277,7 +2280,14 @@ export  class GzzListFileSection extends AbstractListFileSection {
     ];
 
     sort_by_col(caller, field_name){
+        log_message('notes', `GzzListFileSection::sort_by_col: caller == ${caller}`, new Error());
+        log_message('notes', `GzzListFileSection::sort_by_col: field_name == ${field_name}`, new Error());
         if(!(caller instanceof GzzFileDialogBase) && !(caller instanceof GzzColumnNames)){
+            log_message(
+                'notes',
+                `GzzListFileSection::sort_by_col: only an instance of GzzFileDialogBase can call this function you supplied == ${caller}`,
+                new Error()
+            );
             this.#_owner.apply_error_handler(
                 this,
                 'GzzListFileSection::list_add_child',
@@ -2286,13 +2296,14 @@ export  class GzzListFileSection extends AbstractListFileSection {
             );
             return;
         }
+        log_message('notes', `GzzListFileSection::sort_by_col: field_name == ${field_name}`, new Error());
         if(field_name in GzzListFileSection.KnownFields){
             log_message('notes', `GzzListFileSection::sort_by_col: field_name == ${field_name}`, new Error());
             switch(field_name){
                 case 'file_name':
                     this.#_cmp = this.#file_name_cmp;
                     break;
-                case 'inode':
+                case 'inode_number':
                     this.#_cmp = this.#inode_cmp;
                     break;
                 case 'mode':
@@ -2301,19 +2312,19 @@ export  class GzzListFileSection extends AbstractListFileSection {
                 case 'nlink':
                     this.#_cmp = this.#nlink_cmp;
                     break;
-                case 'create':
+                case 'create_time':
                     this.#_cmp = this.#create_cmp;
                     break;
-                case 'modification':
+                case 'modification_time':
                     this.#_cmp = this.#modification_cmp;
                     break;
-                case 'access':
+                case 'access_time':
                     this.#_cmp = this.#access_cmp;
                     break;
-                case 'user':
+                case 'user_name':
                     this.#_cmp = this.#user_cmp;
                     break;
-                case 'group':
+                case 'group_name':
                     this.#_cmp = this.#group_cmp;
                     break;
                 case 'file_size':
@@ -2323,6 +2334,7 @@ export  class GzzListFileSection extends AbstractListFileSection {
                     this.#_cmp = this.#file_name_cmp;
             } // switch(field_name) //
         } // if(field_name in GzzListFileSection.KnownFields) //
+        log_message('notes', `GzzListFileSection::sort_by_col: this.#_cmp == ${this.#_cmp}`, new Error());
         const children = this.#list.get_children();
         this.#list.remove_all_children();
         for(const child of children){
