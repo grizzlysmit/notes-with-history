@@ -659,7 +659,7 @@ class NotesScroller extends PageBase {
         this._caller.log_message('notes', `NotesScroller::refresh: child == ${child}`, new Error());
         while(child){
             this.notesGroup.remove(child);
-            child = this.notesGroup.get_first_child();
+            child = this.notesGroup.get_next_sibling();
             this._caller.log_message('notes', `NotesScroller::refresh: child == ${child}`, new Error());
         }
         this.notesGroup.thaw_notify();
