@@ -700,14 +700,20 @@ class EditNote extends PageBase {
         this.group          = new Adw.PreferencesGroup();
         this.insert = false;
         if(this.index < 0){
+            this._caller.log_message('notes', `EditNote::constructor: this.index == ${this.index}`, new Error());
             this.note = '';
             this.insert = true;
         }else if(0 <= this.index && this.index < this._caller.notes.length){
+            this._caller.log_message('notes', `EditNote::constructor: this.index == ${this.index}`, new Error());
+            this._caller.log_message('notes', `EditNote::constructor: this.note == ${this.note}`, new Error());
             this.note = this._caller.notes[this.index];
+            this._caller.log_message('notes', `EditNote::constructor: this.note == ${this.note}`, new Error());
             this.insert = false;
         }else{
             this.index = -1;
+            this._caller._window._settings.set_int("index", this.index);
             this.insert = true;
+            this._caller.log_message('notes', `EditNote::constructor: this.index == ${this.index}`, new Error());
         }
         this.edit           = new Adw.EntryRow({ 
                                 title:      _("Add text"), 
