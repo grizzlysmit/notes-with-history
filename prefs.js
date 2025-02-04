@@ -80,8 +80,8 @@ class AboutPage extends Adw.PreferencesPage {
         });
         this._caller = caller;
         
-        const PROJECT_TITLE = _('Alternate Menu for Hplip2');
-        const PROJECT_DESCRIPTION = _('Some usefule menus, plus the original printer stuff, espcially the hp-toolbox entrypoint to hplip');
+        const PROJECT_TITLE = _('Sticky notes in a menu.');
+        const PROJECT_DESCRIPTION = _('A cross between sticky notes and a menu full of notes 🤠.');
 
         // Project Logo, title, description-------------------------------------
         const projectHeaderGroup = new Adw.PreferencesGroup();
@@ -114,7 +114,7 @@ class AboutPage extends Adw.PreferencesPage {
         const infoGroup = new Adw.PreferencesGroup();
 
         const projectVersionRow = new Adw.ActionRow({
-            title: _('Hplip-menu2 Version'),
+            title: _('Notes with history Version'),
         });
         projectVersionRow.add_suffix(new Gtk.Label({
             label: metadata.version.toString(),
@@ -164,7 +164,7 @@ class AboutPage extends Adw.PreferencesPage {
         }));
         infoGroup.add(sessionTypeRow);
 
-        const githubRow = this._createLinkRow(_('Hplip-menu2 Github'), metadata.url);
+        const githubRow = this._createLinkRow(_('Notes with history Github'), metadata.url);
         infoGroup.add(githubRow);
 
         const closeRow = this._close_row();
@@ -767,6 +767,7 @@ class EditNote extends PageBase {
 
     set_index(_index){
         this.index = _index;
+        this._caller._window._settings.set_int("index", _index);
     }
 
     get_calling_page(){

@@ -486,7 +486,7 @@ class Indicator extends PanelMenu.Button {
     loadMesessages(){
         let item = null;
         let submenu = null;
-        submenu = new PopupMenu.PopupSubMenuMenuItem('Actions & About', true, this, 0);
+        submenu = new PopupMenu.PopupSubMenuMenuItem(_('Actions'), true, this, 0);
 
         item = new ApplicationMenuItem(this, { text: _('Save to file...'), type: 'savefile', index: 0, subtype: 'None', });
         //item.connect('activate', (event) => { item.activate(event); });
@@ -499,6 +499,10 @@ class Indicator extends PanelMenu.Button {
         item = new ApplicationMenuItem(this, { text: _('Add Note...'), type: 'addnote', index: 0, subtype: 'None', });
         //item.connect('activate', (event) => { item.activate(event); });
         submenu.menu.addMenuItem(item);
+
+        this.menu.addMenuItem(submenu);
+
+        submenu = new PopupMenu.PopupSubMenuMenuItem(_('Preferences & About'), true, this, 0);
 
         submenu.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
 

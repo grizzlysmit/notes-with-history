@@ -8,237 +8,427 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-01-16 23:02+1100\n"
+"POT-Creation-Date: 2025-02-04 18:04+1100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: prefs.js:36
+#: prefs.js:49 prefs.js:198
+msgid "Exit Settings"
+msgstr ""
+
+#: prefs.js:77
 msgid "About"
 msgstr ""
 
-#: prefs.js:42
+#: prefs.js:83
 msgid "Alternate Menu for Hplip2"
 msgstr ""
 
-#: prefs.js:43
+#: prefs.js:84
 msgid ""
 "Some usefule menus, plus the original printer stuff, espcially the hp-"
 "toolbox entrypoint to hplip"
 msgstr ""
 
-#: prefs.js:76
+#: prefs.js:117
 msgid "Hplip-menu2 Version"
 msgstr ""
 
-#: prefs.js:86
+#: prefs.js:127
 msgid "Git Commit"
 msgstr ""
 
-#: prefs.js:96
+#: prefs.js:137
 msgid "GNOME Version"
 msgstr ""
 
-#: prefs.js:105
+#: prefs.js:146
 msgid "OS Name"
 msgstr ""
 
-#: prefs.js:118
+#: prefs.js:159
 msgid "Windowing System"
 msgstr ""
 
-#: prefs.js:126
+#: prefs.js:167
 msgid "Hplip-menu2 Github"
 msgstr ""
 
-#: prefs.js:157 prefs.js:190
-msgid "Exit Settings"
-msgstr ""
-
-#: prefs.js:230
+#: prefs.js:245
 msgid "Area in the panel"
 msgstr ""
 
-#: prefs.js:233
+#: prefs.js:247
 msgid "Left"
 msgstr ""
 
-#: prefs.js:233
+#: prefs.js:247
 msgid "Center"
 msgstr ""
 
-#: prefs.js:233
+#: prefs.js:247
 msgid "Right"
 msgstr ""
 
-#: prefs.js:251
+#: prefs.js:265
 msgid "Position"
 msgstr ""
 
-#: prefs.js:253
+#: prefs.js:267
 msgid "Position in the area of the panel."
 msgstr ""
 
-#: prefs.js:289
+#: prefs.js:286
+msgid "Double Click Time"
+msgstr ""
+
+#: prefs.js:288
+msgid "Double click time for mouse clicks in milli seconds."
+msgstr ""
+
+#: prefs.js:309
 msgid "Show Notes"
 msgstr ""
 
-#: prefs.js:290
-msgid "The number of notes to show in the menu."
-msgstr ""
-
-#: prefs.js:315
+#: prefs.js:347
 msgid "Maximum length of a Note."
 msgstr ""
 
-#: prefs.js:316
+#: prefs.js:348
 msgid "The maximum length allowed for a note"
 msgstr ""
 
-#: prefs.js:342
+#: prefs.js:359
+msgid "Show logs for debugging."
+msgstr ""
+
+#: prefs.js:360
+msgid ""
+"Turn on the logging for this plugin if you don't know what this is the leave "
+"it off."
+msgstr ""
+
+#: prefs.js:391
+msgid "Size of Icons."
+msgstr ""
+
+#: prefs.js:392
+msgid "The Size of the icons in the dialogs"
+msgstr ""
+
+#: prefs.js:448
+msgid "Diplay these time types"
+msgstr ""
+
+#: prefs.js:451
+msgid "None"
+msgstr ""
+
+#: prefs.js:451 gzzDialog.js:1855
+msgid "Create"
+msgstr ""
+
+#: prefs.js:451
+msgid "Modify"
+msgstr ""
+
+#: prefs.js:452
+msgid "Crete+Modify"
+msgstr ""
+
+#: prefs.js:452
+msgid "Access"
+msgstr ""
+
+#: prefs.js:453
+msgid "Create+Access"
+msgstr ""
+
+#: prefs.js:453
+msgid "Modify+Access"
+msgstr ""
+
+#: prefs.js:454
+msgid "Create+Modify+Access"
+msgstr ""
+
+#: prefs.js:475
+msgid "Display Inode."
+msgstr ""
+
+#: prefs.js:476
+msgid "Diplay the Inode number."
+msgstr ""
+
+#: prefs.js:488
+msgid "Diplay User and or Group"
+msgstr ""
+
+#: prefs.js:490
+msgid "No-User-Group"
+msgstr ""
+
+#: prefs.js:490 gzzDialog.js:1897
+msgid "User"
+msgstr ""
+
+#: prefs.js:490 gzzDialog.js:1909
+msgid "Group"
+msgstr ""
+
+#: prefs.js:490
+msgid "User+Group"
+msgstr ""
+
+#: prefs.js:510
+msgid "Display Perms."
+msgstr ""
+
+#: prefs.js:511
+msgid "Diplay the Permissions and File Type."
+msgstr ""
+
+#: prefs.js:525
+msgid "Display number of links."
+msgstr ""
+
+#: prefs.js:526
+msgid "Diplay the number of hard links."
+msgstr ""
+
+#: prefs.js:540
+msgid "Display File Size."
+msgstr ""
+
+#: prefs.js:541
+msgid "Diplay the File Size in Terra Bytes, Giga Bytes etc..."
+msgstr ""
+
+#: prefs.js:555
+msgid "Base 2 file sizes."
+msgstr ""
+
+#: prefs.js:556
+msgid "Show the file sizes in base 2 (i.e. multiples of 2¹⁰, 2²⁰ etc)."
+msgstr ""
+
+#: prefs.js:594 prefs.js:606
 msgid "Insert Note..."
 msgstr ""
 
-#: prefs.js:414
+#: prefs.js:698
 msgid "Add text"
 msgstr ""
 
-#: prefs.js:420 extension.js:128 gzzDialog.js:796 gzzDialog.js:970
+#: prefs.js:706 extension.js:163 gzzDialog.js:869 gzzDialog.js:3486
 msgid "Cancel"
 msgstr ""
 
-#: prefs.js:426
+#: prefs.js:712
 msgid "Restart"
 msgstr ""
 
-#: prefs.js:432
+#: prefs.js:718
 msgid "delete"
 msgstr ""
 
-#: prefs.js:437 extension.js:120 extension.js:146 gzzDialog.js:960
+#: prefs.js:723 extension.js:193 gzzDialog.js:3478
 msgid "Save"
 msgstr ""
 
-#: prefs.js:438
+#: prefs.js:724
 msgid "Save & Exit"
 msgstr ""
 
-#: prefs.js:440
+#: prefs.js:726
 msgid "Insert"
 msgstr ""
 
-#: prefs.js:441
+#: prefs.js:727
 msgid "Insert & Exit"
 msgstr ""
 
-#: prefs.js:630
+#: prefs.js:899
+msgid "Copyright"
+msgstr ""
+
+#: prefs.js:908
+msgid "Author"
+msgstr ""
+
+#: prefs.js:950
 msgid "Settings"
 msgstr ""
 
-#: prefs.js:630
+#: prefs.js:950
 msgid "settings"
 msgstr ""
 
-#: prefs.js:631
+#: prefs.js:951
+msgid "File Display Settings"
+msgstr ""
+
+#: prefs.js:951
+msgid "fileDisplay"
+msgstr ""
+
+#: prefs.js:952
 msgid "Notes"
 msgstr ""
 
-#: prefs.js:631
+#: prefs.js:952
 msgid "notes"
 msgstr ""
 
-#: prefs.js:632 prefs.js:634
+#: prefs.js:953
 msgid "Edit note"
 msgstr ""
 
-#: prefs.js:632 prefs.js:634
+#: prefs.js:953
 msgid "editNotes"
 msgstr ""
 
-#: extension.js:118 extension.js:205
+#: prefs.js:955
+msgid "Credits"
+msgstr ""
+
+#: prefs.js:955
+msgid "credits"
+msgstr ""
+
+#: extension.js:156 extension.js:262
 msgid "Edit Note"
 msgstr ""
 
-#: extension.js:119 extension.js:206
+#: extension.js:157 extension.js:263
 msgid "Edit or view Note."
 msgstr ""
 
-#: extension.js:136
+#: extension.js:173
 msgid "Delete"
 msgstr ""
 
-#: extension.js:171
+#: extension.js:222
 msgid "Are you sure"
 msgstr ""
 
-#: extension.js:177
+#: extension.js:227
 msgid "Yes"
 msgstr ""
 
-#: extension.js:185
+#: extension.js:237
 msgid "No"
 msgstr ""
 
-#: extension.js:207
+#: extension.js:264
 msgid "Add Note"
 msgstr ""
 
-#: extension.js:247
+#: extension.js:327
 msgid "Notes with history"
 msgstr ""
 
-#: extension.js:276
+#: extension.js:363
 msgid "Save messages as file"
 msgstr ""
 
-#: extension.js:377
+#: extension.js:489
+msgid "Actions"
+msgstr ""
+
+#: extension.js:491
 msgid "Save to file..."
 msgstr ""
 
-#: extension.js:380
+#: extension.js:495
 msgid "Load from file..."
 msgstr ""
 
-#: extension.js:383
+#: extension.js:499
 msgid "Add Note..."
 msgstr ""
 
-#: extension.js:388
+#: extension.js:505
+msgid "Preferences & About"
+msgstr ""
+
+#: extension.js:509
 msgid "Settings..."
 msgstr ""
 
-#: extension.js:392
+#: extension.js:513
+msgid "File Display Settings..."
+msgstr ""
+
+#: extension.js:517
 msgid "Notes Scroller..."
 msgstr ""
 
-#: extension.js:393
+#: extension.js:520
 msgid "About..."
 msgstr ""
 
-#: extension.js:394
+#: extension.js:523
 msgid "Credits..."
 msgstr ""
 
-#: gzzDialog.js:776
+#: gzzDialog.js:792
+msgid "start typing text here."
+msgstr ""
+
+#: gzzDialog.js:849
 msgid "OK"
 msgstr ""
 
-#: gzzDialog.js:963
+#: gzzDialog.js:1796
+msgid "Inode Number"
+msgstr ""
+
+#: gzzDialog.js:1812
+msgid "Permisions"
+msgstr ""
+
+#: gzzDialog.js:1828
+msgid "#Link"
+msgstr ""
+
+#: gzzDialog.js:1838
+msgid "File Name"
+msgstr ""
+
+#: gzzDialog.js:1867
+msgid "Modification Time"
+msgstr ""
+
+#: gzzDialog.js:1879
+msgid "Access Time"
+msgstr ""
+
+#: gzzDialog.js:1925
+msgid "File Size"
+msgstr ""
+
+#: gzzDialog.js:2199
+msgid "Name: "
+msgstr ""
+
+#: gzzDialog.js:3481
 msgid "Open"
 msgstr ""
 
-#: gzzDialog.js:964
+#: gzzDialog.js:3482
 msgid "folder-open"
 msgstr ""
 
-#: gzzDialog.js:1304 gzzDialog.js:1306
+#: gzzDialog.js:4218 gzzDialog.js:4220
 msgid "Make Directory"
 msgstr ""
 
-#: gzzDialog.js:1305
+#: gzzDialog.js:4219
 msgid "Type a new name for the new directory."
 msgstr ""
