@@ -625,7 +625,7 @@ class NotesScroller extends PageBase {
                                 valign: Gtk.Align.END,
             });
             this._caller.log_message('notes', `NotesScroller::constructor: _index == ${_index}`, new Error());
-            button.connect("clicked", () => { this._caller.editNote(_index); });
+            button.connect("clicked", () => { this._caller.editNote(Number(_index)); });
             const row = new Adw.ActionRow({
                                 title: note, 
                                 activatable_widget: button, 
