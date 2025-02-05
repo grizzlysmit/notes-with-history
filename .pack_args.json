@@ -1,5 +1,5 @@
 {
-  "gettext-domain": "noteswithhistory",
+  "gettext-domain": "notes-with-history",
   "force": true,
   "package-dir": "notes-with-history@grizzlysmit.smit.id.au",
   "extra-sources": [
