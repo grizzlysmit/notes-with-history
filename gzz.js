@@ -1,11 +1,11 @@
-// SPDX-FileCopyrightText: 2023 Francis Grizzly Smit <grizzly@smit.id.au>
+// SPDX-FileCopyrightText: 2025 Francis Grizzly Smit <grizzly@smit.id.au>
 //
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 /* -*- mode: js2; js2-basic-offset: 4; indent-tabs-mode: nil -*- */
 
 
-// a useful Dialog box for showing a modal Dialog //
+// A useful collection of Dialog boxes for showing modal Dialogs //
 "use strict";
 
 import St from 'gi://St';
@@ -2727,6 +2727,7 @@ export class GzzListFileRow extends St.BoxLayout {
     #connectID_release     = null;
     #connectID_enter       = null;
     #connectID_leave       = null;
+    #time_out_id           = null;
 
     constructor(params) {
         super({
@@ -3027,6 +3028,10 @@ export class GzzListFileRow extends St.BoxLayout {
         this.disconnect(this.#connectID_release);
         this.disconnect(this.#connectID_enter);
         this.disconnect(this.#connectID_leave);
+        if(this.#time_out_id){
+            GLib.Source.remove(this.#time_out_id);
+            this.#time_out_id = null;
+        }
         super.destroy();
     } // destroy() //
 
@@ -3037,11 +3042,11 @@ export class GzzListFileRow extends St.BoxLayout {
                 log_message('notes', `GzzListFileRow::handle_button_press_event: button == ${event.get_button()}`, new Error());
                 if(!this.click_event_start){
                     this.click_event_start = new Date().valueOf();
-                    if(!this.time_out_id){
-                        this.time_out_id = GLib.timeout_add(GLib.PRIORITY_DEFAULT, this.#_double_click_time, () => {
+                    if(!this.#time_out_id){
+                        this.#time_out_id = GLib.timeout_add(GLib.PRIORITY_DEFAULT, this.#_double_click_time, () => {
                             this.click_event_start = this.double_click_start = null;
                             this.click_count = 0;
-                            this.time_out_id = 0;
+                            this.#time_out_id = null;
                             return GLib.SOURCE_REMOVE;
                         });
                     }

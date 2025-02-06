@@ -554,7 +554,7 @@ class Indicator extends PanelMenu.Button {
 } // class Indicator extends PanelMenu.Button //
 
 
-export default class IndicatorExampleExtension extends Extension {
+export default class NotesWithHistoryExtension extends Extension {
 
     constructor(metadata){
         super(metadata);
@@ -612,7 +612,7 @@ export default class IndicatorExampleExtension extends Extension {
     }
 
     set_notespath(path_){
-        Gzz.log_message('notes', `IndicatorExampleExtension::set_notespath: path_: ${path_}`, new Error());
+        Gzz.log_message('notes', `NotesWithHistoryExtension::set_notespath: path_: ${path_}`, new Error());
         if(!path_){
             this.notespath = Gio.File.new_for_path(GLib.build_filenamev([GLib.get_home_dir()]));
             this.settings.set_string("notespath", this.notespath.get_path());
@@ -623,13 +623,13 @@ export default class IndicatorExampleExtension extends Extension {
             }else{
                 Gzz.log_message(
                     'notes', 
-                    `IndicatorExampleExtension::set_notespath_error: bad value for path: ${path}: `
+                    `NotesWithHistoryExtension::set_notespath_error: bad value for path: ${path}: `
                     + `genrated from path_: ${path_}:`, 
                     new Error()
                 );
                 this.display_error_msg(
-                    'IndicatorExampleExtension::set_notespath',
-                    `IndicatorExampleExtension::set_notespath: bad value for path: ${path} genrated from path_: ${path_}: `, 
+                    'NotesWithHistoryExtension::set_notespath',
+                    `NotesWithHistoryExtension::set_notespath: bad value for path: ${path} genrated from path_: ${path_}: `, 
                     new Error()
                 );
             }
@@ -640,13 +640,13 @@ export default class IndicatorExampleExtension extends Extension {
             }else{
                 Gzz.log_message(
                     'notes', 
-                    `IndicatorExampleExtension::set_notespath_error: bad value for path: ${path}: `
+                    `NotesWithHistoryExtension::set_notespath_error: bad value for path: ${path}: `
                     + `genrated from path_: ${path_}:`, 
                     new Error()
                 );
                 this.display_error_msg(
-                    'IndicatorExampleExtension::set_notespath',
-                    `IndicatorExampleExtension::set_notespath: bad value for path: ${path} genrated from path_: ${path_}: `,
+                    'NotesWithHistoryExtension::set_notespath',
+                    `NotesWithHistoryExtension::set_notespath: bad value for path: ${path} genrated from path_: ${path_}: `,
                     new Error()
                 );
             } // if(path) ... else ... //
@@ -689,10 +689,10 @@ export default class IndicatorExampleExtension extends Extension {
             this.settings_change_self = false;
         }else{
             this.notes                        = this.settings.get_strv("notes");
-            Gzz.log_message('notes', `IndicatorExampleExtension::onNotesChanged: this.notes: ${JSON.stringify(this.notes)}`, new Error());
+            Gzz.log_message('notes', `NotesWithHistoryExtension::onNotesChanged: this.notes: ${JSON.stringify(this.notes)}`, new Error());
             this._indicator.refesh_menu();
-            Gzz.log_message('notes', `IndicatorExampleExtension::onNotesChanged: this.notes: ${JSON.stringify(this.notes)}`, new Error());
+            Gzz.log_message('notes', `NotesWithHistoryExtension::onNotesChanged: this.notes: ${JSON.stringify(this.notes)}`, new Error());
         }
     }
 
-} // export default class IndicatorExampleExtension extends Extension //
+} // export default class NotesWithHistoryExtension extends Extension //
