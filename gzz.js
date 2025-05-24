@@ -2729,7 +2729,9 @@ export class GzzListFileRow extends St.BoxLayout {
         );
         if(this.#_file_type == Gio.FileType.SYMBOLIC_LINK){
             let spec = '';
-            if(this.#_symlink_mode & 0b001_001_001){
+            if(this.#_is_dir){
+                spec = '/';
+            }else if(this.#_symlink_mode & 0b001_001_001){
                 spec = '*';
             }
             return filename + ' -> ' + this.#_symlink_target + spec;
