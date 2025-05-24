@@ -255,7 +255,7 @@ class NotesPreferencesSettings extends PageBase {
             title,
             model: panelAreas,
             selected: this._caller._window._settings.get_enum("area"),
-            use_subtitle: true, 
+            use_subtitle: false, 
         });
         row.connect("notify::selected", (widget) => {
             this._caller._window._settings.set_enum("area", widget.selected);
@@ -428,6 +428,7 @@ class FileDisplay extends PageBase {
         this._display_number_links_switch_row = null;
         this._display_size_switch_row         = null;
         this._base2_file_sizes_switch_row     = null;
+        this.filter_box                       = null;
 
         this.group = new Adw.PreferencesGroup();
 
@@ -438,6 +439,7 @@ class FileDisplay extends PageBase {
         this.group.add(this._display_number_links_box());
         this.group.add(this._display_size_box());
         this.group.add(this._base2_file_sizes_box());
+        this.group.add(this._filter());
         this.group.add(this._close_row());
         const hbox = new Gtk.Box({orientation: Gtk.Orientation.HORIZONTAL, vexpand: true, hexpand: true, });
         const bottom_spacer = new Gtk.Box({orientation: Gtk.Orientation.VERTICAL, vexpand: true, hexpand: true });
@@ -463,7 +465,7 @@ class FileDisplay extends PageBase {
             title,
             model: panelAreas,
             selected: this._caller._window._settings.get_enum("time-type"),
-            use_subtitle: true, 
+            use_subtitle: false, 
         });
         row.connect("notify::selected", (widget) => {
             this._caller._window._settings.set_enum("time-type", widget.selected);
@@ -498,7 +500,7 @@ class FileDisplay extends PageBase {
             title,
             model: panelAreas,
             selected: this._caller._window._settings.get_enum("user-group"),
-            use_subtitle: true, 
+            use_subtitle: false, 
         });
         row.connect("notify::selected", (widget) => {
             this._caller._window._settings.set_enum("user-group", widget.selected);
@@ -567,6 +569,27 @@ class FileDisplay extends PageBase {
         return base2_file_sizes_switch_row;
     } // _base2_file_sizes_box() //
 
+    _filter(){
+        const title = _("filter");
+        const filters_ = new Gtk.StringList();
+        const filters = ["/^.*\\.txt$/i", "/^.*\\.notes$/i", "/^(?:.*\\.txt|.*\\.notes)$/i", "/^.*/i"];
+        for (let i = 0; i < filters.length; i++){
+            filters_.append(filters[i]);
+        }
+        const indx = filters.indexOf(this._caller._window._settings.get_string("filter"));
+        const row = new Adw.ComboRow({
+            title,
+            model:        filters_,
+            selected:     indx,
+            use_subtitle: false, 
+        });
+        row.connect("notify::selected", (widget) => {
+            this._caller._window._settings.set_string("filter", filters[widget.selected]);
+        });
+        this.filter_box = row;
+        return row;
+    } // _filter() //
+
     destroy(){
         this.time_type_box                    = null;
         this._display_inode_switch_row        = null;
@@ -575,6 +598,7 @@ class FileDisplay extends PageBase {
         this._display_number_links_switch_row = null;
         this._display_size_switch_row         = null;
         this._base2_file_sizes_switch_row     = null;
+        this.filter_box                       = null;
         super.destroy();
     }
 

@@ -89,6 +89,11 @@
             <summary>Last name used.</summary>
             <description>The name last used to save file to.</description>
         </key>
+        <key type="s" name="filter">
+            <default>'/^(?:.*\\.txt|.*\\.notes)$/i'</default>
+            <summary>Last filter used.</summary>
+            <description>The filter last used to view/save file to.</description>
+        </key>
         <key type="i" name="double-click-time">
             <default>800</default>
             <summary>The maximum length of a note.</summary>
