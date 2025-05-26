@@ -6,7 +6,8 @@
     "gzz.js",
     "select.js",
     "button.js",
-    "log_message.js"
+    "log_message.js",
+    "icon_constants.js"
   ],
   "podir": "po",
   "out-dir": "/home/grizzlysmit/Projects/gnome-shell/extensions",

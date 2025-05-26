@@ -24,7 +24,7 @@ import Gtk from 'gi://Gtk';
 import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
 import Gdk from 'gi://Gdk';
-import * as Constants from './icons_constants.js';
+import * as Constants from './icon_constants.js';
 
 import * as Config from 'resource:///org/gnome/Shell/Extensions/js/misc/config.js';
 

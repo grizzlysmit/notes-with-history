@@ -34,8 +34,7 @@ import * as PopupMenu from 'resource:///org/gnome/shell/ui/popupMenu.js';
 
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import * as LogMessage from './log_message.js';
-
-const APPLICATION_ICON_SIZE = 16;
+import * as Constants from './icon_constants.js';
 
 class ApplicationMenuItem extends PopupMenu.PopupBaseMenuItem {
     static {
@@ -82,7 +81,7 @@ class ApplicationMenuItem extends PopupMenu.PopupBaseMenuItem {
                     icon_name: 'notes-app',
                     style_class: 'system-status-icon',
                 });
-                icon.icon_size = APPLICATION_ICON_SIZE;
+                icon.icon_size = this._button._caller.settings.get_int('menu-button-icon-size');
                 break;
             case "settings":
                 app  = this._button._caller.appSys.lookup_app('org.gnome.settings');
@@ -93,10 +92,10 @@ class ApplicationMenuItem extends PopupMenu.PopupBaseMenuItem {
                     _icon_name = "notes-app";
                     gicon = Gio.icon_new_for_string(_icon_name);
                     icon.gicon = gicon;
-                    icon.icon_size = APPLICATION_ICON_SIZE;
+                    icon.icon_size = this._button._caller.settings.get_int('menu-button-icon-size');
                     return icon;
                 }
-                icon = app.create_icon_texture(APPLICATION_ICON_SIZE);
+                icon = app.create_icon_texture(this._button._caller.settings.get_int('menu-button-icon-size'));
                 break;
             default:
                 icon = new St.Icon({
@@ -105,7 +104,7 @@ class ApplicationMenuItem extends PopupMenu.PopupBaseMenuItem {
                 _icon_name = "notes-app";
                 gicon = Gio.icon_new_for_string(_icon_name);
                 icon.gicon = gicon;
-                icon.icon_size = APPLICATION_ICON_SIZE; 
+                icon.icon_size = this._button._caller.settings.get_int('menu-button-icon-size'); 
         } // switch (this.item.type) //
         if(!icon){
             icon = new St.Icon({
@@ -115,7 +114,7 @@ class ApplicationMenuItem extends PopupMenu.PopupBaseMenuItem {
             _icon_name = "notes-app";
             gicon = Gio.icon_new_for_string(_icon_name);
             icon.gicon = gicon;
-            icon.icon_size = APPLICATION_ICON_SIZE;
+            icon.icon_size = this._button._caller.settings.get_int('menu-button-icon-size');
        }
         return icon;
     }
@@ -329,10 +328,24 @@ class Indicator extends PanelMenu.Button {
         this._caller = caller;
         this.appSys = this._caller.appSys;
 
-        this.add_child(new St.Icon({
+
+        this.icon = new St.Icon({
             icon_name: 'notes-app',
             style_class: 'system-status-icon',
-        }));
+        });
+
+        this._caller.settings.connectObject('changed::hide-icon-shadow', () => this.hideIconShadow(), this);
+        this._caller.settings.connectObject('changed::menu-button-icon-image', () => this.setIconImage(), this);
+        this._caller.settings.connectObject('changed::symbolic-icon', () => this.setIconImage(), this);
+        this._caller.settings.connectObject('changed::use-custom-icon', () => this.setIconImage(), this);
+        this._caller.settings.connectObject('changed::custom-icon-path', () => this.setIconImage(), this);
+        this._caller.settings.connectObject('changed::menu-button-icon-size', () => this.setIconSize(), this);
+	
+        this.hideIconShadow();
+        this.setIconImage();
+        this.setIconSize();
+
+        this.add_child(this.icon);
 
         const tmp = this._caller.settings.get_string("notespath").trim();
 
@@ -572,6 +585,60 @@ class Indicator extends PanelMenu.Button {
         this.menu.box.destroy_all_children();
         this.loadMesessages();
         LogMessage.log_message('notes', "Indicator: done.", new Error());
+    }
+
+    setIconImage() {
+        const iconIndex = this._caller.settings.get_int('menu-button-icon-image');
+        const isSymbolic = this._caller.settings.get_boolean('symbolic-icon');
+        const useCustomIcon = this._caller.settings.get_boolean('use-custom-icon');
+        const customIconPath = this._caller.settings.get_string('custom-icon-path');
+        let isStartHereSymbolic = false;
+        let iconPath;
+        let notFound = false;
+
+        if (useCustomIcon && customIconPath !== '') {
+            iconPath = customIconPath;
+        } else if (isSymbolic) {
+            if (Constants.SymbolicDistroIcons[iconIndex] !== undefined) {
+                isStartHereSymbolic = Constants.SymbolicDistroIcons[iconIndex].PATH === 'start-here-symbolic';
+                iconPath = this._extension.path + Constants.SymbolicDistroIcons[iconIndex].PATH;
+            } else {
+                notFound = true;
+            }
+        } else {
+            if (Constants.ColouredDistroIcons[iconIndex] !== undefined) {
+                iconPath = this._extension.path + Constants.ColouredDistroIcons[iconIndex].PATH;
+            } else {
+                notFound = true;
+            }
+        }
+
+        if (notFound) {
+            iconPath = 'start-here-symbolic';
+            this._caller.settings.set_boolean('symbolic-icon', true);
+            this._caller.settings.set_int('menu-button-icon-image', 0);
+        }
+
+        const fileExists = GLib.file_test(iconPath, GLib.FileTest.IS_REGULAR);
+
+        const icon = isStartHereSymbolic || !fileExists ? 'start-here-symbolic' : iconPath;
+
+        this.icon.gicon = Gio.icon_new_for_string(icon);
+    }
+
+    setIconSize() {
+        const iconSize = this._caller.settings.get_int('menu-button-icon-size');
+        this.icon.icon_size = iconSize;
+    }
+    
+    hideIconShadow() {
+    	const iconShadow = this._caller.settings.get_boolean('hide-icon-shadow');
+    	
+        if(!iconShadow){
+            this.icon.add_style_class_name('system-status-icon'); 
+        } else {
+            this.icon.remove_style_class_name('system-status-icon');
+        }
     }
 
 } // class Indicator extends PanelMenu.Button //
