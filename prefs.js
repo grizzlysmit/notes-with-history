@@ -273,8 +273,9 @@ class NotesIconsPage extends PageBase {
         })
 
         const customIconPreview = new Gtk.Image({
+            storage_type: Gtk.ImageType.ICON_NAME,
             icon_name: "start-here-symbolic",
-            icon_size: 2
+            icon_size: Gtk.IconSize.LARGE,
         });
 
         if(this._settings.get_string('custom-icon-path'))
