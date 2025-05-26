@@ -257,7 +257,7 @@ class NotesIconsPage extends PageBase {
 
         this._settings.connect('changed::use-custom-icon', () => {
             const useCustomIcon = this._settings.get_boolean('use-custom-icon');
-            customIconRow.set_enable_expansion()
+            customIconRow.set_enable_expansion(useCustomIcon)
             this._caller.log_message(
                 'notes', `NotesIconsPage::changed::use-custom-icon: useCustomIcon == ${useCustomIcon}`, new Error()
             );
