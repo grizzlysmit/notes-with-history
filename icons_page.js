@@ -4,7 +4,7 @@ import Gtk from 'gi://Gtk';
 import Gio from 'gi://Gio';
 import * as Config from 'resource:///org/gnome/Shell/Extensions/js/misc/config.js';
 import {gettext as _} from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js';
-import * as Constants from '../constants.js';
+import * as Constants from './icons_constants.js';
 
 Gio._promisify(Gtk.FileDialog.prototype, "open", "open_finish");
 const IconGrid = GObject.registerClass(class LogoMenuIconGrid extends Gtk.FlowBox {
@@ -35,7 +35,7 @@ export class LogoMenuIconsWidget extends Adw.PreferencesPage {
     }
 
     constructor(settings) {
-        super._init();
+        super();
         this._settings = settings;
         this.set_title('Icon');
         this.set_name('Icon');
@@ -156,6 +156,22 @@ export class LogoMenuIconsWidget extends Adw.PreferencesPage {
 
         menuButtonIconSizeRow.add_suffix(menuButtonIconSizeScale);
 
+         // Icon Shadow Visibility
+        const iconShadowVisibilityRow = new Adw.ActionRow({
+            title: _('Hide Icon Shadow'),
+        });
+
+        const iconShadowRowVisiblitySwitch = new Gtk.Switch({
+            valign: Gtk.Align.CENTER,
+            active: this._settings.get_boolean('hide-icon-shadow'),
+        });
+
+        iconShadowRowVisiblitySwitch.connect('notify::active', widget => {
+            this._settings.set_boolean('hide-icon-shadow', widget.get_active());
+        });
+
+        iconShadowVisibilityRow.add_suffix(iconShadowRowVisiblitySwitch);
+
         const customIconRow = new Adw.ExpanderRow({
             title: _('Use Custom Icon'),
             show_enable_switch: true,
@@ -175,12 +191,12 @@ export class LogoMenuIconsWidget extends Adw.PreferencesPage {
         });
 
         const customIconButton = new Gtk.Button({
-            icon_name: 'document-open-monochrome',
+            icon_name: 'document-open-symbolic',
             valign: Gtk.Align.CENTER,
         })
 
         const customIconPreview = new Gtk.Image({
-            icon_name: "start-here-monochrome",
+            icon_name: "start-here-symbolic",
             icon_size: 2
         });
 
@@ -222,6 +238,7 @@ export class LogoMenuIconsWidget extends Adw.PreferencesPage {
         colouredIconGroup.add(colouredIconsRow);
         iconSettingsGroup.add(customIconRow);
         iconSettingsGroup.add(menuButtonIconSizeRow);
+        iconSettingsGroup.add(iconShadowVisibilityRow);
 
         this.add(monochromeIconGroup);
         this.add(colouredIconGroup);
