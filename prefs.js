@@ -95,17 +95,17 @@ const IconGrid = GObject.registerClass(class LogoMenuIconGrid extends Gtk.FlowBo
     }
 });
 
-export class NotesIconsPage extends PageBase {
+class NotesIconsPage extends PageBase {
     static {
         GObject.registerClass(this);
     }
 
-    constructor(settings) {
-        super();
-        this._settings = settings;
-        this.set_title('Icon');
-        this.set_name('Icon');
-        this.set_icon_name('emblem-photos-symbolic');
+    constructor(caller, title_, name_, icon_name_) {
+        super(caller, title_, name_, icon_name_);
+        this._settings = this._caller._window._settings;
+        this.set_title(this._title);
+        this.set_name(this._name);
+        this.set_icon_name(this._icon_name);
 
         const monochromeIconGroup = new Adw.PreferencesGroup({
             title: _('Monochrome Icons'),
@@ -222,7 +222,7 @@ export class NotesIconsPage extends PageBase {
 
         menuButtonIconSizeRow.add_suffix(menuButtonIconSizeScale);
 
-         // Icon Shadow Visibility
+         // Icon Shadow Visibility //
         const iconShadowVisibilityRow = new Adw.ActionRow({
             title: _('Hide Icon Shadow'),
         });
@@ -238,6 +238,8 @@ export class NotesIconsPage extends PageBase {
 
         iconShadowVisibilityRow.add_suffix(iconShadowRowVisiblitySwitch);
 
+        // Custom Icon //
+
         const customIconRow = new Adw.ExpanderRow({
             title: _('Use Custom Icon'),
             show_enable_switch: true,
@@ -246,10 +248,19 @@ export class NotesIconsPage extends PageBase {
 
         customIconRow.connect('notify::enable-expansion', () => {
             this._settings.set_boolean('use-custom-icon', customIconRow.enable_expansion);
+            this._caller.log_message(
+                'notes',
+                `NotesIconsPage::notify::enable-expansion: customIconRow.enable_expansion == ${customIconRow.enable_expansion}`,
+                new Error()
+            );
         });
 
         this._settings.connect('changed::use-custom-icon', () => {
-            customIconRow.set_enable_expansion(this._settings.get_boolean('use-custom-icon'))
+            const useCustomIcon = this._settings.get_boolean('use-custom-icon');
+            customIconRow.set_enable_expansion()
+            this._caller.log_message(
+                'notes', `NotesIconsPage::changed::use-custom-icon: useCustomIcon == ${useCustomIcon}`, new Error()
+            );
         });
 
         const customIconSelectionRow = new Adw.ActionRow({
@@ -276,6 +287,9 @@ export class NotesIconsPage extends PageBase {
                 });
 
                 filter.add_pixbuf_formats();
+                this._caller.log_message(
+                    'notes', `NotesIconsPage::clicked: filter == ${filter}`, new Error()
+                );
 
                 const fileDialog = new Gtk.FileDialog({
                     title: _('Select a Custom Icon'),
@@ -284,6 +298,7 @@ export class NotesIconsPage extends PageBase {
                 });
 
                 const file = await fileDialog.open(customIconButton.get_root(), null);
+                this._caller.log_message( 'notes', `NotesIconsPage::clicked: file == ${file}`, new Error());
                 if (file) {
                     const filename = file.get_path();
                     this._settings.set_string("custom-icon-path", filename);
@@ -291,7 +306,8 @@ export class NotesIconsPage extends PageBase {
                     console.log(`Selected custom icon: ${filename}`);
                 }
             } catch (error) {
-                console.error('Error selecting custom icon:', error.message);
+                console.error('notes::Error selecting custom icon:', error.message);
+                this._caller.log_message( 'notes', `NotesIconsPage::clicked: file == ${error}`, error);
             }
         });
 
@@ -305,12 +321,13 @@ export class NotesIconsPage extends PageBase {
         iconSettingsGroup.add(customIconRow);
         iconSettingsGroup.add(menuButtonIconSizeRow);
         iconSettingsGroup.add(iconShadowVisibilityRow);
+        iconSettingsGroup.add(this._close_row());
 
         this.add(monochromeIconGroup);
         this.add(colouredIconGroup);
         this.add(iconSettingsGroup);
     }
-}
+} // class NotesIconsPage extends PageBase //
 
 class AboutPage extends Adw.PreferencesPage {
     static {
@@ -1241,12 +1258,22 @@ export default class NotesPreferences extends ExtensionPreferences {
     constructor(metadata) {
         super(metadata);
         this._pageNotesPreferencesSettings = null;
+        this._fileDisplay                  = null;
+        this._notesIconsPage               = null;
         this._NotesScroller                = null;
         this._EditNote                     = null;
         this.aboutPage                     = null;
         this.creditsPage                   = null;
         this.page                          = this._pageNotesPreferencesSettings;
-        this.enum2string = ["settings", "fileDisplay", "notesScroller", "editNote", "aboutPage", "credits", ];
+        this.enum2string = [
+            "settings",
+            "fileDisplay",
+            "notesIconsPage",
+            "notesScroller",
+            "editNote",
+            "aboutPage",
+            "credits",
+        ];
     } //  constructor(metadata) //
 
     fillPreferencesWindow(window) {
@@ -1265,12 +1292,13 @@ export default class NotesPreferences extends ExtensionPreferences {
         this.max_note_length   = this._window._settings.get_int("max-note-length");
         this.edit_note         = this._window._settings.get_boolean("edit-note");
 
-        this._pageNotesPreferencesSettings = new NotesPreferencesSettings(this, _('Settings'), _("settings"), 'preferences-system-symbolic');
-        this._fileDisplay                  = new FileDisplay(this, _('File Display Settings'), _("fileDisplay"), 'preferences-system-symbolic');
-        this._NotesScroller                = new NotesScroller(this, _("Notes"), _("notes"), 'notes-app');
-        this._EditNote                     = new EditNote(this, _("Edit note"), _("editNotes"), 'notes-app');
+        this._pageNotesPreferencesSettings = new NotesPreferencesSettings(this, _('Settings'), "settings", 'preferences-system-symbolic');
+        this._fileDisplay                  = new FileDisplay(this, _('File Display Settings'), "fileDisplay", 'preferences-system-symbolic');
+        this._notesIconsPage               = new NotesIconsPage(this, _('Icon'), 'Icon', 'emblem-photos-symbolic');
+        this._NotesScroller                = new NotesScroller(this, _("Notes"), "notes", 'notes-app');
+        this._EditNote                     = new EditNote(this, _("Edit note"), "editNotes", 'notes-app');
         this.aboutPage                     = new AboutPage(this, this.metadata);
-        this.creditsPage                   = new CreditsPage(this, _("Credits"), _("credits"), 'copyright-symbolic');
+        this.creditsPage                   = new CreditsPage(this, _("Credits"), "credits", 'copyright-symbolic');
         window.connect("close-request", (_win) => {
             const width  = window.default_width;
             const height = window.default_height;
@@ -1280,6 +1308,7 @@ export default class NotesPreferences extends ExtensionPreferences {
             } // if(width !== this.properties_width && height !== this.properties_height) //
             this._pageNotesPreferencesSettings = null;
             this._fileDisplay                  = null;
+            this._notesIconsPage               = null;
             this._NotesScroller                = null;
             this._EditNote                     = null;
             this.aboutPage                     = null;
@@ -1288,6 +1317,7 @@ export default class NotesPreferences extends ExtensionPreferences {
         });
         window.add(this._pageNotesPreferencesSettings);
         window.add(this._fileDisplay);
+        window.add(this._notesIconsPage);
         window.add(this._NotesScroller);
         window.add(this._EditNote);
         window.add(this.aboutPage);
@@ -1303,6 +1333,10 @@ export default class NotesPreferences extends ExtensionPreferences {
                     break;
                 case("fileDisplay"):
                     this.page = this._fileDisplay;
+                    this._window.set_visible_page(this.page);
+                    break;
+                case("notesIconsPage"):
+                    this.page = this._notesIconsPage;
                     this._window.set_visible_page(this.page);
                     break;
                 case("notesScroller"):
@@ -1359,6 +1393,10 @@ export default class NotesPreferences extends ExtensionPreferences {
                     break;
                 case("fileDisplay"):
                     this.page = this._fileDisplay;
+                    this._window.set_visible_page(this.page);
+                    break;
+                case("notesIconsPage"):
+                    this.page = this._notesIconsPage;
                     this._window.set_visible_page(this.page);
                     break;
                 case("notesScroller"):

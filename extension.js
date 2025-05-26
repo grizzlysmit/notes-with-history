@@ -144,7 +144,15 @@ class ApplicationMenuItem extends PopupMenu.PopupBaseMenuItem {
         try {
             t       = typeof this._item;
             LogMessage.log_message('notes', `ApplicationMenuItem::activate: this._item == ‷${JSON.stringify(this._item)}‴ of type ‷${t}‴.`, new Error());
-            const string2enum = { settings: 0, fileDisplay: 1, notesScroller: 2, editNote: 3, aboutPage: 4, credits: 5, };
+            const string2enum = {
+                settings:      0,
+                fileDisplay:   1,
+                notesIconsPage: 2,
+                notesScroller: 3,
+                editNote:      4,
+                aboutPage:     5,
+                credits:       6,
+            };
             switch (this._item.type) {
                 case "note":
                     switch(this._item.subtype){
@@ -299,6 +307,7 @@ class ApplicationMenuItem extends PopupMenu.PopupBaseMenuItem {
                     break;
                 case "settings":
                 case "fileDisplay":
+                case "notesIconsPage":
                 case "notesScroller":
                 case "aboutPage":
                 case "credits":
@@ -336,7 +345,7 @@ class Indicator extends PanelMenu.Button {
 
         this._caller.settings.connectObject('changed::hide-icon-shadow', () => this.hideIconShadow(), this);
         this._caller.settings.connectObject('changed::menu-button-icon-image', () => this.setIconImage(), this);
-        this._caller.settings.connectObject('changed::symbolic-icon', () => this.setIconImage(), this);
+        this._caller.settings.connectObject('changed::monochrome-icon', () => this.setIconImage(), this);
         this._caller.settings.connectObject('changed::use-custom-icon', () => this.setIconImage(), this);
         this._caller.settings.connectObject('changed::custom-icon-path', () => this.setIconImage(), this);
         this._caller.settings.connectObject('changed::menu-button-icon-size', () => this.setIconSize(), this);
@@ -550,6 +559,10 @@ class Indicator extends PanelMenu.Button {
 
         submenu.menu.addMenuItem(item);
 
+        item = new ApplicationMenuItem(this, { text: _('Icon Settings...'), type: 'notesIconsPage', index: 0, subtype: 'None', });
+
+        submenu.menu.addMenuItem(item);
+
         item = new ApplicationMenuItem(this, { text: _('Notes Scroller...'), type: 'notesScroller', index: 0, subtype: 'None', });
         //item.connect('activate', (event) => { item.activate(event); });
         submenu.menu.addMenuItem(item);
@@ -589,25 +602,30 @@ class Indicator extends PanelMenu.Button {
 
     setIconImage() {
         const iconIndex = this._caller.settings.get_int('menu-button-icon-image');
-        const isSymbolic = this._caller.settings.get_boolean('symbolic-icon');
+        const isMonochrome = this._caller.settings.get_boolean('monochrome-icon');
         const useCustomIcon = this._caller.settings.get_boolean('use-custom-icon');
         const customIconPath = this._caller.settings.get_string('custom-icon-path');
-        let isStartHereSymbolic = false;
         let iconPath;
         let notFound = false;
 
         if (useCustomIcon && customIconPath !== '') {
             iconPath = customIconPath;
-        } else if (isSymbolic) {
-            if (Constants.SymbolicDistroIcons[iconIndex] !== undefined) {
-                isStartHereSymbolic = Constants.SymbolicDistroIcons[iconIndex].PATH === 'start-here-symbolic';
-                iconPath = this._extension.path + Constants.SymbolicDistroIcons[iconIndex].PATH;
+            const fileExists = GLib.file_test(iconPath, GLib.FileTest.IS_REGULAR);
+            if(!fileExists){
+                iconPath = 'start-here-symbolic';
+                this._caller.settings.set_boolean('monochrome-icon', true);
+                this._caller.settings.set_int('menu-button-icon-image', 0);
+                this._caller.settings.set_boolean('use-custom-icon', false);
+            }
+        } else if (isMonochrome) {
+            if (Constants.MonochromeNoteIcons[iconIndex] !== undefined) {
+                iconPath = Constants.MonochromeNoteIcons[iconIndex].PATH;
             } else {
                 notFound = true;
             }
         } else {
-            if (Constants.ColouredDistroIcons[iconIndex] !== undefined) {
-                iconPath = this._extension.path + Constants.ColouredDistroIcons[iconIndex].PATH;
+            if (Constants.ColouredNoteIcons[iconIndex] !== undefined) {
+                iconPath = Constants.ColouredNoteIcons[iconIndex].PATH;
             } else {
                 notFound = true;
             }
@@ -615,15 +633,11 @@ class Indicator extends PanelMenu.Button {
 
         if (notFound) {
             iconPath = 'start-here-symbolic';
-            this._caller.settings.set_boolean('symbolic-icon', true);
+            this._caller.settings.set_boolean('monochrome-icon', true);
             this._caller.settings.set_int('menu-button-icon-image', 0);
         }
 
-        const fileExists = GLib.file_test(iconPath, GLib.FileTest.IS_REGULAR);
-
-        const icon = isStartHereSymbolic || !fileExists ? 'start-here-symbolic' : iconPath;
-
-        this.icon.gicon = Gio.icon_new_for_string(icon);
+        this.icon.gicon = Gio.icon_new_for_string(iconPath);
     }
 
     setIconSize() {

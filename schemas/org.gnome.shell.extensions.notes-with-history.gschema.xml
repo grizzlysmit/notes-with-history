@@ -7,10 +7,11 @@
     <enum id="org.gnome.shell.extensions.notes-with-history.page">
         <value value="0" nick="settings"/>
         <value value="1" nick="fileDisplay"/>
-        <value value="2" nick="notesScroller"/>
-        <value value="3" nick="editNote"/>
-        <value value="4" nick="aboutPage"/>
-        <value value="5" nick="credits"/>
+        <value value="2" nick="notesIconsPage"/>
+        <value value="3" nick="notesScroller"/>
+        <value value="4" nick="editNote"/>
+        <value value="5" nick="aboutPage"/>
+        <value value="6" nick="credits"/>
     </enum>
     <enum id="org.gnome.shell.extensions.notes-with-history.time-type">
         <value value="0" nick="None"/>
