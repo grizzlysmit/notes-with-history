@@ -270,22 +270,36 @@ class NotesIconsPage extends PageBase {
         const customIconButton = new Gtk.Button({
             icon_name: 'document-open-symbolic',
             valign: Gtk.Align.CENTER,
-        })
+        });
+
+        this._caller.log_message(
+            'notes', `NotesIconsPage::constructor: customIconButton == ${customIconButton}`, new Error()
+        );
 
         const customIconPreview = new Gtk.Image({
-            storage_type: Gtk.ImageType.ICON_NAME,
             icon_name: "start-here-symbolic",
             icon_size: Gtk.IconSize.LARGE,
         });
 
-        if(this._settings.get_string('custom-icon-path'))
-            customIconPreview.set_from_file(this._settings.get_string('custom-icon-path'));
+        this._caller.log_message(
+            'notes', `NotesIconsPage::constructor: customIconPreview == ${customIconPreview}`, new Error()
+        );
+
+        if(this._settings.get_string('custom-icon-path')){
+            const custpath = this._settings.get_string('custom-icon-path');
+            customIconPreview.set_from_file(custpath);
+
+            this._caller.log_message('notes', `NotesIconsPage::constructor: custpath == ${custpath}`, new Error());
+        }
 
         customIconButton.connect('clicked', async () => {
             try {
                 const filter = new Gtk.FileFilter({
                     name: "Images",
                 });
+                this._caller.log_message(
+                    'notes', `NotesIconsPage::clicked: filter == ${filter}`, new Error()
+                );
 
                 filter.add_pixbuf_formats();
                 this._caller.log_message(
@@ -297,6 +311,7 @@ class NotesIconsPage extends PageBase {
                     modal: true,
                     default_filter: filter
                 });
+                this._caller.log_message( 'notes', `NotesIconsPage::clicked: fileDialog == ${fileDialog}`, new Error());
 
                 const file = await fileDialog.open(customIconButton.get_root(), null);
                 this._caller.log_message( 'notes', `NotesIconsPage::clicked: file == ${file}`, new Error());
@@ -304,11 +319,11 @@ class NotesIconsPage extends PageBase {
                     const filename = file.get_path();
                     this._settings.set_string("custom-icon-path", filename);
                     customIconPreview.set_from_file(filename);
-                    console.log(`Selected custom icon: ${filename}`);
+                    this._caller.log_message( 'notes', `NotesIconsPage::clicked: filename == ${filename}`, new Error());
                 }
             } catch (error) {
-                console.error('notes::Error selecting custom icon:', error.message);
                 this._caller.log_message( 'notes', `NotesIconsPage::clicked: file == ${error}`, error);
+                console.error('notes::Error selecting custom icon:', error.message);
             }
         });
 
