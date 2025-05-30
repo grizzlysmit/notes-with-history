@@ -166,7 +166,7 @@
             <description>Whether to use a custom icon or not.</description>
         </key>
         <key type="s" name="custom-icon-path">
-            <default>"''"</default>
+            <default>""</default>
             <summary>Custom Icon Path</summary>
             <description>Path to the custom icon image file.</description>
         </key>
