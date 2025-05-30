@@ -42,8 +42,8 @@
         </key>
         <key type="i" name="show-messages">
             <default>10</default>
-            <summary>The number of messages to show in the menu.</summary>
-            <description>Show only this many messages in the menu.</description>
+            <summary>Show or don't show logging.</summary>
+            <description>Show or don't show logging using console.log().</description>
         </key>
         <key type="i" name="window-width">
             <default>925</default>
