@@ -13,7 +13,6 @@ import GObject from 'gi://GObject';
 //import GLib from 'gi://GLib';
 import Gio from 'gi://Gio';
 import Clutter from 'gi://Clutter';
-import {gettext as _} from 'resource:///org/gnome/shell/extensions/extension.js';
 import * as LogMessage from './log_message.js';
 
 

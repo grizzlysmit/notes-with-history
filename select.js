@@ -16,7 +16,6 @@ import GObject from 'gi://GObject';
 //import GLib from 'gi://GLib';
 //import Gio from 'gi://Gio';
 import Clutter from 'gi://Clutter';
-import {gettext as _} from 'resource:///org/gnome/shell/extensions/extension.js';
 import * as LogMessage from './log_message.js';
 import * as Button from './button.js';
 
@@ -158,7 +157,7 @@ export class Select extends St.BoxLayout {
             this.#read_only_ = !!params.read_only;
         }
 
-        let hint_text_ = _('start typing text here.');
+        let hint_text_ = 'start typing text here.';
 
         if('hint_text' in params && (params.hint_text instanceof String || typeof params.hint_text === 'string')){
             hint_text_ = params.hint_text;

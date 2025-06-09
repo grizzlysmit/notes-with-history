@@ -8,7 +8,7 @@
 // A logging function that can be turned off //
 "use strict";
 
-let show_logs = true;
+let show_logs = false;
 
 export function log_message(id, text, e){
     if(show_logs){

@@ -16,7 +16,6 @@ import GObject from 'gi://GObject';
 import GLib from 'gi://GLib';
 import Gio from 'gi://Gio';
 import Clutter from 'gi://Clutter';
-import {gettext as _} from 'resource:///org/gnome/shell/extensions/extension.js';
 import * as Select from './select.js';
 import * as LogMessage from './log_message.js';
 import * as Button from './button.js';
@@ -427,7 +426,7 @@ export class GzzPromptDialog extends ModalDialog.ModalDialog {
             description: params.description,
         });
 
-        let hint_text_ = _('start typing text here.');
+        let hint_text_ = 'start typing text here.';
 
         if('hint_text' in params && (params.hint_text instanceof String || typeof params.hint_text === 'string')){
             hint_text_ = params.hint_text;
@@ -484,7 +483,7 @@ export class GzzPromptDialog extends ModalDialog.ModalDialog {
 
         this.contentLayout.add_child(this.#_edit);
 
-        let ok_button = _('OK');
+        let ok_button = 'OK';
 
         if('ok_button' in params){
             ok_button = params.ok_button;
@@ -504,7 +503,7 @@ export class GzzPromptDialog extends ModalDialog.ModalDialog {
             this.setButtons(params.buttons);
         }else{
             this.setButtons([{
-                    label: _('Cancel'),
+                    label: 'Cancel',
                     icon_name: 'stock_calc-cancel', 
                     action: () => {
                         this.#_result = false;
@@ -1431,7 +1430,7 @@ export class GzzColumnNames extends St.BoxLayout {
 
         if(this.#_display_inode){
             this.#_inode = new Button.Button({
-                label:        _('Inode Number'), 
+                label:        'Inode Number', 
                 style_class: 'dialog-item-column-name',
                 x_align:     Clutter.ActorAlign.FILL, 
                 toggle_mode: true, 
@@ -1447,7 +1446,7 @@ export class GzzColumnNames extends St.BoxLayout {
 
         if(this.#_display_mode){
             this.#_mode_box = new Button.Button({
-                label:        _('Permisions'), 
+                label:        'Permisions', 
                 style_class: 'dialog-item-column-name',
                 x_align:     Clutter.ActorAlign.FILL, 
                 toggle_mode: true, 
@@ -1463,7 +1462,7 @@ export class GzzColumnNames extends St.BoxLayout {
 
         if(this.#_display_number_links){
             this.#_nlink_box = new Button.Button({
-                label:        _('#Link'), 
+                label:        '#Link', 
                 style_class: 'dialog-item-column-name',
                 x_align:     Clutter.ActorAlign.FILL, 
                 toggle_mode: true, 
@@ -1473,7 +1472,7 @@ export class GzzColumnNames extends St.BoxLayout {
         }
 
         this.#_file_name = new Button.Button({
-            label:        _('File Name'), 
+            label:        'File Name', 
             style_class: 'dialog-item-column-name',
             x_align:     Clutter.ActorAlign.FILL, 
             toggle_mode: true, 
@@ -1490,7 +1489,7 @@ export class GzzColumnNames extends St.BoxLayout {
         if(this.#_display_times & GzzColumnNames.Create){
             LogMessage.log_message('notes', `GzzColumnNames::constructor: this.#_display_times == ${this.#_display_times}`, new Error());
             this.#_create = new Button.Button({
-                label:        _('Create'), 
+                label:        'Create', 
                 style_class: 'dialog-item-column-name',
                 x_align:     Clutter.ActorAlign.FILL, 
                 toggle_mode: true, 
@@ -1502,7 +1501,7 @@ export class GzzColumnNames extends St.BoxLayout {
         if(this.#_display_times & GzzColumnNames.Modify){
             LogMessage.log_message('notes', `GzzColumnNames::constructor: this.#_display_times == ${this.#_display_times}`, new Error());
             this.#_modification = new Button.Button({
-                label:        _('Modification Time'), 
+                label:        'Modification Time', 
                 style_class: 'dialog-item-column-name',
                 x_align:     Clutter.ActorAlign.FILL, 
                 toggle_mode: true, 
@@ -1514,7 +1513,7 @@ export class GzzColumnNames extends St.BoxLayout {
         if(this.#_display_times & GzzColumnNames.Access){
             LogMessage.log_message('notes', `GzzColumnNames::constructor: this.#_display_times == ${this.#_display_times}`, new Error());
             this.#_access = new Button.Button({
-                text:        _('Access Time'), 
+                text:        'Access Time', 
                 style_class: 'dialog-item-column-name',
                 x_align:     Clutter.ActorAlign.FILL, 
                 toggle_mode: true, 
@@ -1532,7 +1531,7 @@ export class GzzColumnNames extends St.BoxLayout {
         if(this.#_display_user_group & GzzColumnNames.User){
             LogMessage.log_message('notes', `GzzColumnNames::constructor: this.#_display_user_group == ${this.#_display_user_group}`, new Error());
             this.#_user = new Button.Button({
-                label:        _('User'), 
+                label:        'User', 
                 style_class: 'dialog-item-column-name',
                 x_align:     Clutter.ActorAlign.FILL, 
                 toggle_mode: true, 
@@ -1544,7 +1543,7 @@ export class GzzColumnNames extends St.BoxLayout {
         if(this.#_display_user_group & GzzColumnNames.Group){
             LogMessage.log_message('notes', `GzzColumnNames::constructor: this.#_display_user_group == ${this.#_display_user_group}`, new Error());
             this.#_group = new Button.Button({
-                label:        _('Group'), 
+                label:        'Group', 
                 style_class: 'dialog-item-column-name',
                 x_align:     Clutter.ActorAlign.FILL, 
                 toggle_mode: true, 
@@ -1560,7 +1559,7 @@ export class GzzColumnNames extends St.BoxLayout {
 
         if(this.#_display_size){
             this.#_file_size_box = new Button.Button({
-                label:        _('File Size'), 
+                label:        'File Size', 
                 style_class: 'dialog-item-column-name',
                 x_align:     Clutter.ActorAlign.FILL, 
                 toggle_mode: true, 
@@ -1841,14 +1840,14 @@ export  class GzzListFileSection extends AbstractListFileSection {
         }
 
         this.#_filter_label = new St.Label({
-            text:     _('Filter: '), 
+            text:     'Filter: ', 
             x_expand: true, 
             x_align:  Clutter.ActorAlign.END, 
             y_align:  Clutter.ActorAlign.CENTER, 
         });
 
         this.#_name_label = new St.Label({
-            text:     _('Name: '), 
+            text:     'Name: ', 
             x_expand: true, 
             x_align:  Clutter.ActorAlign.END, 
             y_align:  Clutter.ActorAlign.CENTER, 
@@ -3252,15 +3251,15 @@ export class GzzFileDialog extends GzzFileDialogBase {
 
         this.contentLayout.add_child(this.#_list_section);
 
-        let label_ = _('Save');
+        let label_ = 'Save';
         let icon_name_ = 'stock_save';
         if(this.get_dialog_type().toString() !== GzzDialogType.Save.toString()){
-            label_     = _('Open');
-            icon_name_ = _('folder-open');
+            label_     = 'Open';
+            icon_name_ = 'folder-open';
         }
                 
         this.setButtons([{
-                label: _('Cancel'),
+                label: 'Cancel',
                 icon_name: 'stock_calc-cancel', 
                 action: () => {
                     this.#_result = false;
@@ -4047,9 +4046,9 @@ export class GzzFileDialog extends GzzFileDialogBase {
             return;
         }
         const dlg = new GzzPromptDialog({
-            title:       _('Make Directory'), 
-            description: _('Type a new name for the new directory.'), 
-            ok_button:   _('Make Directory'), 
+            title:       'Make Directory', 
+            description: 'Type a new name for the new directory.', 
+            ok_button:   'Make Directory', 
             icon_name:   'folder-new', 
             ok_call_back: () => {
                 const new_dir = dlg.get_text().trim();

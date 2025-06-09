@@ -725,11 +725,11 @@ class FileDisplay extends PageBase {
     } // constructor(caller, _title, _name, _icon_name) //
 
     _time_type_box(){
-        const title = _("Diplay these time types");
+        const title = _("Display these time types");
         const panelAreas = new Gtk.StringList();
         const time_type = [
             _("None"), _("Create"), _("Modify"),
-            _("Crete+Modify"), _("Access"),
+            _("Create+Modify"), _("Access"),
             _("Create+Access"), _("Modify+Access"),
             _("Create+Modify+Access")
         ];
@@ -753,7 +753,7 @@ class FileDisplay extends PageBase {
         // Display Inode //
         const display_inode_switch_row = new Adw.SwitchRow({
             title: _("Display Inode."),
-            subtitle: _("Diplay the Inode number."),
+            subtitle: _("Display the Inode number."),
             active: this._caller._window._settings.get_boolean('display-inode'), 
         });
         this.display_inode_switch = display_inode_switch_row.activatable_widget;
@@ -765,7 +765,7 @@ class FileDisplay extends PageBase {
     } // _display_inode_box() //
 
     _user_group_box(){
-        const title = _("Diplay User and or Group");
+        const title = _("Display User and or Group");
         const panelAreas = new Gtk.StringList();
         const user_group = [ _("No-User-Group"), _("User"), _("Group"), _("User+Group"), ];
         for (let i = 0; i < user_group.length; i++){
@@ -788,7 +788,7 @@ class FileDisplay extends PageBase {
         // Display mode //
         const display_mode_switch_row = new Adw.SwitchRow({
             title: _("Display Perms."),
-            subtitle: _("Diplay the Permissions and File Type."),
+            subtitle: _("Display the Permissions and File Type."),
             active: this._caller._window._settings.get_boolean('display-mode'), 
         });
         this.display_mode_switch = display_mode_switch_row.activatable_widget;
@@ -803,7 +803,7 @@ class FileDisplay extends PageBase {
         // Display number of links //
         const display_number_links_switch_row = new Adw.SwitchRow({
             title: _("Display number of links."),
-            subtitle: _("Diplay the number of hard links."),
+            subtitle: _("Display the number of hard links."),
             active: this._caller._window._settings.get_boolean('display-number-links'), 
         });
         this.display_number_links_switch = display_number_links_switch_row.activatable_widget;
@@ -818,7 +818,7 @@ class FileDisplay extends PageBase {
         // Display size //
         const display_size_switch_row = new Adw.SwitchRow({
             title: _("Display File Size."),
-            subtitle: _("Diplay the File Size in Terra Bytes, Giga Bytes etc..."),
+            subtitle: _("Display the File Size in Terra Bytes, Giga Bytes etc..."),
             active: this._caller._window._settings.get_boolean('display-size'), 
         });
         this.display_size_switch = display_size_switch_row.activatable_widget;
