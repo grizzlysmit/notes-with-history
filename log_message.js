@@ -10,6 +10,8 @@
 
 let show_logs = false;
 
+let progID = 'unknown-prog';
+
 export function log_message(id, text, e){
     if(show_logs){
         console.log(`${id}:${text}: ${e.fileName}:${e.lineNumber}:${e.columnNumber}`);
@@ -22,4 +24,14 @@ export function get_show_logs(){
 
 export function set_show_logs(value){
     show_logs = !!value;
+}
+
+export function get_prog_id(){
+    return progID;
+}
+
+export function set_prog_id(value){
+    if(value instanceof String || typeof value === 'string'){
+        progID = value;
+    }
 }

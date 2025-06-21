@@ -140,29 +140,34 @@ export class Button extends St.BoxLayout {
         } // if(this.#_icon) //
 
         this.connect('enter-event', (_actor, event) => {
-            LogMessage.log_message('notes', `Button::Button::button-press-event:  event == ${event}`, new Error());
+            LogMessage.log_message(LogMessage.get_prog_id(), `Button::Button::button-press-event:  event == ${event}`, new Error());
             this.add_style_pseudo_class('hover');
             return Clutter.EVENT_PROPAGATE;
         });
 
         this.connect('leave-event', (_actor, event) => {
-            LogMessage.log_message('notes', `Button::Button::button-press-event:  event == ${event}`, new Error());
+            LogMessage.log_message(LogMessage.get_prog_id(), `Button::Button::button-press-event:  event == ${event}`, new Error());
             this.remove_style_pseudo_class('hover');
             return Clutter.EVENT_PROPAGATE;
         });
 
         this.connect('button-press-event', (_actor, event) => {
-            LogMessage.log_message('notes', `Button::Button::button-press-event:  event == ${event}`, new Error());
-            LogMessage.log_message('notes', `Button::Button::button-press-event:  this.#_toggle_mode == ${this.#_toggle_mode}`, new Error());
+            LogMessage.log_message(LogMessage.get_prog_id(), `Button::Button::button-press-event:  event == ${event}`, new Error());
+            LogMessage.log_message(LogMessage.get_prog_id(), `Button::Button::button-press-event:  this.#_toggle_mode == ${this.#_toggle_mode}`, new Error());
             if(!this.#_toggle_mode){
                 this.add_style_pseudo_class('active');
             }
             return Clutter.EVENT_PROPAGATE;
         });
         this.connect('button-release-event', (_actor, event) => {
-            LogMessage.log_message('notes', `Button::Button::button-release-event:  event == ${event}`, new Error());
-            LogMessage.log_message('notes', `Button::Button::button-release-event:  this.#_toggle_mode == ${this.#_toggle_mode}`, new Error());
-            LogMessage.log_message('notes', `Button::Button::button-release-event:  this.#_checked == ${this.#_checked}`, new Error());
+            LogMessage.log_message(LogMessage.get_prog_id(), `Button::Button::button-release-event:  event == ${event}`, new Error());
+            LogMessage.log_message(
+                LogMessage.get_prog_id(),
+                `Button::Button::button-release-event:  this.#_toggle_mode == ${this.#_toggle_mode}`, new Error()
+            );
+            LogMessage.log_message(
+                LogMessage.get_prog_id(), `Button::Button::button-release-event:  this.#_checked == ${this.#_checked}`, new Error()
+            );
             if(this.#_toggle_mode){
                 if(this.#_checked){
                     this.add_style_pseudo_class('checked');

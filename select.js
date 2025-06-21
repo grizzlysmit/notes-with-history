@@ -33,7 +33,7 @@ export class Dropdown extends ModalDialog.ModalDialog {
     constructor(owner_, params, _ancestor) {
         super({ styleClass: 'dropdown-dialog', });
         //super(_ancestor, 'dropdown-dialog');
-        LogMessage.log_message('notes', `Dropdown::constructor: params == ${JSON.stringify(params)}`, new Error());
+        LogMessage.log_message(LogMessage.get_prog_id(), `Dropdown::constructor: params == ${JSON.stringify(params)}`, new Error());
         this.#_owner  = owner_;
         this.set_x_expand(true);
         this.set_y_expand(true);
@@ -43,15 +43,15 @@ export class Dropdown extends ModalDialog.ModalDialog {
         if('x' in params && Number.isInteger(params.x)){
             this.set_x(params.x);
             this.backgroundStack.get_layout_manager().child_set_property(this, this._backgroundBin, 'x', params.x);
-            LogMessage.log_message('notes', `Dropdown::constructor: params.x == ${params.x}`, new Error());
-            LogMessage.log_message('notes', `Dropdown::constructor: this.get_x() == ${this.get_x()}`, new Error());
+            LogMessage.log_message(LogMessage.get_prog_id(), `Dropdown::constructor: params.x == ${params.x}`, new Error());
+            LogMessage.log_message(LogMessage.get_prog_id(), `Dropdown::constructor: this.get_x() == ${this.get_x()}`, new Error());
         }
 
         if('y' in params && Number.isInteger(params.y)){
             this.set_y(params.y);
             this.backgroundStack.get_layout_manager().child_set_property(this, this._backgroundBin, 'y', params.y);
-            LogMessage.log_message('notes', `Dropdown::constructor: params.y == ${params.y}`, new Error());
-            LogMessage.log_message('notes', `Dropdown::constructor: this.get_y() == ${this.get_y()}`, new Error());
+            LogMessage.log_message(LogMessage.get_prog_id(), `Dropdown::constructor: params.y == ${params.y}`, new Error());
+            LogMessage.log_message(LogMessage.get_prog_id(), `Dropdown::constructor: this.get_y() == ${this.get_y()}`, new Error());
         }
 
         if('rows' in params && Array.isArray(params.rows)){
@@ -83,7 +83,7 @@ export class Dropdown extends ModalDialog.ModalDialog {
 
     addRows(rows){
         //this.#_rows.addRows(rows);
-        LogMessage.log_message('notes', `Dropdown::constructor: rows == ${JSON.stringify(rows)}`, new Error());
+        LogMessage.log_message(LogMessage.get_prog_id(), `Dropdown::constructor: rows == ${JSON.stringify(rows)}`, new Error());
         if(Array.isArray(rows)){
             let rows_ = [];
             for(const row of rows){
@@ -107,7 +107,7 @@ export class Dropdown extends ModalDialog.ModalDialog {
                     this.#_owner.close(null);
                 }
             });
-            LogMessage.log_message('notes', `Dropdown::constructor: rows_ == ${JSON.stringify(rows_)}`, new Error());
+            LogMessage.log_message(LogMessage.get_prog_id(), `Dropdown::constructor: rows_ == ${JSON.stringify(rows_)}`, new Error());
             this.setButtons(rows_);
         }else{ // if(Array.isArray(rows)) ... //
             this.addRow(rows);
@@ -149,7 +149,7 @@ export class Select extends St.BoxLayout {
         });
         this.#ancestor = ancestor_;
 
-        LogMessage.log_message('notes', `Select::Select::constructor: params == ${JSON.stringify(params)}`, new Error());
+        LogMessage.log_message(LogMessage.get_prog_id(), `Select::Select::constructor: params == ${JSON.stringify(params)}`, new Error());
 
         this.#_action  = action_;
 
@@ -198,16 +198,16 @@ export class Select extends St.BoxLayout {
         this.add_child(this.#edit_);
         this.add_child(this.#button);
         this.#edit_.connect('button-press-event', (_actor, event) => {
-            LogMessage.log_message('notes', `Select::Select::button-press-event:  event == ${event}`, new Error());
-            LogMessage.log_message('notes', `Select::Select::button-press-event:  this.#_open == ${this.#_open}`, new Error());
+            LogMessage.log_message(LogMessage.get_prog_id(), `Select::Select::button-press-event:  event == ${event}`, new Error());
+            LogMessage.log_message(LogMessage.get_prog_id(), `Select::Select::button-press-event:  this.#_open == ${this.#_open}`, new Error());
             if(!this.#_open){
                 this.add_style_pseudo_class('active');
             }
             return Clutter.EVENT_PROPAGATE;
         });
         this.#edit_.connect('button-release-event', (_actor, event) => {
-            LogMessage.log_message('notes', `Select::Select::button-release-event:  event == ${event}`, new Error());
-            LogMessage.log_message('notes', `Select::Select::button-release-event:  this.#_open == ${this.#_open}`, new Error());
+            LogMessage.log_message(LogMessage.get_prog_id(), `Select::Select::button-release-event:  event == ${event}`, new Error());
+            LogMessage.log_message(LogMessage.get_prog_id(), `Select::Select::button-release-event:  this.#_open == ${this.#_open}`, new Error());
             if(!this.#_open){
                 this.open();
             }else{
@@ -217,10 +217,10 @@ export class Select extends St.BoxLayout {
         });
 
         this.#button.connect('clicked', (button, clicked_button, state) => {
-            LogMessage.log_message('notes', `Select::Select::clicked:  button == ${button}`, new Error());
-            LogMessage.log_message('notes', `Select::Select::clicked:  clicked_button == ${clicked_button}`, new Error());
-            LogMessage.log_message('notes', `Select::Select::clicked:  state == ${state}`, new Error());
-            LogMessage.log_message('notes', `Select::Select::clicked:  this.#_open == ${this.#_open}`, new Error());
+            LogMessage.log_message(LogMessage.get_prog_id(), `Select::Select::clicked:  button == ${button}`, new Error());
+            LogMessage.log_message(LogMessage.get_prog_id(), `Select::Select::clicked:  clicked_button == ${clicked_button}`, new Error());
+            LogMessage.log_message(LogMessage.get_prog_id(), `Select::Select::clicked:  state == ${state}`, new Error());
+            LogMessage.log_message(LogMessage.get_prog_id(), `Select::Select::clicked:  this.#_open == ${this.#_open}`, new Error());
             if(!this.#_open){
                 this.open();
             }else{

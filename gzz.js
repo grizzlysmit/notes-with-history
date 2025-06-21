@@ -15,7 +15,21 @@ import * as ModalDialog from 'resource:///org/gnome/shell/ui/modalDialog.js';
 import GObject from 'gi://GObject';
 import GLib from 'gi://GLib';
 import Gio from 'gi://Gio';
+//import GioUnix from 'gi://GioUnix';
+//*
+// Retain compatibility with GLib < 2.80, which lacks GioUnix
+let GioUnix;
+try {
+    GioUnix = (await import('gi://GioUnix?version=2.0')).default;
+} catch {
+    GioUnix = {
+        InputStream: Gio.UnixInputStream,
+        OutputStream: Gio.UnixOutputStream,
+    };
+}
+// */
 import Clutter from 'gi://Clutter';
+import Shell from 'gi://Shell';
 import * as Select from './select.js';
 import * as LogMessage from './log_message.js';
 import * as Button from './button.js';
@@ -87,22 +101,22 @@ export function string2RegExp(regex, default_flags = 'i'){
 export function splitFile(file){
     let result = [];
     try {
-        LogMessage.log_message('notes', `function splitFile: file == ${file}`, new Error());
+        LogMessage.log_message(LogMessage.get_prog_id(), `function splitFile: file == ${file}`, new Error());
         if(file instanceof String || typeof file === 'string') file = Gio.File.new_for_path(GLib.build_filenamev([file]));
-        LogMessage.log_message('notes', `function splitFile: file: ‷${file.get_path()}‴`, new Error());
+        LogMessage.log_message(LogMessage.get_prog_id(), `function splitFile: file: ‷${file.get_path()}‴`, new Error());
         let filename = file.get_basename();
-        LogMessage.log_message('notes', `function splitFile: filename == ‷${filename}‴`, new Error());
+        LogMessage.log_message(LogMessage.get_prog_id(), `function splitFile: filename == ‷${filename}‴`, new Error());
         result.unshift(filename);
-        LogMessage.log_message('notes', `function splitFile: result: ‷${JSON.stringify(result)}‴`, new Error());
+        LogMessage.log_message(LogMessage.get_prog_id(), `function splitFile: result: ‷${JSON.stringify(result)}‴`, new Error());
         while((file = file.get_parent())){
             filename = file.get_basename();
-            LogMessage.log_message('notes', `function splitFile: filename == ‷${JSON.stringify(result)}‴`, new Error());
+            LogMessage.log_message(LogMessage.get_prog_id(), `function splitFile: filename == ‷${JSON.stringify(result)}‴`, new Error());
             result.unshift(filename);
-            LogMessage.log_message('notes', `function splitFile: result == ‷${JSON.stringify(result)}‴`, new Error());
+            LogMessage.log_message(LogMessage.get_prog_id(), `function splitFile: result == ‷${JSON.stringify(result)}‴`, new Error());
         }
-        LogMessage.log_message('notes', `function splitFile: result == ‷${result}‴`, new Error());
+        LogMessage.log_message(LogMessage.get_prog_id(), `function splitFile: result == ‷${result}‴`, new Error());
     }catch(e){
-        LogMessage.log_message('notes', `function splitFile: filename == ‷${e}‴`, new Error());
+        LogMessage.log_message(LogMessage.get_prog_id(), `function splitFile: filename == ‷${e}‴`, new Error());
         return [null, e];
     }
     return [true, result];
@@ -113,43 +127,44 @@ export function array2file(array){
 } // export function array2file(array) //
 
 export function unixPermsToStr(file_type, perms, path){
-    LogMessage.log_message('notes', `function  unixPermsToStr: file_type == ${file_type}`, new Error());
-    LogMessage.log_message('notes', `function  unixPermsToStr: perms == ${perms}`, new Error());
-    LogMessage.log_message('notes', `function  unixPermsToStr: path == ${path}`, new Error());
+    LogMessage.log_message(LogMessage.get_prog_id(), `function  unixPermsToStr: file_type == ${file_type}`, new Error());
+    LogMessage.log_message(LogMessage.get_prog_id(), `function  unixPermsToStr: perms == ${perms}`, new Error());
+    LogMessage.log_message(LogMessage.get_prog_id(), `function  unixPermsToStr: path == ${path}`, new Error());
     let result = '';
     if(file_type == Gio.FileType.SYMBOLIC_LINK){
         result += 'l';
     }else if(file_type == Gio.FileType.DIRECTORY){
         result += 'd';
     }else if(file_type == Gio.FileType.SPECIAL){
-        result += '|';
-        /* cannot use GLib.lstat just now    //
-        // no way to allocate a GLib.StatBuf //
-        //let buf = new GLib.StatBuf();
-        let buf = {};
-        if(GLib.lstat(path, buf) === 0){
-            const filetype = buf['st_mode'] & 0o0170000;
-            switch(filetype){
-                case 0o0140000:  // Socket //
-                    result += 'S';
-                    break;
-                case 0o0060000: // Block Special //
-                    result += 'b';
-                    break;
-                case 0o0020000: // Character Special //
-                    result += 'c';
-                    break;
-                case 0o0010000: // FIFO //
-                    result += '|';
-                    break;
-                case 0o0120000: // Symbolic Link //
-                    result += 'l';
-                    break;
-                case 0o0100000: // Regular File //
-                    result += '.';
-                    break;
-            } // switch(filetype) //
-        } // if(GLib.lstat(path, buf) === 0) //
+        //result += '|';
+        try {
+            const [ok, type_, subtype, _params, ] = mime_type(path, false);
+            //* cannot use GLib.lstat just now    //
+            // no way to allocate a GLib.StatBuf //
+            //let buf = new GLib.StatBuf();
+            //let buf = {};
+            //if(GLib.lstat(path, buf) === 0)
+            if(ok && type_ === 'inode'){
+                //const filetype = buf['st_mode'] & 0o0170000;
+                switch(subtype){
+                    case 'socket':  // Socket //
+                        result += 'S';
+                        break;
+                    case 'blockdevice': // Block Special //
+                        result += 'b';
+                        break;
+                    case 'chardevice': // Character Special //
+                        result += 'c';
+                        break;
+                    case 'fifo': // FIFO //
+                        result += '|';
+                        break;
+                } // switch(subtype) //
+            } // if(ok && type_ == 'inode') //
+        }catch(e){
+            LogMessage.log_message(LogMessage.get_prog_id(), `export function unixPermsToStr:  Error: ${e}`, e);
+            result += '|';
+        }
         // */
     }else if(file_type == Gio.FileType.REGULAR){
         result += '.';
@@ -221,8 +236,8 @@ export function unixPermsToStr(file_type, perms, path){
 } // export function unixPermsToStr(perms) //
 
 export function format_file_size(file_size, base2 = false){
-    LogMessage.log_message('notes', `function  format_file_size: file_size == ${file_size}`, new Error());
-    LogMessage.log_message('notes', `function  format_file_size: base2 == ${base2}`, new Error());
+    LogMessage.log_message(LogMessage.get_prog_id(), `function  format_file_size: file_size == ${file_size}`, new Error());
+    LogMessage.log_message(LogMessage.get_prog_id(), `function  format_file_size: base2 == ${base2}`, new Error());
     let result = '';
     if(base2){
         const n = Math.floor(Math.floor(Math.log10(file_size))/3) * 3;
@@ -320,6 +335,124 @@ export function array_equal(lhs, rhs){
     return false;
 } // export function array_equal(lhs, rhs) //
 
+function file_is_dir(file){
+    // is it a directory or a symlink to a directory  //
+    // will identify symlink directories as directory //
+    /* keep here for now incase the bellow code does not work //
+    [ok, linkpathbytearray, etag_out] = file.load_contents(null);
+    if(ok){
+        const decoder = new TextDecoder();
+        linkpath = decoder.decode(linkpathbytearray);
+        const linkfile = Gio.File.new_for_path(GLib.build_filenamev([linkpath]));
+    }else{
+    }
+    // */
+    let enumerator = null;
+    const attributes = "standard::name,standard::type,standard::display_name,standard::icon";
+    try {
+        enumerator = file.enumerate_children(attributes, Gio.FileQueryInfoFlags.NONE, null);
+        return enumerator !== null;
+    } catch(_e){
+        return null;
+    }
+} // function file_is_dir(file) //
+
+export function fileData(file) {
+    LogMessage.log_message(LogMessage.get_prog_id(), `function fileData: file == ${file}`, new Error());
+    if(file instanceof String || typeof file === 'string') file = Gio.File.new_for_path(GLib.build_filenamev([file]));
+    LogMessage.log_message(LogMessage.get_prog_id(), `function fileData: file: ‷${file.get_path()}‴`, new Error());
+    const attributes = "standard::name,standard::type,standard::display_name,standard::icon" 
+                             + ",standard::symlink-target"
+                                + ",standard::*,unix::mode,icon,unix::uid,unix::gid,unix::inode"
+                                    + ",unix::nlink,unix::is-mountpoint,trash::item-count"
+                                        + ",trash::deletion-date,time::modified,time::created"
+                                            + ",filesystem::readonly,owner::group,owner::user"
+                                                + ",owner::user-real,recent::modified,id::file"
+                                                    + ",standard::is-hidden"
+                                                        + ",unix::blocks,mountable::unix-device-file"
+                                                            + ",standard::content-type,standard::type";
+    let info           = null;
+    let is_dir_        = null;
+    let is_sym_        = null;
+    let is_executable_ = null;
+    try {
+        info          = file.query_info(attributes, Gio.FileQueryInfoFlags.NONE, null);
+
+        const file_type_ = info.get_file_type();
+
+        is_dir_ = (file_type_ === Gio.FileType.DIRECTORY);
+        LogMessage.log_message(LogMessage.get_prog_id(), `export function fileData: file_type_ == ‷${file_type_}‴`, new Error());
+        LogMessage.log_message(LogMessage.get_prog_id(), `export function fileData: is_dir_ == ‷${is_dir_}‴`, new Error());
+
+        LogMessage.log_message(LogMessage.get_prog_id(), `export function fileData: file == ‷${file}‴`, new Error());
+
+        if(file_type_ === Gio.FileType.SYMBOLIC_LINK){
+            is_sym_ = true;
+            is_dir_ = file_is_dir(file); // will identify symlink directories as directory //
+            LogMessage.log_message(LogMessage.get_prog_id(), `export function fileData: is_dir_ == ‷${is_dir_}‴`, new Error());
+        }else{
+            is_sym_ = false;
+        }
+        const mode  = info.get_attribute_uint32('unix::mode');
+        is_executable_ = mode  & 0b001_001_001;
+        const result = {
+            is_dir: is_dir_, 
+            is_sym: is_sym_, 
+            is_executable: is_executable_, 
+            name: info.get_name(),
+        };
+        return [true, result, ];
+    }
+    catch(e) {
+        LogMessage.log_message(LogMessage.get_prog_id(), `export function fileData: errorMessage == ‷${e}‴`, e);
+        return [null, e];
+    }
+} // export function fileData(file_) //
+
+export function mime_type(file, dereference = true) {
+    if(file instanceof Gio.File) file = file.get_path();
+    const cmd = [ 'file', '--brief', ];
+    if(dereference) {
+        cmd.push('--dereference');
+    }
+    cmd.push( '--mime-type', file );
+    const [ child_pid, standard_input, standard_out, standard_error] = Shell.util_spawn_async_with_pipes(null,
+                                cmd,
+                                null,
+                                GLib.SpawnFlags.SEARCH_PATH
+                            );
+    if(child_pid && standard_out != null){
+        const outputStream = new Gio.DataInputStream({
+            base_stream: new GioUnix.InputStream({fd: standard_out}),
+            byte_order: Gio.DataStreamByteOrder.HOST_ENDIAN,
+        });
+        GLib.close(standard_input);
+        GLib.close(standard_error);
+        //const [ok_, buffer, _bytes_read] = outputStream.read_all(null, null);
+        const length  = 4096;
+        const bytes   = outputStream.read_bytes(length, null).toArray();
+        //const message = JSON.parse(new TextDecoder().decode(bytes));
+        GLib.close(standard_out);
+        const decoder = new TextDecoder();
+        const buff0 = decoder.decode(bytes);
+        LogMessage.log_message(LogMessage.get_prog_id(), `export function mime_type: buff0 == ‷${buff0}‴`, new Error());
+        const buff  = buff0.trim();
+        LogMessage.log_message(LogMessage.get_prog_id(), `export function mime_type: buff == ‷${buff}‴`, new Error());
+        if(buff){
+            const matches = buff.match(/^([^/]+)\/([^;]*)(?:;(.+))?$/);
+            LogMessage.log_message(
+                LogMessage.get_prog_id(), `export function mime_type: matches == ‷${matches}‴`, new Error()
+            );
+            if(matches){
+                return [ true, matches[1], matches[2], matches[3], ];
+            }else{
+                return [ true, buff, null, null, ];
+            }
+        } // if(buff) //
+    } // if(child_pid && standard_out != null) //
+    return [ false, null, null, null, ];
+} //  export function mime_type(file, dereference = true) //
+
 export class GzzMessageDialog extends ModalDialog.ModalDialog {
     static {
         GObject.registerClass(this);
@@ -328,18 +461,18 @@ export class GzzMessageDialog extends ModalDialog.ModalDialog {
     #_result = false;
 
     constructor(title_, text_, icon_name = null, buttons = null) {
-        LogMessage.log_message('notes', `GzzMessageDialog::constructor: title_ == ${title_}`, new Error());
-        LogMessage.log_message('notes', `GzzMessageDialog::constructor: text_ == ${text_}`, new Error());
-        LogMessage.log_message('notes', `GzzMessageDialog::constructor: icon_name == ${icon_name}`, new Error());
-        LogMessage.log_message('notes', `GzzMessageDialog::constructor: buttons == ${JSON.stringify(buttons)}`, new Error());
+        LogMessage.log_message(LogMessage.get_prog_id(), `GzzMessageDialog::constructor: title_ == ${title_}`, new Error());
+        LogMessage.log_message(LogMessage.get_prog_id(), `GzzMessageDialog::constructor: text_ == ${text_}`, new Error());
+        LogMessage.log_message(LogMessage.get_prog_id(), `GzzMessageDialog::constructor: icon_name == ${icon_name}`, new Error());
+        LogMessage.log_message(LogMessage.get_prog_id(), `GzzMessageDialog::constructor: buttons == ${JSON.stringify(buttons)}`, new Error());
         super({ styleClass: 'extension-dialog' });
 
         let icon_name_ = icon_name;
         if(!icon_name_){
             icon_name_ = 'dialog-information';
-            LogMessage.log_message('notes', `GzzMessageDialog::constructor: #icon_name_ == ‷${icon_name_}‴`, new Error());
+            LogMessage.log_message(LogMessage.get_prog_id(), `GzzMessageDialog::constructor: #icon_name_ == ‷${icon_name_}‴`, new Error());
         }
-        LogMessage.log_message('notes', `GzzMessageDialog::constructor: #icon_name_ == ‷${icon_name_}‴`, new Error());
+        LogMessage.log_message(LogMessage.get_prog_id(), `GzzMessageDialog::constructor: #icon_name_ == ‷${icon_name_}‴`, new Error());
         const icon = new St.Icon({icon_name: icon_name_ });
         this.contentLayout.add_child(icon);
 
@@ -375,7 +508,7 @@ export class GzzMessageDialog extends ModalDialog.ModalDialog {
             });
         }
         LogMessage.log_message(
-            'notes',
+            LogMessage.get_prog_id(),
             `GzzMessageDialog::constructor: end constructor(title_, text_, icon_name_ = null, buttons = null): ‷${icon_name_}‴`,
             new Error()
         );
@@ -614,7 +747,7 @@ export class GzzDialogType {
     #name = '';
 
     constructor(name) {
-    this.#name = name;
+        this.#name = name;
     }
 
     toString() {
@@ -730,10 +863,10 @@ export class GzzFileDialogBase extends ModalDialog.ModalDialog {
     }
 
     set_double_click_time(dbl_click_time){
-        LogMessage.log_message('notes', `GzzFileDialogBase::set_double_click_time: dbl_click_time == ${dbl_click_time}`, new Error());
+        LogMessage.log_message(LogMessage.get_prog_id(), `GzzFileDialogBase::set_double_click_time: dbl_click_time == ${dbl_click_time}`, new Error());
         if(Number.isNaN(dbl_click_time)){
             LogMessage.log_message(
-                'notes',
+                LogMessage.get_prog_id(),
                 `GzzFileDialogBase::set_double_click_time: dbl_click_time == ${dbl_click_time}`
                 + `bad value expected integer or date got ${dbl_click_time}`,
                 new Error()
@@ -752,7 +885,7 @@ export class GzzFileDialogBase extends ModalDialog.ModalDialog {
             this.#_double_click_time = Number(dbl_click_time);
         }else{
             LogMessage.log_message(
-                'notes',
+                LogMessage.get_prog_id(),
                 `GzzFileDialogBase::set_double_click_time: dbl_click_time == ${dbl_click_time}`
                 + `bad value expected integer or Date ${dbl_click_time}`,
                 new Error()
@@ -779,17 +912,17 @@ export class GzzFileDialogBase extends ModalDialog.ModalDialog {
     }
 
     default_error_handler(_error_owner, _name, msg, e = null){
-        LogMessage.log_message('notes', `GzzFileDialogBase::default_error_handler: _error_owner == ${_error_owner}`, new Error());
-        LogMessage.log_message('notes', `GzzFileDialogBase::default_error_handler: _name == ${_name}`, new Error());
-        LogMessage.log_message('notes', `GzzFileDialogBase::default_error_handler: msg == ${msg}`, new Error());
+        LogMessage.log_message(LogMessage.get_prog_id(), `GzzFileDialogBase::default_error_handler: _error_owner == ${_error_owner}`, new Error());
+        LogMessage.log_message(LogMessage.get_prog_id(), `GzzFileDialogBase::default_error_handler: _name == ${_name}`, new Error());
+        LogMessage.log_message(LogMessage.get_prog_id(), `GzzFileDialogBase::default_error_handler: msg == ${msg}`, new Error());
         if(e && e instanceof Error){
             msg += `: ${e.fileName}:${e.lineNumber}:${e.columnNumber}`;
         }
         const dlg = new GzzMessageDialog(_name, msg, 'dialog-error');
         dlg.open();
-        LogMessage.log_message('notes', `GzzFileDialogBase::default_error_handler: _error_owner == ${_error_owner}`, new Error());
-        LogMessage.log_message('notes', `GzzFileDialogBase::default_error_handler: _name == ${_name}`, new Error());
-        LogMessage.log_message('notes', `GzzFileDialogBase::default_error_handler: msg == ${msg}`, new Error());
+        LogMessage.log_message(LogMessage.get_prog_id(), `GzzFileDialogBase::default_error_handler: _error_owner == ${_error_owner}`, new Error());
+        LogMessage.log_message(LogMessage.get_prog_id(), `GzzFileDialogBase::default_error_handler: _name == ${_name}`, new Error());
+        LogMessage.log_message(LogMessage.get_prog_id(), `GzzFileDialogBase::default_error_handler: msg == ${msg}`, new Error());
     }
 
     get_error_handler(){
@@ -839,6 +972,7 @@ export class GzzFileDialogBase extends ModalDialog.ModalDialog {
         throw new Error('GzzFileDialogBase::display_dir_error: Cannot create an instace of a virtual class.');
     }
 
+    /*
     double_clicked(_error_owner, _title){
         throw new Error('GzzFileDialogBase::double_clicked_error: Cannot create an instace of a virtual class.');
     }
@@ -846,6 +980,7 @@ export class GzzFileDialogBase extends ModalDialog.ModalDialog {
     clicked(_error_owner, _title){
         throw new Error('GzzFileDialogBase::clicked_error: Cannot create an instace of a virtual class.');
     }
+    // */
 
 } // export class GzzFileDialogBase extends ModalDialog.ModalDialog  //
 
@@ -889,7 +1024,7 @@ export class GzzHeaderItem extends Button.Button {
         if('array' in params){
             this.set_array(params.array);
         }else{
-            LogMessage.log_message('notes', 'GzzHeaderItem::constructor_error: Property array is required: ', new Error());
+            LogMessage.log_message(LogMessage.get_prog_id(), 'GzzHeaderItem::constructor_error: Property array is required: ', new Error());
             this.#_owner.apply_error_handler( this, 'GzzHeaderItem::constructor_error', 'Error: Property array is required', new Error());
         }
 
@@ -936,7 +1071,7 @@ export class GzzHeaderItem extends Button.Button {
 
     set_array(arr){
         if(!arr || (Array.isArray(arr) && arr.length === 0)){
-            LogMessage.log_message('notes', 'GzzHeaderItem::set_array: array cannot be empty or null:', new Error());
+            LogMessage.log_message(LogMessage.get_prog_id(), 'GzzHeaderItem::set_array: array cannot be empty or null:', new Error());
             this.#_owner.apply_error_handler(this, 'GzzHeaderItem::set_array_error', 'array cannot be empty or null', new Error());
         }else if(Array.isArray(arr)){
             this.#_array = arr;
@@ -949,11 +1084,11 @@ export class GzzHeaderItem extends Button.Button {
                 this.set_icon_size(this.#_icon_size);
             }
         }else{
-            LogMessage.log_message('notes', `GzzHeaderItem::set_array: array must be an array: you gave me ${JSON.stringify(this.#_array)}:`, new Error());
+            LogMessage.log_message(LogMessage.get_prog_id(), `GzzHeaderItem::set_array: array must be an array: you gave me ${JSON.stringify(this.#_array)}:`, new Error());
             this.#_owner.apply_error_handler(
                 this,
                 'GzzHeaderItem::set_array_error',
-                `notes: GzzHeaderItem::set_array_error: array must be an array: you gave me ${JSON.stringify(this.#_array)}:`,  
+                `${LogMessage.get_prog_id()}: GzzHeaderItem::set_array_error: array must be an array: you gave me ${JSON.stringify(this.#_array)}:`,  
                 new Error()
             );
         }
@@ -1061,7 +1196,7 @@ export class GzzHeader extends AbstractHeader {
 
         const [ok_, home]   = splitFile(Gio.File.new_for_path(GLib.build_filenamev([GLib.get_home_dir()])));
         if(!ok_){
-            LogMessage.log_message('notes', `GzzHeader::constructor: splitFile error could not get value of home ${home}`, new Error());
+            LogMessage.log_message(LogMessage.get_prog_id(), `GzzHeader::constructor: splitFile error could not get value of home ${home}`, new Error());
             this.#_owner.apply_error_handler(
                 this,
                 'GzzHeader::constructor',
@@ -1078,22 +1213,22 @@ export class GzzHeader extends AbstractHeader {
             const dir_   = params.dir;
             if(!dir_){
                 this.#_array = this.#_current_array = this.#_home;
-                LogMessage.log_message('notes', `GzzHeader::constructor: dir must be defined dir == ${dir_} home assumed: `, new Error());
+                LogMessage.log_message(LogMessage.get_prog_id(), `GzzHeader::constructor: dir must be defined dir == ${dir_} home assumed: `, new Error());
             }else if(dir_ instanceof String || typeof dir_ === 'string' || dir_ instanceof Gio.File){
                 [ok, result] = splitFile(dir_);
                 if(!ok){
-                    LogMessage.log_message('notes', `GzzHeader::constructor: splitFile error: ${result}: `, new Error());
+                    LogMessage.log_message(LogMessage.get_prog_id(), `GzzHeader::constructor: splitFile error: ${result}: `, new Error());
                     this.#_array = this.#_current_array = this.#_home;
                 }else{
                     this.#_array = this.#_current_array = result;
                 }
             }else{
                 this.#_array = this.#_current_array = this.#_home;
-                LogMessage.log_message('notes', `GzzHeader::constructor: error passed none path value as dir == ${dir_}: `, new Error());
+                LogMessage.log_message(LogMessage.get_prog_id(), `GzzHeader::constructor: error passed none path value as dir == ${dir_}: `, new Error());
             }
         }else{
             this.#_array = this.#_current_array = this.#_home;
-            LogMessage.log_message('notes', 'GzzHeader::constructor_error: dir must be supplied home assumed: ', new Error());
+            LogMessage.log_message(LogMessage.get_prog_id(), 'GzzHeader::constructor_error: dir must be supplied home assumed: ', new Error());
         }
 
     } // constructor(params) //
@@ -1167,11 +1302,11 @@ export class GzzHeader extends AbstractHeader {
     }
 
     set_show_root(showroot){
-        LogMessage.log_message('notes', `GzzHeader::set_show_root: showroot == ${showroot}`, new Error());
+        LogMessage.log_message(LogMessage.get_prog_id(), `GzzHeader::set_show_root: showroot == ${showroot}`, new Error());
         if(this.#_show_root != !!showroot){
             this.#_show_root = !!showroot;
             if(this.#_array && this.#_array.length > 0){
-                LogMessage.log_message('notes', `GzzHeader::set_show_root: this.#_array == ${JSON.stringify(this.#_array)}`, new Error());
+                LogMessage.log_message(LogMessage.get_prog_id(), `GzzHeader::set_show_root: this.#_array == ${JSON.stringify(this.#_array)}`, new Error());
                 this.destroy_all_children();
                 this.#add_buttons();
             }
@@ -1198,21 +1333,21 @@ export class GzzHeader extends AbstractHeader {
         }
         const [ok, array] = splitFile(dirname_);
         if(!ok){
-            LogMessage.log_message('notes', `GzzHeader::display_dir: ok == ${ok}`, new Error());
-            LogMessage.log_message('notes', `GzzHeader::display_dir: array == ${array}`, new Error());
+            LogMessage.log_message(LogMessage.get_prog_id(), `GzzHeader::display_dir: ok == ${ok}`, new Error());
+            LogMessage.log_message(LogMessage.get_prog_id(), `GzzHeader::display_dir: array == ${array}`, new Error());
             this.#_owner.apply_error_handler(this, 'GzzHeader::display_dir_error', `splitFile Error: ${array}`, new Error());
             return null;
         }
-        LogMessage.log_message('notes', `GzzHeader::display_dir: array == ${JSON.stringify(array)}`, new Error());
+        LogMessage.log_message(LogMessage.get_prog_id(), `GzzHeader::display_dir: array == ${JSON.stringify(array)}`, new Error());
         if(!this.#_array || this.#_array.length == 0){
-            LogMessage.log_message('notes', `GzzHeader::display_dir: replacing value of this.#_array == ${JSON.stringify(this.#_array)}`, new Error());
+            LogMessage.log_message(LogMessage.get_prog_id(), `GzzHeader::display_dir: replacing value of this.#_array == ${JSON.stringify(this.#_array)}`, new Error());
             this.#_array = array;
-            LogMessage.log_message('notes', `GzzHeader::display_dir: replacing value of this.#_array == ${JSON.stringify(this.#_array)}`, new Error());
+            LogMessage.log_message(LogMessage.get_prog_id(), `GzzHeader::display_dir: replacing value of this.#_array == ${JSON.stringify(this.#_array)}`, new Error());
         }
         const length = Math.min(array.length, this.#_array.length);
-        LogMessage.log_message('notes', `GzzHeader::display_dir: array.length == ${array.length}`, new Error());
-        LogMessage.log_message('notes', `GzzHeader::display_dir: this.#_array.length == ${this.#_array.length}`, new Error());
-        LogMessage.log_message('notes', `GzzHeader::display_dir: length == ${length}`, new Error());
+        LogMessage.log_message(LogMessage.get_prog_id(), `GzzHeader::display_dir: array.length == ${array.length}`, new Error());
+        LogMessage.log_message(LogMessage.get_prog_id(), `GzzHeader::display_dir: this.#_array.length == ${this.#_array.length}`, new Error());
+        LogMessage.log_message(LogMessage.get_prog_id(), `GzzHeader::display_dir: length == ${length}`, new Error());
         this.#_current_array = array;
         if(!this.#_initialised){
             this.destroy_all_children();
@@ -1220,19 +1355,19 @@ export class GzzHeader extends AbstractHeader {
             this.#_initialised = true;
             return true;
         }else if(subpathof(array, this.#_array)){
-            LogMessage.log_message('notes', `GzzHeader::display_dir: refreshing button states length == ${length}`, new Error());
+            LogMessage.log_message(LogMessage.get_prog_id(), `GzzHeader::display_dir: refreshing button states length == ${length}`, new Error());
             this.refresh_button_states();
             return true;
         }
         this.#_array = array;
-        LogMessage.log_message('notes', `GzzHeader::display_dir: rebuilding all buutons this.#_array == ${JSON.stringify(this.#_array)}`, new Error());
+        LogMessage.log_message(LogMessage.get_prog_id(), `GzzHeader::display_dir: rebuilding all buutons this.#_array == ${JSON.stringify(this.#_array)}`, new Error());
         this.destroy_all_children();
         this.#add_buttons()
         return true;
     } // display_dir(caller, dirname_) //
 
     #add_buttons(){
-        LogMessage.log_message('notes', `GzzHeader::#add_buttons: this.#_array.length == ${this.#_array.length}`, new Error());
+        LogMessage.log_message(LogMessage.get_prog_id(), `GzzHeader::#add_buttons: this.#_array.length == ${this.#_array.length}`, new Error());
         let start = 1;
         if(this.#_show_root){
             start = 1;
@@ -1246,8 +1381,8 @@ export class GzzHeader extends AbstractHeader {
     }
 
     #add_button(array){
-        LogMessage.log_message('notes', `GzzHeader::#add_button: array == ${JSON.stringify(array)}`, new Error());
-        LogMessage.log_message('notes', `GzzHeader::#add_button: this.#_show_root == ${this.#_show_root}`, new Error());
+        LogMessage.log_message(LogMessage.get_prog_id(), `GzzHeader::#add_button: array == ${JSON.stringify(array)}`, new Error());
+        LogMessage.log_message(LogMessage.get_prog_id(), `GzzHeader::#add_button: this.#_show_root == ${this.#_show_root}`, new Error());
         const button_path = Gio.File.new_for_path(GLib.build_filenamev(array));
         const current = array_equal(array, this.#_current_array);
         this.add_child(new GzzHeaderItem({
@@ -1290,20 +1425,26 @@ export class GzzHeader extends AbstractHeader {
     }
 
     set_dir_path(file){
-        LogMessage.log_message('notes', `GzzHeader::set_dir_path: file == ${file}`, new Error());
+        LogMessage.log_message(LogMessage.get_prog_id(), `GzzHeader::set_dir_path: file == ${file}`, new Error());
         if(file){
             const [ok, array] = splitFile(file);
             if(!ok){
-                LogMessage.log_message('notes', `GzzHeader::set_dir_path: array == ${array}`, new Error());
-                this.#_owner.apply_error_handler(this, 'GzzHeader::add_button_error', `splitFile Error: ${array}`, new Error());
+                LogMessage.log_message(LogMessage.get_prog_id(), `GzzHeader::set_dir_path: array == ${array}`, new Error());
+                this.#_owner.apply_error_handler(
+                    this, 'GzzHeader::add_button_error', `splitFile Error: ${array}`, new Error()
+                );
                 return;
             }
             this.#_current_array = array;
-            LogMessage.log_message('notes', `GzzHeader::set_show_root: this.#_current_array == ${JSON.stringify(this.#_current_array)}`, new Error());
-            LogMessage.log_message('notes', `GzzHeader::set_dir_path: array == ${JSON.stringify(array)}`, new Error());
-            LogMessage.log_message('notes', `GzzHeader::set_dir_path: this.#_array == ${JSON.stringify(this.#_array)}`, new Error());
-            LogMessage.log_message('notes', `GzzHeader::set_dir_path: array.length == ${array.length}`, new Error());
-            LogMessage.log_message('notes', `GzzHeader::set_dir_path: this.#_array.length == ${this.#_array.length}`, new Error());
+            const LM = LogMessage;
+            const id = LM.get_prog_id();
+            LM.log_message(
+                id, `GzzHeader::set_show_root: this.#_current_array == ${JSON.stringify(this.#_current_array)}`, new Error()
+            );
+            LM.log_message(id, `GzzHeader::set_dir_path: array == ${JSON.stringify(array)}`, new Error());
+            LM.log_message(id, `GzzHeader::set_dir_path: this.#_array == ${JSON.stringify(this.#_array)}`, new Error());
+            LM.log_message(id, `GzzHeader::set_dir_path: array.length == ${array.length}`, new Error());
+            LM.log_message(id, `GzzHeader::set_dir_path: this.#_array.length == ${this.#_array.length}`, new Error());
             if(subpathof(array, this.#_array)){
                 this.refresh_button_states();
                 this.#_list_file_section.list_destroy_all_children(this);
@@ -1316,11 +1457,13 @@ export class GzzHeader extends AbstractHeader {
                 this.#_owner.display_dir(this, file);
             }
         }else{
-            LogMessage.log_message('notes', 'GzzHeader::set_dir_path file error: file must have a value:', new Error());
+            LogMessage.log_message(
+                LogMessage.get_prog_id(), 'GzzHeader::set_dir_path file error: file must have a value:', new Error()
+            );
             this.#_owner.apply_error_handler(
                 this,
                 'GzzHeader::set_dir_path',
-                'notes: GzzHeader::set_dir_path file error: file must have a value:' 
+                '${LogMessage.get_prog_id()}: GzzHeader::set_dir_path file error: file must have a value:' 
                 , new Error()
             );
         }
@@ -1413,7 +1556,7 @@ export class GzzColumnNames extends St.BoxLayout {
         if('icon_size' in params && Number.isInteger(params.icon_size) && 6 <= Number(params.icon_size) && Number(params.icon_size) <= 256){
             icon_size_ = Number(params.icon_size);
         }
-        LogMessage.log_message('notes', `GzzColumnNames::constructor: icon_size_ == ${icon_size_}`, new Error());
+        LogMessage.log_message(LogMessage.get_prog_id(), `GzzColumnNames::constructor: icon_size_ == ${icon_size_}`, new Error());
         
         this.#_icon = new Button.Button({
             style_class: 'dialog-item-column-name',
@@ -1426,7 +1569,7 @@ export class GzzColumnNames extends St.BoxLayout {
         if("display_inode" in params){
             this.#_display_inode = !!params.display_inode;
         }
-        LogMessage.log_message('notes', `GzzColumnNames::constructor: this.#_display_inode == ${this.#_display_inode}`, new Error());
+        LogMessage.log_message(LogMessage.get_prog_id(), `GzzColumnNames::constructor: this.#_display_inode == ${this.#_display_inode}`, new Error());
 
         if(this.#_display_inode){
             this.#_inode = new Button.Button({
@@ -1442,7 +1585,7 @@ export class GzzColumnNames extends St.BoxLayout {
         if('display_mode' in params){
             this.#_display_mode = !!params.display_mode;
         }
-        LogMessage.log_message('notes', `GzzColumnNames::constructor: this.#_display_mode == ${this.#_display_mode}`, new Error());
+        LogMessage.log_message(LogMessage.get_prog_id(), `GzzColumnNames::constructor: this.#_display_mode == ${this.#_display_mode}`, new Error());
 
         if(this.#_display_mode){
             this.#_mode_box = new Button.Button({
@@ -1458,7 +1601,7 @@ export class GzzColumnNames extends St.BoxLayout {
         if('display_number_links' in params){
             this.#_display_number_links = !!params.display_number_links;
         }
-        LogMessage.log_message('notes', `GzzColumnNames::constructor: this.#_display_number_links == ${this.#_display_number_links}`, new Error());
+        LogMessage.log_message(LogMessage.get_prog_id(), `GzzColumnNames::constructor: this.#_display_number_links == ${this.#_display_number_links}`, new Error());
 
         if(this.#_display_number_links){
             this.#_nlink_box = new Button.Button({
@@ -1484,10 +1627,10 @@ export class GzzColumnNames extends St.BoxLayout {
             && 0 <= Number(params.display_times) && Number(params.display_times) <= 7){
             this.#_display_times = Number(params.display_times);
         }
-        LogMessage.log_message('notes', `GzzColumnNames::constructor: this.#_display_times == ${this.#_display_times}`, new Error());
+        LogMessage.log_message(LogMessage.get_prog_id(), `GzzColumnNames::constructor: this.#_display_times == ${this.#_display_times}`, new Error());
 
         if(this.#_display_times & GzzColumnNames.Create){
-            LogMessage.log_message('notes', `GzzColumnNames::constructor: this.#_display_times == ${this.#_display_times}`, new Error());
+            LogMessage.log_message(LogMessage.get_prog_id(), `GzzColumnNames::constructor: this.#_display_times == ${this.#_display_times}`, new Error());
             this.#_create = new Button.Button({
                 label:        'Create', 
                 style_class: 'dialog-item-column-name',
@@ -1499,7 +1642,7 @@ export class GzzColumnNames extends St.BoxLayout {
         }
         
         if(this.#_display_times & GzzColumnNames.Modify){
-            LogMessage.log_message('notes', `GzzColumnNames::constructor: this.#_display_times == ${this.#_display_times}`, new Error());
+            LogMessage.log_message(LogMessage.get_prog_id(), `GzzColumnNames::constructor: this.#_display_times == ${this.#_display_times}`, new Error());
             this.#_modification = new Button.Button({
                 label:        'Modification Time', 
                 style_class: 'dialog-item-column-name',
@@ -1511,7 +1654,7 @@ export class GzzColumnNames extends St.BoxLayout {
         }
         
         if(this.#_display_times & GzzColumnNames.Access){
-            LogMessage.log_message('notes', `GzzColumnNames::constructor: this.#_display_times == ${this.#_display_times}`, new Error());
+            LogMessage.log_message(LogMessage.get_prog_id(), `GzzColumnNames::constructor: this.#_display_times == ${this.#_display_times}`, new Error());
             this.#_access = new Button.Button({
                 text:        'Access Time', 
                 style_class: 'dialog-item-column-name',
@@ -1526,10 +1669,10 @@ export class GzzColumnNames extends St.BoxLayout {
             && 0 <= Number(params.display_user_group) && Number(params.display_user_group) <= 3){
             this.#_display_user_group = Number(params.display_user_group);
         }
-        LogMessage.log_message('notes', `GzzColumnNames::constructor: this.#_display_user_group == ${this.#_display_user_group}`, new Error());
+        LogMessage.log_message(LogMessage.get_prog_id(), `GzzColumnNames::constructor: this.#_display_user_group == ${this.#_display_user_group}`, new Error());
         
         if(this.#_display_user_group & GzzColumnNames.User){
-            LogMessage.log_message('notes', `GzzColumnNames::constructor: this.#_display_user_group == ${this.#_display_user_group}`, new Error());
+            LogMessage.log_message(LogMessage.get_prog_id(), `GzzColumnNames::constructor: this.#_display_user_group == ${this.#_display_user_group}`, new Error());
             this.#_user = new Button.Button({
                 label:        'User', 
                 style_class: 'dialog-item-column-name',
@@ -1541,7 +1684,7 @@ export class GzzColumnNames extends St.BoxLayout {
         }
 
         if(this.#_display_user_group & GzzColumnNames.Group){
-            LogMessage.log_message('notes', `GzzColumnNames::constructor: this.#_display_user_group == ${this.#_display_user_group}`, new Error());
+            LogMessage.log_message(LogMessage.get_prog_id(), `GzzColumnNames::constructor: this.#_display_user_group == ${this.#_display_user_group}`, new Error());
             this.#_group = new Button.Button({
                 label:        'Group', 
                 style_class: 'dialog-item-column-name',
@@ -1555,7 +1698,7 @@ export class GzzColumnNames extends St.BoxLayout {
         if('display_size' in params){
             this.#_display_size = !!params.display_size;
         }
-        LogMessage.log_message('notes', `GzzColumnNames::constructor: this.#_display_size == ${this.#_display_size}`, new Error());
+        LogMessage.log_message(LogMessage.get_prog_id(), `GzzColumnNames::constructor: this.#_display_size == ${this.#_display_size}`, new Error());
 
         if(this.#_display_size){
             this.#_file_size_box = new Button.Button({
@@ -1567,7 +1710,7 @@ export class GzzColumnNames extends St.BoxLayout {
                 width:       160, 
             });
         }
-        LogMessage.log_message('notes', `GzzColumnNames::constructor: this.#_file_size_box == ${this.#_file_size_box}`, new Error());
+        LogMessage.log_message(LogMessage.get_prog_id(), `GzzColumnNames::constructor: this.#_file_size_box == ${this.#_file_size_box}`, new Error());
 
         this.add_child(this.#_icon);
         if(this.#_inode)         this.add_child(this.#_inode);
@@ -1611,12 +1754,12 @@ export class GzzColumnNames extends St.BoxLayout {
             this.#handle_clicked(button, mousebtn, btnstate, 'group_name');
         });
         if(this.#_file_size_box) this.#connectID_file_size    = this.#_file_size_box.connect("clicked", (_emiter, button, mousebtn, btnstate) => {
-            LogMessage.log_message('notes', `GzzColumnNames::constructor: _emiter == ${_emiter}`, new Error());
-            LogMessage.log_message('notes', `GzzColumnNames::constructor: button == ${button}`, new Error());
-            LogMessage.log_message('notes', `GzzColumnNames::constructor: mousebtn == ${mousebtn}`, new Error());
-            LogMessage.log_message('notes', `GzzColumnNames::constructor: (button === _emiter) == ${button === _emiter}`, new Error());
-            LogMessage.log_message('notes', `GzzColumnNames::constructor: button === mousebtn == ${button === mousebtn}`, new Error());
-            LogMessage.log_message('notes', `GzzColumnNames::constructor: btnstate == ${btnstate}`, new Error());
+            LogMessage.log_message(LogMessage.get_prog_id(), `GzzColumnNames::constructor: _emiter == ${_emiter}`, new Error());
+            LogMessage.log_message(LogMessage.get_prog_id(), `GzzColumnNames::constructor: button == ${button}`, new Error());
+            LogMessage.log_message(LogMessage.get_prog_id(), `GzzColumnNames::constructor: mousebtn == ${mousebtn}`, new Error());
+            LogMessage.log_message(LogMessage.get_prog_id(), `GzzColumnNames::constructor: (button === _emiter) == ${button === _emiter}`, new Error());
+            LogMessage.log_message(LogMessage.get_prog_id(), `GzzColumnNames::constructor: button === mousebtn == ${button === mousebtn}`, new Error());
+            LogMessage.log_message(LogMessage.get_prog_id(), `GzzColumnNames::constructor: btnstate == ${btnstate}`, new Error());
             this.#handle_clicked(button, mousebtn, btnstate, 'file_size');
         });
 
@@ -1657,19 +1800,19 @@ export class GzzColumnNames extends St.BoxLayout {
     }
 
     #handle_clicked(button, mousebtn, btnstate, field_name){
-        LogMessage.log_message('notes', `GzzColumnNames::#handle_clicked: button == ${button}`, new Error());
-        LogMessage.log_message('notes', `GzzColumnNames::#handle_clicked: mousebtn == ${mousebtn}`, new Error());
-        LogMessage.log_message('notes', `GzzColumnNames::#handle_clicked: btnstate == ${btnstate}`, new Error());
-        LogMessage.log_message('notes', `GzzColumnNames::#handle_clicked: button === mousebtn == ${button === mousebtn}`, new Error());
-        LogMessage.log_message('notes', `GzzColumnNames::#handle_clicked: field_name == ${field_name}`, new Error());
+        LogMessage.log_message(LogMessage.get_prog_id(), `GzzColumnNames::#handle_clicked: button == ${button}`, new Error());
+        LogMessage.log_message(LogMessage.get_prog_id(), `GzzColumnNames::#handle_clicked: mousebtn == ${mousebtn}`, new Error());
+        LogMessage.log_message(LogMessage.get_prog_id(), `GzzColumnNames::#handle_clicked: btnstate == ${btnstate}`, new Error());
+        LogMessage.log_message(LogMessage.get_prog_id(), `GzzColumnNames::#handle_clicked: button === mousebtn == ${button === mousebtn}`, new Error());
+        LogMessage.log_message(LogMessage.get_prog_id(), `GzzColumnNames::#handle_clicked: field_name == ${field_name}`, new Error());
         switch(mousebtn){
             case(1):
                 switch(btnstate){
                     case 0:
                     case 1:
-                        LogMessage.log_message('notes', `GzzColumnNames::#handle_clicked: field_name == ${field_name}`, new Error());
-                        LogMessage.log_message('notes', `GzzColumnNames::#handle_clicked: this.#_list_file_section == ${this.#_list_file_section}`, new Error());
-                        LogMessage.log_message('notes', `GzzColumnNames::#handle_clicked: this.#_list_file_section.sort_by_col == ${this.#_list_file_section.sort_by_col}`, new Error());
+                        LogMessage.log_message(LogMessage.get_prog_id(), `GzzColumnNames::#handle_clicked: field_name == ${field_name}`, new Error());
+                        LogMessage.log_message(LogMessage.get_prog_id(), `GzzColumnNames::#handle_clicked: this.#_list_file_section == ${this.#_list_file_section}`, new Error());
+                        LogMessage.log_message(LogMessage.get_prog_id(), `GzzColumnNames::#handle_clicked: this.#_list_file_section.sort_by_col == ${this.#_list_file_section.sort_by_col}`, new Error());
                         this.#_list_file_section.sort_by_col(this, field_name);
                         this.#refresh_button_checked_states(button);
                         break;
@@ -1862,8 +2005,8 @@ export  class GzzListFileSection extends AbstractListFileSection {
 
         const txt   = this.#_owner.get_filter().toString();
         const rows_ = this.#_owner.get_filters().map(elt => { return { text: elt.toString() }; });
-        LogMessage.log_message('notes', `Gzz::GzzListFileSection::constructor:  txt == ${txt}`, new Error());
-        LogMessage.log_message('notes', `Gzz::GzzListFileSection::constructor:  rows_ == ${JSON.stringify(rows_)}`, new Error());
+        LogMessage.log_message(LogMessage.get_prog_id(), `Gzz::GzzListFileSection::constructor:  txt == ${txt}`, new Error());
+        LogMessage.log_message(LogMessage.get_prog_id(), `Gzz::GzzListFileSection::constructor:  rows_ == ${JSON.stringify(rows_)}`, new Error());
 
         try {
             this.#_filter_select = new Select.Select(
@@ -1875,7 +2018,7 @@ export  class GzzListFileSection extends AbstractListFileSection {
             }, this.#_owner);
         }catch(e){
             LogMessage.log_message(
-                'notes', `Gzz::GzzListFileSection::constructor:  rows_ == ${JSON.stringify(rows_)}, e = ${e}`, e
+                LogMessage.get_prog_id(), `Gzz::GzzListFileSection::constructor:  rows_ == ${JSON.stringify(rows_)}, e = ${e}`, e
             );
         }
 
@@ -1901,7 +2044,10 @@ export  class GzzListFileSection extends AbstractListFileSection {
 
         this.#show_root_button.connect('clicked', () => {
             const showroot = !this.#header.get_show_root();
-            LogMessage.log_message('notes', `GzzListFileSection::constructor: this.#show_root_button.connect showroot == ${showroot}`, new Error());
+            LogMessage.log_message(
+                LogMessage.get_prog_id(),
+                `GzzListFileSection::constructor: this.#show_root_button.connect showroot == ${showroot}`, new Error()
+            );
             this.#header.set_show_root(showroot) 
             this.#show_root_button.checked = showroot;
         })
@@ -1952,11 +2098,11 @@ export  class GzzListFileSection extends AbstractListFileSection {
     };
 
     sort_by_col(caller, field_name){
-        LogMessage.log_message('notes', `GzzListFileSection::sort_by_col: caller == ${caller}`, new Error());
-        LogMessage.log_message('notes', `GzzListFileSection::sort_by_col: field_name == ${field_name}`, new Error());
+        LogMessage.log_message(LogMessage.get_prog_id(), `GzzListFileSection::sort_by_col: caller == ${caller}`, new Error());
+        LogMessage.log_message(LogMessage.get_prog_id(), `GzzListFileSection::sort_by_col: field_name == ${field_name}`, new Error());
         if(!(caller instanceof GzzFileDialogBase) && !(caller instanceof GzzColumnNames)){
             LogMessage.log_message(
-                'notes',
+                LogMessage.get_prog_id(),
                 `GzzListFileSection::sort_by_col: only an instance of GzzFileDialogBase can call this function you supplied == ${caller}`,
                 new Error()
             );
@@ -1968,9 +2114,9 @@ export  class GzzListFileSection extends AbstractListFileSection {
             );
             return;
         }
-        LogMessage.log_message('notes', `GzzListFileSection::sort_by_col: field_name == ${field_name}`, new Error());
+        LogMessage.log_message(LogMessage.get_prog_id(), `GzzListFileSection::sort_by_col: field_name == ${field_name}`, new Error());
         if(field_name in GzzListFileSection.KnownFields){
-            LogMessage.log_message('notes', `GzzListFileSection::sort_by_col: field_name == ${field_name}`, new Error());
+            LogMessage.log_message(LogMessage.get_prog_id(), `GzzListFileSection::sort_by_col: field_name == ${field_name}`, new Error());
             switch(field_name){
                 case 'file_name':
                     this.#_cmp = this.#file_name_cmp;
@@ -2006,7 +2152,7 @@ export  class GzzListFileSection extends AbstractListFileSection {
                     this.#_cmp = this.#file_name_cmp;
             } // switch(field_name) //
         } // if(field_name in GzzListFileSection.KnownFields) //
-        LogMessage.log_message('notes', `GzzListFileSection::sort_by_col: this.#_cmp == ${this.#_cmp}`, new Error());
+        LogMessage.log_message(LogMessage.get_prog_id(), `GzzListFileSection::sort_by_col: this.#_cmp == ${this.#_cmp}`, new Error());
         const children = this.#list.get_children();
         this.#list.remove_all_children();
         for(const child of children){
@@ -2015,8 +2161,8 @@ export  class GzzListFileSection extends AbstractListFileSection {
     } // sort_by_col(field_name) //
     
     #file_name_cmp(row_a, row_b){
-        LogMessage.log_message('notes', `GzzListFileSection::#file_name_cmp: row_a == ${row_a}`, new Error());
-        LogMessage.log_message('notes', `GzzListFileSection::#file_name_cmp: row_b == ${row_b}`, new Error());
+        LogMessage.log_message(LogMessage.get_prog_id(), `GzzListFileSection::#file_name_cmp: row_a == ${row_a}`, new Error());
+        LogMessage.log_message(LogMessage.get_prog_id(), `GzzListFileSection::#file_name_cmp: row_b == ${row_b}`, new Error());
         if(row_a.get_is_dir() && !row_b.get_is_dir()){
             return -1;
         }else if(!row_a.get_is_dir() && row_b.get_is_dir()){
@@ -2027,8 +2173,8 @@ export  class GzzListFileSection extends AbstractListFileSection {
     } // #file_name_cmp //
     
     #inode_cmp(row_a, row_b){
-        LogMessage.log_message('notes', `GzzListFileSection::#inode_cmp: row_a == ${row_a}`, new Error());
-        LogMessage.log_message('notes', `GzzListFileSection::#inode_cmp: row_b == ${row_b}`, new Error());
+        LogMessage.log_message(LogMessage.get_prog_id(), `GzzListFileSection::#inode_cmp: row_a == ${row_a}`, new Error());
+        LogMessage.log_message(LogMessage.get_prog_id(), `GzzListFileSection::#inode_cmp: row_b == ${row_b}`, new Error());
         if(row_a.get_is_dir() && !row_b.get_is_dir()){
             return -1;
         }else if(!row_a.get_is_dir() && row_b.get_is_dir()){
@@ -2047,8 +2193,8 @@ export  class GzzListFileSection extends AbstractListFileSection {
     } // #inode_cmp //
     
     #mode_cmp(row_a, row_b){
-        LogMessage.log_message('notes', `GzzListFileSection::#mode_cmp: row_a == ${row_a}`, new Error());
-        LogMessage.log_message('notes', `GzzListFileSection::#mode_cmp: row_b == ${row_b}`, new Error());
+        LogMessage.log_message(LogMessage.get_prog_id(), `GzzListFileSection::#mode_cmp: row_a == ${row_a}`, new Error());
+        LogMessage.log_message(LogMessage.get_prog_id(), `GzzListFileSection::#mode_cmp: row_b == ${row_b}`, new Error());
         if(row_a.get_is_dir() && !row_b.get_is_dir()){
             return -1;
         }else if(!row_a.get_is_dir() && row_b.get_is_dir()){
@@ -2067,8 +2213,8 @@ export  class GzzListFileSection extends AbstractListFileSection {
     } // #mode_cmp //
     
     #nlink_cmp(row_a, row_b){
-        LogMessage.log_message('notes', `GzzListFileSection::#nlink_cmp: row_a == ${row_a}`, new Error());
-        LogMessage.log_message('notes', `GzzListFileSection::#nlink_cmp: row_b == ${row_b}`, new Error());
+        LogMessage.log_message(LogMessage.get_prog_id(), `GzzListFileSection::#nlink_cmp: row_a == ${row_a}`, new Error());
+        LogMessage.log_message(LogMessage.get_prog_id(), `GzzListFileSection::#nlink_cmp: row_b == ${row_b}`, new Error());
         if(row_a.get_is_dir() && !row_b.get_is_dir()){
             return -1;
         }else if(!row_a.get_is_dir() && row_b.get_is_dir()){
@@ -2087,8 +2233,8 @@ export  class GzzListFileSection extends AbstractListFileSection {
     } // #nlink_cmp //
     
     #create_cmp(row_a, row_b){
-        LogMessage.log_message('notes', `GzzListFileSection::#create_cmp: row_a == ${row_a}`, new Error());
-        LogMessage.log_message('notes', `GzzListFileSection::#create_cmp: row_b == ${row_b}`, new Error());
+        LogMessage.log_message(LogMessage.get_prog_id(), `GzzListFileSection::#create_cmp: row_a == ${row_a}`, new Error());
+        LogMessage.log_message(LogMessage.get_prog_id(), `GzzListFileSection::#create_cmp: row_b == ${row_b}`, new Error());
         if(row_a.get_is_dir() && !row_b.get_is_dir()){
             return -1;
         }else if(!row_a.get_is_dir() && row_b.get_is_dir()){
@@ -2107,8 +2253,8 @@ export  class GzzListFileSection extends AbstractListFileSection {
     } // #create_cmp //
     
     #modification_cmp(row_a, row_b){
-        LogMessage.log_message('notes', `GzzListFileSection::#modification_cmp: row_a == ${row_a}`, new Error());
-        LogMessage.log_message('notes', `GzzListFileSection::#modification_cmp: row_b == ${row_b}`, new Error());
+        LogMessage.log_message(LogMessage.get_prog_id(), `GzzListFileSection::#modification_cmp: row_a == ${row_a}`, new Error());
+        LogMessage.log_message(LogMessage.get_prog_id(), `GzzListFileSection::#modification_cmp: row_b == ${row_b}`, new Error());
         if(row_a.get_is_dir() && !row_b.get_is_dir()){
             return -1;
         }else if(!row_a.get_is_dir() && row_b.get_is_dir()){
@@ -2127,8 +2273,8 @@ export  class GzzListFileSection extends AbstractListFileSection {
     } // #modification_cmp //
     
     #access_cmp(row_a, row_b){
-        LogMessage.log_message('notes', `GzzListFileSection::#access_cmp: row_a == ${row_a}`, new Error());
-        LogMessage.log_message('notes', `GzzListFileSection::#access_cmp: row_b == ${row_b}`, new Error());
+        LogMessage.log_message(LogMessage.get_prog_id(), `GzzListFileSection::#access_cmp: row_a == ${row_a}`, new Error());
+        LogMessage.log_message(LogMessage.get_prog_id(), `GzzListFileSection::#access_cmp: row_b == ${row_b}`, new Error());
         if(row_a.get_is_dir() && !row_b.get_is_dir()){
             return -1;
         }else if(!row_a.get_is_dir() && row_b.get_is_dir()){
@@ -2147,8 +2293,8 @@ export  class GzzListFileSection extends AbstractListFileSection {
     } // #access_cmp //
     
     #user_cmp(row_a, row_b){
-        LogMessage.log_message('notes', `GzzListFileSection::#user_cmp: row_a == ${row_a}`, new Error());
-        LogMessage.log_message('notes', `GzzListFileSection::#user_cmp: row_b == ${row_b}`, new Error());
+        LogMessage.log_message(LogMessage.get_prog_id(), `GzzListFileSection::#user_cmp: row_a == ${row_a}`, new Error());
+        LogMessage.log_message(LogMessage.get_prog_id(), `GzzListFileSection::#user_cmp: row_b == ${row_b}`, new Error());
         if(row_a.get_is_dir() && !row_b.get_is_dir()){
             return -1;
         }else if(!row_a.get_is_dir() && row_b.get_is_dir()){
@@ -2166,8 +2312,8 @@ export  class GzzListFileSection extends AbstractListFileSection {
     } // #user_cmp //
     
     #group_cmp(row_a, row_b){
-        LogMessage.log_message('notes', `GzzListFileSection::#group_cmp: row_a == ${row_a}`, new Error());
-        LogMessage.log_message('notes', `GzzListFileSection::#group_cmp: row_b == ${row_b}`, new Error());
+        LogMessage.log_message(LogMessage.get_prog_id(), `GzzListFileSection::#group_cmp: row_a == ${row_a}`, new Error());
+        LogMessage.log_message(LogMessage.get_prog_id(), `GzzListFileSection::#group_cmp: row_b == ${row_b}`, new Error());
         if(row_a.get_is_dir() && !row_b.get_is_dir()){
             return -1;
         }else if(!row_a.get_is_dir() && row_b.get_is_dir()){
@@ -2185,8 +2331,8 @@ export  class GzzListFileSection extends AbstractListFileSection {
     } // #group_cmp //
     
     #file_size_cmp(row_a, row_b){
-        LogMessage.log_message('notes', `GzzListFileSection::#file_size_cmp: row_a == ${row_a}`, new Error());
-        LogMessage.log_message('notes', `GzzListFileSection::#file_size_cmp: row_b == ${row_b}`, new Error());
+        LogMessage.log_message(LogMessage.get_prog_id(), `GzzListFileSection::#file_size_cmp: row_a == ${row_a}`, new Error());
+        LogMessage.log_message(LogMessage.get_prog_id(), `GzzListFileSection::#file_size_cmp: row_b == ${row_b}`, new Error());
         if(row_a.get_is_dir() && !row_b.get_is_dir()){
             return -1;
         }else if(!row_a.get_is_dir() && row_b.get_is_dir()){
@@ -2228,8 +2374,8 @@ export  class GzzListFileSection extends AbstractListFileSection {
             );
             return;
         }
-        LogMessage.log_message('notes', `GzzListFileSection::list_add_child: row == ${row}`, new Error());
-        LogMessage.log_message('notes', `GzzListFileSection::list_add_child: this.#_cmp == ${this.#_cmp}`, new Error());
+        LogMessage.log_message(LogMessage.get_prog_id(), `GzzListFileSection::list_add_child: row == ${row}`, new Error());
+        LogMessage.log_message(LogMessage.get_prog_id(), `GzzListFileSection::list_add_child: this.#_cmp == ${this.#_cmp}`, new Error());
         const n  = this.#list.get_n_children();
         let i    =  0;
         while(i < n){
@@ -2315,7 +2461,7 @@ export  class GzzListFileSection extends AbstractListFileSection {
     }
 
     set_file_name(filename){
-        LogMessage.log_message('notes', `GzzListFileSection::set_file_name: filename == ${filename}`,  new Error());
+        LogMessage.log_message(LogMessage.get_prog_id(), `GzzListFileSection::set_file_name: filename == ${filename}`,  new Error());
         if(filename && (filename instanceof String || typeof filename == 'string')){
             this.#_edit.set_text(filename.trim());
         }
@@ -2345,17 +2491,19 @@ export class GzzListFileRow extends St.BoxLayout {
                 'clicked': {
                     flags: GObject.SignalFlags.RUN_LAST,
                     param_types: [
-                        GObject.TYPE_OBJECT,
+                        GObject.TYPE_STRING,
                         GObject.TYPE_UINT,
                         Clutter.ModifierType.$gtype,
+                        GObject.TYPE_STRING,
                     ],
                 },
                 'dblclick': {
                     flags: GObject.SignalFlags.RUN_LAST,
                     param_types: [
-                        GObject.TYPE_OBJECT,
+                        GObject.TYPE_STRING,
                         GObject.TYPE_UINT,
                         Clutter.ModifierType.$gtype,
+                        GObject.TYPE_STRING,
                     ],
                 },
             },
@@ -2372,6 +2520,7 @@ export class GzzListFileRow extends St.BoxLayout {
     #_inode                = null;
     #_file_type            = Gio.FileType.UNKNOWN;
     #_file                 = GLib.get_home_dir();
+    #_dir                  = GLib.get_home_dir();
     #_mode                 = '.---------';
     #_raw_mode             = 0;
     #_mode_box             = null;
@@ -2476,7 +2625,7 @@ export class GzzListFileRow extends St.BoxLayout {
         if('file_type' in params && Number.isInteger(params.file_type)){
             this.#_file_type = params.file_type;
         }
-        LogMessage.log_message('notes', `GzzListFileRow::constructor: this.#_file_type == ${this.#_file_type}`, new Error());
+        LogMessage.log_message(LogMessage.get_prog_id(), `GzzListFileRow::constructor: this.#_file_type == ${this.#_file_type}`, new Error());
         
         if('file' in params){
             if(params.file instanceof String || typeof params.file === 'string'){
@@ -2485,7 +2634,20 @@ export class GzzListFileRow extends St.BoxLayout {
                 this.#_file = params.file.get_path();
             }
         }
-        LogMessage.log_message('notes', `GzzListFileRow::constructor: this.#_file == ${this.#_file}`, new Error());
+        LogMessage.log_message(
+            LogMessage.get_prog_id(), `GzzListFileRow::constructor: this.#_file == ${this.#_file}`, new Error()
+        );
+        
+        if('dir' in params){
+            if(params.dir instanceof String || typeof params.dir === 'string'){
+                this.#_dir = params.dir.toString();
+            }else if(params.dir instanceof Gio.File){
+                this.#_dir = params.dir.get_path();
+            }
+        }
+        LogMessage.log_message(
+            LogMessage.get_prog_id(), `GzzListFileRow::constructor: this.#_dir == ${this.#_dir}`, new Error()
+        );
 
         if('mode' in params && Number.isInteger(params.mode)){
             this.#_raw_mode = params.mode;
@@ -2536,13 +2698,24 @@ export class GzzListFileRow extends St.BoxLayout {
             this.#_symlink_mode = params.symlink_mode;
         }
 
-        LogMessage.log_message('notes', `GzzListFileRow::constructor: this.#_file_type == ‷${this.#_file_type}‴`, new Error());
+        LogMessage.log_message(LogMessage.get_prog_id(), `GzzListFileRow::constructor: this.#_file_type == ‷${this.#_file_type}‴`, new Error());
         LogMessage.log_message(
-            'notes', `GzzListFileRow::constructor: this.#_symlink_target == ‷${this.#_symlink_target}‴`, new Error()
+            LogMessage.get_prog_id(),
+            `GzzListFileRow::constructor: this.#_symlink_target == ‷${this.#_symlink_target}‴`, new Error()
         );
 
+        let title = '';
+
+        if(this.#_the_title){
+            try {
+                title = this.#decorateFileName(this.#_the_title);
+            } catch(e){
+                LogMessage.log_message(LogMessage.get_prog_id(), `GzzListFileRow::constructor: Error: ‷${e}‴`, e);
+            }
+        }
+
         this.#_title = new St.Label({
-            text:        this.#decorateFileName(this.#_the_title), 
+            text:        title, 
             style_class: 'dialog-list-item-elt',
             x_expand:    true,
             x_align:     Clutter.ActorAlign.FILL, 
@@ -2601,7 +2774,7 @@ export class GzzListFileRow extends St.BoxLayout {
             this.#_display_user_group = Number(params.display_user_group);
         }
         
-        LogMessage.log_message('notes', `GzzFileDialog::constructor: this.#_display_user_group == ${this.#_display_user_group}`, new Error());
+        LogMessage.log_message(LogMessage.get_prog_id(), `GzzFileDialog::constructor: this.#_display_user_group == ${this.#_display_user_group}`, new Error());
 
         if('user_name' in params){
             if(params.user_name instanceof String || typeof params.user_name === 'string'){
@@ -2650,8 +2823,8 @@ export class GzzListFileRow extends St.BoxLayout {
         if('display_size' in params){
             this.#_display_size = !!params.display_size;
         }
-        LogMessage.log_message('notes', `GzzListFileRow::constructor: this.#_display_size == ${this.#_display_size}`, new Error());
-        LogMessage.log_message('notes', `GzzListFileRow::constructor: this.#_file_size == ${this.#_file_size}`, new Error());
+        LogMessage.log_message(LogMessage.get_prog_id(), `GzzListFileRow::constructor: this.#_display_size == ${this.#_display_size}`, new Error());
+        LogMessage.log_message(LogMessage.get_prog_id(), `GzzListFileRow::constructor: this.#_file_size == ${this.#_file_size}`, new Error());
 
         if(this.#_display_size){
             this.#_file_size_box = new St.Label({
@@ -2662,7 +2835,7 @@ export class GzzListFileRow extends St.BoxLayout {
                 width:       160, 
             });
         }
-        LogMessage.log_message('notes', `GzzListFileRow::constructor: this.#_file_size_box == ${this.#_file_size_box}`, new Error());
+        LogMessage.log_message(LogMessage.get_prog_id(), `GzzListFileRow::constructor: this.#_file_size_box == ${this.#_file_size_box}`, new Error());
 
         let textLayout = new St.BoxLayout({
             vertical: false,
@@ -2689,23 +2862,35 @@ export class GzzListFileRow extends St.BoxLayout {
         this.double_click_start = null;
         if('double_click_time' in params){
             LogMessage.log_message(
-                'notes',
+                LogMessage.get_prog_id(),
                 `GzzListFileRow::handle_button_press_event: params.double_click_time == ${params.double_click_time}`,
                 new Error()
             );
             this.set_double_click_time(params.double_click_time);
         }
         this.click_count = 0;
-        this.#connectID_press   = this.connect("button-press-event", (actor, event) => { this.handle_button_press_event(actor, event); });
-        this.#connectID_release = this.connect("button-release-event", (actor, event) => { this.handle_button_release_event(actor, event); });
+        this.#connectID_press   = this.connect("button-press-event", (actor, event) => {
+            this.handle_button_press_event(actor, event);
+        });
+        this.#connectID_release = this.connect("button-release-event", (actor, event) => {
+            this.handle_button_release_event(actor, event, this.#_the_title, this.#_dir);
+        });
         this.#connectID_enter   = this.connect('enter-event', () => {
-            LogMessage.log_message('notes', 'GzzListFileRow::enter-event:  hovering', new Error());
-            this.add_style_pseudo_class('hover');
+            LogMessage.log_message(LogMessage.get_prog_id(), 'GzzListFileRow::enter-event:  hovering', new Error());
+            try {
+                this.add_style_pseudo_class('hover');
+            } catch(e){
+                LogMessage.log_message(LogMessage.get_prog_id(), `GzzListFileRow::enter-event:  Error: ${e}`, e);
+            }
             return Clutter.EVENT_PROPAGATE;
         });
         this.#connectID_leave   = this.connect('leave-event', () => {
-            LogMessage.log_message('notes', 'GzzListFileRow::leave-event:  no longer hovering', new Error());
-            this.remove_style_pseudo_class('hover');
+            LogMessage.log_message(LogMessage.get_prog_id(), 'GzzListFileRow::leave-event:  no longer hovering', new Error());
+            try {
+                this.remove_style_pseudo_class('hover');
+            } catch(e){
+                LogMessage.log_message(LogMessage.get_prog_id(), `GzzListFileRow::leave-event:  Error: ${e}`, e);
+            }
             return Clutter.EVENT_PROPAGATE;
         });
     } // constructor(params) //
@@ -2719,12 +2904,13 @@ export class GzzListFileRow extends St.BoxLayout {
     static Group         = 0b00010;
 
     #decorateFileName(filename){
-        LogMessage.log_message('notes', `GzzListFileRow::#decorateFileName: filename == ‷${filename}‴`, new Error());
+        filename = filename.replace(/\/+$/, '');
+        LogMessage.log_message(LogMessage.get_prog_id(), `GzzListFileRow::#decorateFileName: filename == ‷${filename}‴`, new Error());
         LogMessage.log_message(
-            'notes', `GzzListFileRow::#decorateFileName: this.#_file_type == ‷${this.#_file_type}‴`, new Error()
+            LogMessage.get_prog_id(), `GzzListFileRow::#decorateFileName: this.#_file_type == ‷${this.#_file_type}‴`, new Error()
         );
         LogMessage.log_message(
-            'notes', `GzzListFileRow::#decorateFileName: this.#_symlink_target == ‷${this.#_symlink_target}‴`, new Error()
+            LogMessage.get_prog_id(), `GzzListFileRow::#decorateFileName: this.#_symlink_target == ‷${this.#_symlink_target}‴`, new Error()
         );
         if(this.#_file_type == Gio.FileType.SYMBOLIC_LINK){
             let spec = '';
@@ -2733,7 +2919,7 @@ export class GzzListFileRow extends St.BoxLayout {
             }else if(this.#_symlink_mode & 0b001_001_001){
                 spec = '*';
             }
-            return filename + ' -> ' + this.#_symlink_target + spec;
+            return filename + ' -> ' + this.#_symlink_target.replace(/\/+$/, '') + spec;
         }else if(this.#_file_type == Gio.FileType.DIRECTORY){
             return filename + '/';
             /*
@@ -2746,7 +2932,31 @@ export class GzzListFileRow extends St.BoxLayout {
             }
             // */
         }else if(this.#_file_type == Gio.FileType.SPECIAL){
-            return filename + '|';
+            //return filename + '?';
+            //*
+            try {
+                //throw new Error("Dummy 1");
+                const file_ = this.#_file;
+                const file  = `${file_}`;
+                const [ok, type_, subtype, _params, ] = mime_type(file, false);
+                if(ok && type_ === 'inode'){
+                    //const filetype = buf['st_mode'] & 0o0170000;
+                    switch(subtype){
+                        case 'socket':  // Socket //
+                            return filename + '=';
+                        case 'blockdevice': // Block Special //
+                            return filename;
+                        case 'chardevice': // Character Special //
+                            return filename;
+                        case 'fifo': // FIFO //
+                            return filename + '|';
+                    } // switch(subtype) //
+                } // if(ok && type_ == 'inode') //
+            } catch(e){
+                LogMessage.log_message(LogMessage.get_prog_id(), `GzzListFileRow::decorateFileName:  Error: ${e}`, e);
+                return filename + '?';
+            }
+            // */
             /* cannot use GLib.lstat just now    //
             // no way to allocate a GLib.StatBuf //
             //let buf = new GLib.StatBuf();
@@ -2790,7 +3000,7 @@ export class GzzListFileRow extends St.BoxLayout {
         switch(event.get_button()){
             case(1):
                 this.add_style_pseudo_class('active');
-                LogMessage.log_message('notes', `GzzListFileRow::handle_button_press_event: button == ${event.get_button()}`, new Error());
+                LogMessage.log_message(LogMessage.get_prog_id(), `GzzListFileRow::handle_button_press_event: button == ${event.get_button()}`, new Error());
                 if(!this.click_event_start){
                     this.click_event_start = new Date().valueOf();
                     if(!this.#time_out_id){
@@ -2803,20 +3013,20 @@ export class GzzListFileRow extends St.BoxLayout {
                     }
                 }
                 LogMessage.log_message(
-                    'notes',
+                    LogMessage.get_prog_id(),
                     `GzzListFileRow::handle_button_press_event: this.click_event_start == ${this.click_event_start}`,
                     new Error()
                 );
                 if(this.double_click_start == null){
                     this.double_click_start = this.click_event_start;
                     LogMessage.log_message(
-                        'notes',
+                        LogMessage.get_prog_id(),
                         `GzzListFileRow::handle_button_press_event: this.double_click_start == ${this.double_click_start}`,
                         new Error()
                     );
                     this.click_count = 0;
                     LogMessage.log_message(
-                        'notes',
+                        LogMessage.get_prog_id(),
                         `GzzListFileRow::handle_button_press_event: this.click_count == ${this.click_count}`,
                         new Error()
                     );
@@ -2827,100 +3037,155 @@ export class GzzListFileRow extends St.BoxLayout {
         } //switch(event.get_button()) //
     } // handle_button_press_event(actor, event) //
 
-    handle_button_release_event(actor, event){
-        let button_time_ = null;
-        let button_double_time_ = null;
-        let now = 0
-        switch(event.get_button()){
-            case(1):
-                LogMessage.log_message(
-                    'notes',
-                    `GzzListFileRow::handle_button_release_event: button == ${event.get_button()}`,
-                    new Error()
-                );
-                now = new Date().valueOf();
-                LogMessage.log_message('notes', `GzzListFileRow::handle_button_press_event: this.click_event_start == ${this.click_event_start}`, new Error());
-                button_time_ = now - this.click_event_start;
-                LogMessage.log_message(
-                    'notes',
-                    `GzzListFileRow::handle_button_release_event: this.double_click_start == ${this.double_click_start}`,
-                    new Error()
-                );
-                button_double_time_ = now - this.double_click_start;
-                LogMessage.log_message('notes', `GzzListFileRow::handle_button_release_event: now == ${now}`, new Error());
-                LogMessage.log_message(
-                    'notes', `GzzListFileRow::handle_button_release_event: button_time_ == ${button_time_}`, new Error()
-                );
-                LogMessage.log_message(
-                    'notes',
-                    `GzzListFileRow::handle_button_release_event: button_double_time_ == ${button_double_time_}`,
-                    new Error()
-                );
-                LogMessage.log_message(
-                    'notes',
-                    `GzzListFileRow::handle_button_release_event: this.#_double_click_time == ${this.#_double_click_time}`,
-                    new Error()
-                );
-                LogMessage.log_message(
-                    'notes',
-                    'GzzListFileRow::handle_button_release_event:' 
-                        + ' button_time_ > 0 && button_double_time_ < this.#_double_click_time == ' 
-                            + `${button_time_ > 0 && button_double_time_ < this.#_double_click_time}`, 
-                    new Error()
-                );
-                if(button_time_ > 0 && button_double_time_ < this.#_double_click_time){
-                    this.click_count++;
-                    if(this.click_count >= 2){
-                        this.click_event_start = null;
-                    }
+    handle_button_release_event(actor, event, directory_filename, path){
+        try {
+            LogMessage.log_message(
+                LogMessage.get_prog_id(), `GzzListFileRow::handle_button_release_event: actor == ${actor}`, new Error()
+            );
+            LogMessage.log_message(
+                LogMessage.get_prog_id(), `GzzListFileRow::handle_button_release_event: event == ${event}`, new Error()
+            );
+            LogMessage.log_message(
+                LogMessage.get_prog_id(),
+                `GzzListFileRow::handle_button_release_event: directory_filename == ${directory_filename}`, new Error()
+            );
+            LogMessage.log_message(
+                LogMessage.get_prog_id(), `GzzListFileRow::handle_button_release_event: path == ${path}`, new Error()
+            );
+            let button_time_        = null;
+            let button_double_time_ = null;
+            let now                 = 0
+            switch(event.get_button()){
+                case(1):
                     LogMessage.log_message(
-                        'notes',
-                        `GzzListFileRow::handle_button_release_event: this.click_count == ${this.click_count}`,
+                        LogMessage.get_prog_id(),
+                        `GzzListFileRow::handle_button_release_event: button == ${event.get_button()}`,
                         new Error()
                     );
-                    LogMessage.log_message('notes', `GzzListFileRow::handle_button_release_event: this.#_is_dir == ${this.#_is_dir}`, new Error());
-                    LogMessage.log_message('notes', `GzzListFileRow::handle_button_release_event: now == ${now}`, new Error());
-                    if(this.#_is_dir){
+                    now = new Date().valueOf();
+                    LogMessage.log_message(
+                        LogMessage.get_prog_id(),
+                        `GzzListFileRow::handle_button_press_event: this.click_event_start == ${this.click_event_start}`,
+                        new Error()
+                    );
+                    button_time_ = now - this.click_event_start;
+                    LogMessage.log_message(
+                        LogMessage.get_prog_id(),
+                        `GzzListFileRow::handle_button_release_event: this.double_click_start == ${this.double_click_start}`,
+                        new Error()
+                    );
+                    button_double_time_ = now - this.double_click_start;
+                    LogMessage.log_message(
+                        LogMessage.get_prog_id(), `GzzListFileRow::handle_button_release_event: now == ${now}`, new Error()
+                    );
+                    LogMessage.log_message(
+                        LogMessage.get_prog_id(),
+                        `GzzListFileRow::handle_button_release_event: button_time_ == ${button_time_}`, new Error()
+                    );
+                    LogMessage.log_message(
+                        LogMessage.get_prog_id(),
+                        `GzzListFileRow::handle_button_release_event: button_double_time_ == ${button_double_time_}`,
+                        new Error()
+                    );
+                    LogMessage.log_message(
+                        LogMessage.get_prog_id(),
+                        `GzzListFileRow::handle_button_release_event: this.#_double_click_time == ${this.#_double_click_time}`,
+                        new Error()
+                    );
+                    LogMessage.log_message(
+                        LogMessage.get_prog_id(),
+                        'GzzListFileRow::handle_button_release_event:' 
+                            + ' button_time_ > 0 && button_double_time_ < this.#_double_click_time == ' 
+                                + `${button_time_ > 0 && button_double_time_ < this.#_double_click_time}`, 
+                        new Error()
+                    );
+                    if(button_time_ > 0 && button_double_time_ < this.#_double_click_time){
+                        this.click_count++;
                         if(this.click_count >= 2){
-                            this.click_event_start = this.double_click_start = null;
+                            this.click_event_start = null;
+                        }
+                        LogMessage.log_message(
+                            LogMessage.get_prog_id(),
+                            `GzzListFileRow::handle_button_release_event: this.click_count == ${this.click_count}`,
+                            new Error()
+                        );
+                        LogMessage.log_message(
+                            LogMessage.get_prog_id(),
+                            `GzzListFileRow::handle_button_release_event: this.#_is_dir == ${this.#_is_dir}`, new Error()
+                        );
+                        LogMessage.log_message(
+                            LogMessage.get_prog_id(),
+                            `GzzListFileRow::handle_button_release_event: now == ${now}`, new Error()
+                        );
+                        if(this.#_is_dir){
+                            if(this.click_count >= 2){
+                                LogMessage.log_message(
+                                    LogMessage.get_prog_id(),
+                                    `GzzListFileRow::handle_button_release_event: this.click_count == ${this.click_count}`,
+                                    new Error()
+                                );
+                                this.click_event_start = this.double_click_start = null;
+                                this.click_count = 0;
+                                //directory_filename = this.#_the_title.toString();
+                                const LM = LogMessage;
+                                const id = LM.get_prog_id();
+                                LM.log_message(
+                                    id,
+                                    `GzzListFileRow::handle_button_release_event: directory_filename == ${directory_filename}`,
+                                    new Error()
+                                );
+                                LM.log_message(
+                                    id, `GzzListFileRow::handle_button_release_event: path == ${path}`, new Error());
+                                this.remove_style_pseudo_class('active');
+                                this.emit('dblclick', directory_filename, event.get_button(), event.get_state(), path);
+                                return Clutter.EVENT_STOP;
+                            }else{
+                                // dir doesn't do single click //
+                                this.remove_style_pseudo_class('active');
+                                return Clutter.EVENT_STOP;
+                            }
+                        }else{ // if(this.#_is_dir) //
                             this.click_count = 0;
-                            //this.#_owner.double_clicked(this, this.#_title.text);
-                            this.emit('dblclick', this, event.get_button(), event.get_state());
+                            this.click_event_start = this.double_click_start = null;
+                            //this.#_owner.clicked(this, this.#_title.text);
+                            //directory_filename = this.#_the_title.toString();
+                            LogMessage.log_message(
+                                LogMessage.get_prog_id(),
+                                `GzzListFileRow::handle_button_release_event: directory_filename == ${directory_filename}`,
+                                new Error()
+                            );
                             this.remove_style_pseudo_class('active');
-                            return Clutter.EVENT_STOP;
-                        }else{
-                            // dir doesn't do single click //
-                            this.remove_style_pseudo_class('active');
+                            this.emit('clicked', directory_filename, event.get_button(), event.get_state(), path);
                             return Clutter.EVENT_STOP;
                         }
-                    }else{ // if(this.#_is_dir) //
-                        this.click_count = 0;
+                    }else{ // if(button_time > 0 && button_double_time < this.#_double_click_time) //
+                        // click time out //
                         this.click_event_start = this.double_click_start = null;
-                        //this.#_owner.clicked(this, this.#_title.text);
-                        this.emit('clicked', this, event.get_button(), event.get_state());
+                        this.click_count = 0;
                         this.remove_style_pseudo_class('active');
-                        return Clutter.EVENT_STOP;
+                        return Clutter.EVENT_PROPAGATE;
                     }
-                }else{ // if(button_time > 0 && button_double_time < this.#_double_click_time) //
-                    // click time out //
-                    this.click_event_start = this.double_click_start = null;
-                    this.click_count = 0;
-                    this.remove_style_pseudo_class('active');
+                default:
                     return Clutter.EVENT_PROPAGATE;
-                }
-            default:
-                return Clutter.EVENT_PROPAGATE;
-        } //switch(event.get_button()) //
-    } // handle_button_release_event(actor, event) //
+            } //switch(event.get_button()) //
+        } catch(e){
+            LogMessage.log_message(LogMessage.get_prog_id(), `GzzListFileRow::handle_button_release_event: Error: ${e}`, e);
+        }
+    } // handle_button_release_event(actor, event, directory_filename, path) //
 
     get_title() {
         return this.#_the_title;
     }
 
     set_title(title_) {
-        LogMessage.log_message('notes', `GzzListFileRow::set_title: title_ == ‷${title_}‴`, new Error());
-        this.#_the_title  = title_;
-        this.#_title.text = this.#decorateFileName(title_);
+        LogMessage.log_message(LogMessage.get_prog_id(), `GzzListFileRow::set_title: title_ == ‷${title_}‴`, new Error());
+        if(title_){
+            this.#_the_title  = title_;
+            this.#_title.text = this.#decorateFileName( (title_ ? title_ : '') );
+        }else{
+            this.#_the_title  = '';
+            this.#_title.text = '';
+        }
     }
 
     get title(){
@@ -2966,7 +3231,7 @@ export class GzzListFileRow extends St.BoxLayout {
     }
 
     set_double_click_time(dbl_click_time){
-        LogMessage.log_message('notes', `GzzListFileRow::set_double_click_time: dbl_click_time == ${dbl_click_time}`, new Error());
+        LogMessage.log_message(LogMessage.get_prog_id(), `GzzListFileRow::set_double_click_time: dbl_click_time == ${dbl_click_time}`, new Error());
         if(Number.isNaN(dbl_click_time)){
             this.#_owner.apply_error_handler(
                 this,
@@ -2981,7 +3246,7 @@ export class GzzListFileRow extends St.BoxLayout {
             && Number(dbl_click_time) <= GzzFileDialogBase.Double_click_time.MAX){
             this.#_double_click_time = Number(dbl_click_time);
         }else{
-            LogMessage.log_message('notes', `GzzListFileRow::set_double_click_time: dbl_click_time == ${dbl_click_time}`
+            LogMessage.log_message(LogMessage.get_prog_id(), `GzzListFileRow::set_double_click_time: dbl_click_time == ${dbl_click_time}`
                 + `bad number type expected integer or Date ${dbl_click_time}`, new Error());
             this.#_owner.apply_error_handler(
                 this,
@@ -3077,7 +3342,7 @@ export class GzzFileDialog extends GzzFileDialogBase {
     #_file_name            = 'notes.txt';
     #_contents             = null;
     #_filter               = new RegExp('^.*$');
-    #_filters              = [];
+    #_filters              = [ new RegExp('^.*$') ];
     #_filters_flags        = 'i';
     #_result               = false;
     #_save_done            = null;
@@ -3114,7 +3379,7 @@ export class GzzFileDialog extends GzzFileDialogBase {
             && 0 <= Number(params.display_times) && Number(params.display_times) <= 3){
             this.#_display_user_group = Number(params.display_user_group);
         }
-        LogMessage.log_message('notes', `GzzFileDialog::constructor: this.#_display_user_group == ${this.#_display_user_group}`, new Error());
+        LogMessage.log_message(LogMessage.get_prog_id(), `GzzFileDialog::constructor: this.#_display_user_group == ${this.#_display_user_group}`, new Error());
 
         if('display_mode' in params){
             this.#_display_mode = !!params.display_mode;
@@ -3130,19 +3395,21 @@ export class GzzFileDialog extends GzzFileDialogBase {
 
         if('dir' in params){
             const dir_ = params.dir;
-            LogMessage.log_message('notes', `GzzFileDialog::constructor: dir_ == ${dir_}`, new Error());
+            LogMessage.log_message(LogMessage.get_prog_id(), `GzzFileDialog::constructor: dir_ == ${dir_}`, new Error());
             if(!dir_){
                 this.#_dir = Gio.File.new_for_path(GLib.build_filenamev([GLib.get_home_dir()]));
-            }else if(dir_ instanceof Gio.File){
-                this.#_dir = dir_;
             }else if((dir_ instanceof String || typeof dir_ == 'string') && dir_.trim() != ''){
                 this.#_dir = Gio.File.new_for_path(GLib.build_filenamev([dir_.trim()]));
+            }else if(dir_ instanceof Gio.File){
+                this.#_dir = dir_;
             }else{
                 this.#_dir = Gio.File.new_for_path(GLib.build_filenamev([GLib.get_home_dir()]));
             }
         }
 
-        LogMessage.log_message('notes', `GzzFileDialog::constructor: this.#_dir == ‷${this.#_dir}‴`, new Error());
+        LogMessage.log_message(
+            LogMessage.get_prog_id(), `GzzFileDialog::constructor: this.#_dir == ‷${this.#_dir}‴`, new Error()
+        );
 
         if('file_name' in params){
             const file_name_ = params.file_name;
@@ -3282,9 +3549,9 @@ export class GzzFileDialog extends GzzFileDialogBase {
 
 
         this.#_list_section.connect2edit(this, 'key-release-event', (_actor, _event) => {
-            LogMessage.log_message('notes', `GzzFileDialog::constructor: this.#_file_name == ${this.#_file_name}`, new Error());
+            LogMessage.log_message(LogMessage.get_prog_id(), `GzzFileDialog::constructor: this.#_file_name == ${this.#_file_name}`, new Error());
             this.#_file_name = this.#_list_section.get_file_name();
-            LogMessage.log_message('notes', `GzzFileDialog::constructor: this.#_file_name == ${this.#_file_name}`, new Error());
+            LogMessage.log_message(LogMessage.get_prog_id(), `GzzFileDialog::constructor: this.#_file_name == ${this.#_file_name}`, new Error());
         });
 
     } // constructor(_title, _text) //
@@ -3331,19 +3598,21 @@ export class GzzFileDialog extends GzzFileDialogBase {
     }
 
     set_dir(dir_){
-        LogMessage.log_message('notes', `GzzFileDialog::set_dir: dir_ == ${dir_}`, new Error());
+        LogMessage.log_message(LogMessage.get_prog_id(), `GzzFileDialog::set_dir: dir_ == ${dir_}`, new Error());
         if(!dir_){
             this.#_dir = Gio.File.new_for_path(GLib.build_filenamev([GLib.get_home_dir()]));
-        }else if(dir_ instanceof Gio.File){
-            LogMessage.log_message('notes', `GzzFileDialog::set_dir: dir_ == ${dir_.get_path()}`, new Error());
-            this.#_dir = dir_;
         }else if((dir_ instanceof String || typeof dir_ == 'string') && dir_.trim() != ''){
-            LogMessage.log_message('notes', `GzzFileDialog::set_dir: dir_ == ${dir_}`, new Error());
+            LogMessage.log_message(LogMessage.get_prog_id(), `GzzFileDialog::set_dir: dir_ == ${dir_}`, new Error());
             this.#_dir = Gio.File.new_for_path(GLib.build_filenamev([dir_.trim()]));
+        }else if(dir_ instanceof Gio.File){
+            LogMessage.log_message(
+                LogMessage.get_prog_id(), `GzzFileDialog::set_dir: dir_ == ${dir_.get_path()}`, new Error()
+            );
+            this.#_dir = dir_;
         }else{
             this.#_dir = Gio.File.new_for_path(GLib.build_filenamev([GLib.get_home_dir()]));
         }
-        LogMessage.log_message('notes', `GzzFileDialog::set_dir: this.#_dir.get_path() == ${this.#_dir.get_path()}`, new Error());
+        LogMessage.log_message(LogMessage.get_prog_id(), `GzzFileDialog::set_dir: this.#_dir.get_path() == ${this.#_dir.get_path()}`, new Error());
     } // set_dir(dir_) //
 
     get dir(){
@@ -3407,8 +3676,8 @@ export class GzzFileDialog extends GzzFileDialogBase {
     }
 
     refresh(current_dir){
-        LogMessage.log_message('notes', `GzzFileDialog::refresh: current_dir == ‷${current_dir}‴`, new Error());
-        LogMessage.log_message('notes', `GzzFileDialog::refresh: this.#_filter == ‷${this.#_filter}‴`, new Error());
+        LogMessage.log_message(LogMessage.get_prog_id(), `GzzFileDialog::refresh: current_dir == ‷${current_dir}‴`, new Error());
+        LogMessage.log_message(LogMessage.get_prog_id(), `GzzFileDialog::refresh: this.#_filter == ‷${this.#_filter}‴`, new Error());
         this.#_list_section.list_destroy_all_children(this);
         this.set_dir(current_dir);
         this.display_dir(this, current_dir);
@@ -3416,8 +3685,8 @@ export class GzzFileDialog extends GzzFileDialogBase {
     }
 
     set_filter(regex){
-        LogMessage.log_message('notes', `GzzFileDialog::refresh: regex == ‷${regex}‴`, new Error());
-        LogMessage.log_message('notes', `GzzFileDialog::refresh: this.#_filters == ‷${this.#_filters}‴`, new Error());
+        LogMessage.log_message(LogMessage.get_prog_id(), `GzzFileDialog::refresh: regex == ‷${regex}‴`, new Error());
+        LogMessage.log_message(LogMessage.get_prog_id(), `GzzFileDialog::refresh: this.#_filters == ‷${this.#_filters}‴`, new Error());
         if(!regex){
             if(this.#_filters.length > 0){
                 this.#_filter = string2RegExp(this.#_filters[0], this.#_filters_flags);
@@ -3666,49 +3935,90 @@ export class GzzFileDialog extends GzzFileDialogBase {
         this.set_display_size(dsz);
     }
 
-    #clicked(row, _mousebtn, _state){
+    #clicked(filename, _mousebtn, _state, path){
+        /*
         if(!(row instanceof GzzListFileRow)){
             LogMessage.log_message(
-                'notes',
+                LogMessage.get_prog_id(),
                 `GzzFileDialog::clicked: this should only be called by GzzListFileRow, but you called it by ${row}`,
                 new Error()
             );
             return;
         } // if(!(row instanceof GzzListFileRow)) //
         const filename = row.get_title();
-        LogMessage.log_message('notes', `GzzFileDialog::clicked: filename == ${filename}`, new Error());
-        this.set_file_name(filename);
+        // */
+        LogMessage.log_message(LogMessage.get_prog_id(), `GzzFileDialog::clicked: filename == ${filename}`, new Error());
+        LogMessage.log_message(LogMessage.get_prog_id(), `GzzFileDialog::clicked: path == ${path}`, new Error());
+        this.set_file_name(filename.toString());
     }
 
-    #double_clicked(row, _mousebtn, _state){
-        if(!(row instanceof GzzListFileRow)){
+    #double_clicked(directory, _mousebtn, _state, path){
+        try {
+        /*
+            if(!(row instanceof GzzListFileRow)){
+                LogMessage.log_message(
+                    LogMessage.get_prog_id(),
+                    `GzzFileDialog::double_clicked: this should only be called by GzzListFileRow, but you called it by ${row}`,
+                    new Error()
+                );
+                return;
+            } // if(!(row instanceof GzzListFileRow)) //
+            const directory = row.get_title();
+            // */
             LogMessage.log_message(
-                'notes',
-                `GzzFileDialog::double_clicked: this should only be called by GzzListFileRow, but you called it by ${row}`,
-                new Error()
+                LogMessage.get_prog_id(), `GzzFileDialog::double_clicked: directory == ${directory}`, new Error()
             );
-            return;
-        } // if(!(row instanceof GzzListFileRow)) //
-        const directory = row.get_title();
-        LogMessage.log_message('notes', `GzzFileDialog::double_clicked: directory == ${directory}`, new Error());
-        if(directory === '.'){
-            return; // nothing to do //
-        }else if(directory === '..'){ // go up one dir //
-            const current_dir = this.#_dir.get_parent();
-            LogMessage.log_message('notes', `GzzFileDialog::double_clicked: current_dir == ${current_dir.get_path()}`, new Error());
-            if(current_dir){
+            LogMessage.log_message(
+                LogMessage.get_prog_id(), `GzzFileDialog::double_clicked: path == ${path}`, new Error()
+            );
+            if(directory === '.'){
+                return; // nothing to do //
+            }else if(directory === '..'){ // go up one dir //
+                const current_dir = this.#_dir.get_parent();
+                LogMessage.log_message(LogMessage.get_prog_id(),
+                    `GzzFileDialog::double_clicked: current_dir == ${current_dir.get_path()}`, new Error());
+                if(current_dir){
+                    this.#_list_section.list_destroy_all_children(this);
+                    this.set_dir(current_dir);
+                    this.display_dir(this, current_dir);
+                    this.#fixup_header(current_dir);
+                }
+            }else if(directory){
+                LogMessage.log_message(
+                    LogMessage.get_prog_id(), `GzzFileDialog::double_clicked: directory == ${directory}`, new Error()
+                );
+                LogMessage.log_message(
+                    LogMessage.get_prog_id(),
+                    `GzzFileDialog::double_clicked: this.#_dir == ${this.#_dir.get_path()}`, new Error()
+                );
                 this.#_list_section.list_destroy_all_children(this);
+                /*
+                const dir = this.#_dir;
+                let path = null;
+                if(dir){
+                    if(dir instanceof Gio.File){
+                        path = dir.get_path();
+                    }else if(dir instanceof String || typeof dir === 'string'){
+                        path = dir;
+                    }
+                }
+                if(!path) throw new Error("bad path: ${path}!");
+                // */
+                const current_dir = Gio.File.new_for_path(GLib.build_filenamev([path, directory.toString()]));
+                //const current_dir = Gio.File.new_for_path(GLib.build_filenamev(['/home/grizzlysmit', 'tmp']));
+                LogMessage.log_message(
+                    LogMessage.get_prog_id(),
+                    `GzzFileDialog::double_clicked: current_dir == ${current_dir.get_path()}`, new Error()
+                );
+                if(!this.file_is_dir(current_dir)){
+                    throw new Error(`path: ${current_dir.get_path()} doesn't exist or is not a directory!`);
+                }
                 this.set_dir(current_dir);
                 this.display_dir(this, current_dir);
                 this.#fixup_header(current_dir);
             }
-        }else if(directory){
-            this.#_list_section.list_destroy_all_children(this);
-            const current_dir = Gio.File.new_for_path(GLib.build_filenamev([this.#_dir.get_path(), directory]));
-            LogMessage.log_message('notes', `GzzFileDialog::double_clicked: current_dir == ${current_dir.get_path()}`, new Error());
-            this.set_dir(current_dir);
-            this.display_dir(this, current_dir);
-            this.#fixup_header(current_dir);
+        } catch(e) {
+            LogMessage.log_message(LogMessage.get_prog_id(), `GzzFileDialog::double_clicked: Error: ${e}:${e.stack}`, e);
         }
     }
     
@@ -3754,9 +4064,10 @@ export class GzzFileDialog extends GzzFileDialogBase {
         }
         let enumerator = null;
         let is_dir_    = null;
+        let is_special = null;
         let is_sym_    = null;
         let title_     = null;
-        LogMessage.log_message('notes', `GzzFileDialog::display_dir: start: filename == ‷${filename.get_path()}‴`, new Error());
+        LogMessage.log_message(LogMessage.get_prog_id(), `GzzFileDialog::display_dir: start: filename == ‷${filename.get_path()}‴`, new Error());
         const attributes = "standard::name,standard::type,standard::display_name,standard::icon" 
                                  + ",standard::symlink-target"
                                     + ",standard::*,unix::mode,icon,unix::uid,unix::gid,unix::inode"
@@ -3768,6 +4079,9 @@ export class GzzFileDialog extends GzzFileDialogBase {
                                                             + ",unix::blocks,mountable::unix-device-file"
                                                                 + ",standard::content-type,standard::type";
         try {
+            if(!this.file_is_dir(filename)){
+                throw new Error(`GzzFileDialog::display_dir: bad value for filename: ${filename.get_path()}`);
+            }
             let symlink_target_ = '';
             let info;
             {
@@ -3782,6 +4096,7 @@ export class GzzFileDialog extends GzzFileDialogBase {
                     file_type:            file_type_, 
                     symlink_target:       symlink_target_, 
                     file:                 filename, 
+                    dir:                  filename.get_path(), 
                     icon:                 info.get_icon(), 
                     icon_size:            this.get_icon_size(), 
                     create_time:          info.get_creation_date_time(),
@@ -3800,11 +4115,23 @@ export class GzzFileDialog extends GzzFileDialogBase {
                     display_size:         this.#_display_size,
                     base2_file_sizes:     this.#_base2_file_sizes, 
                 });
-                self_.connect('clicked', (thisrow, mousebtn, state) => {
-                    this.#clicked(thisrow, mousebtn, state);
+                self_.connect('clicked', (the_row, filename, mousebtn, state, path) => {
+                    const id = LogMessage.get_prog_id();
+                    LogMessage.log_message(id, `GzzListFileRow::decorateFileName:  the_row == ${the_row}`, new Error());
+                    LogMessage.log_message(id, `GzzListFileRow::decorateFileName:  filename == ${filename}`, new Error());
+                    LogMessage.log_message(id, `GzzListFileRow::decorateFileName:  mousebtn == ${mousebtn}`, new Error());
+                    LogMessage.log_message(id, `GzzListFileRow::decorateFileName:  state == ${state}`, new Error());
+                    LogMessage.log_message(id, `GzzListFileRow::decorateFileName:  path == ${path}`, new Error());
+                    this.#clicked(filename, mousebtn, state, path);
                 });
-                self_.connect('dblclick', (thisrow, mousebtn, state) => {
-                    this.#double_clicked(thisrow, mousebtn, state);
+                self_.connect('dblclick', (the_row, directory, mousebtn, state, path) => {
+                    const id = LogMessage.get_prog_id();
+                    LogMessage.log_message(id, `GzzListFileRow::decorateFileName:  the_row == ${the_row}`, new Error());
+                    LogMessage.log_message(id, `GzzListFileRow::decorateFileName:  directory == ${directory}`, new Error());
+                    LogMessage.log_message(id, `GzzListFileRow::decorateFileName:  mousebtn == ${mousebtn}`, new Error());
+                    LogMessage.log_message(id, `GzzListFileRow::decorateFileName:  state == ${state}`, new Error());
+                    LogMessage.log_message(id, `GzzListFileRow::decorateFileName:  path == ${path}`, new Error());
+                    this.#double_clicked(directory, mousebtn, state, path);
                 });
                 this.add_row(self_);
                 const parent_dir = filename.get_parent();
@@ -3821,6 +4148,7 @@ export class GzzFileDialog extends GzzFileDialogBase {
                     file_type:            file_type_, 
                     symlink_target:       symlink_target_, 
                     file:                 (parent_dir ? parent_dir : filename), 
+                    dir:                  (parent_dir ? parent_dir.get_path() : filename.get_path()), 
                     icon:                 info.get_icon(), 
                     icon_size:            this.get_icon_size(), 
                     create_time:          info.get_creation_date_time(),
@@ -3839,63 +4167,101 @@ export class GzzFileDialog extends GzzFileDialogBase {
                     display_size:         this.#_display_size,
                     base2_file_sizes:     this.#_base2_file_sizes, 
                 });
-                parent_.connect('clicked', (thisrow, mousebtn, state) => {
-                    this.#clicked(thisrow, mousebtn, state);
+                parent_.connect('clicked', (the_row, filename, mousebtn, state, path) => {
+                    const id = LogMessage.get_prog_id();
+                    LogMessage.log_message(id, `GzzListFileRow::decorateFileName:  the_row == ${the_row}`, new Error());
+                    LogMessage.log_message(id, `GzzListFileRow::decorateFileName:  filename == ${filename}`, new Error());
+                    LogMessage.log_message(id, `GzzListFileRow::decorateFileName:  mousebtn == ${mousebtn}`, new Error());
+                    LogMessage.log_message(id, `GzzListFileRow::decorateFileName:  state == ${state}`, new Error());
+                    LogMessage.log_message(id, `GzzListFileRow::decorateFileName:  path == ${path}`, new Error());
+                    this.#clicked(filename, mousebtn, state, path);
                 });
-                parent_.connect('dblclick', (thisrow, mousebtn, state) => {
-                    this.#double_clicked(thisrow, mousebtn, state);
+                parent_.connect('dblclick', (the_row, directory, mousebtn, state, path) => {
+                    const id = LogMessage.get_prog_id();
+                    LogMessage.log_message(id, `GzzListFileRow::decorateFileName:  the_row == ${the_row}`, new Error());
+                    LogMessage.log_message(id, `GzzListFileRow::decorateFileName:  directory == ${directory}`, new Error());
+                    LogMessage.log_message(id, `GzzListFileRow::decorateFileName:  mousebtn == ${mousebtn}`, new Error());
+                    LogMessage.log_message(id, `GzzListFileRow::decorateFileName:  state == ${state}`, new Error());
+                    LogMessage.log_message(id, `GzzListFileRow::decorateFileName:  path == ${path}`, new Error());
+                    this.#double_clicked(directory, mousebtn, state, path);
                 });
                 this.add_row(parent_);
             }
             enumerator = filename.enumerate_children(attributes, Gio.FileQueryInfoFlags.NOFOLLOW_SYMLINKS, null);
-            LogMessage.log_message('notes', `GzzFileDialog::display_dir: enumerator == ‷${enumerator}‴`, new Error());
+            if(!enumerator){
+                throw new Error(`GzzFileDialog::display_dir: enumerator == ‷${enumerator}‴`
+                    + ` Error: filename: ${filename} bad value`);
+            }
+            LogMessage.log_message(LogMessage.get_prog_id(), `GzzFileDialog::display_dir: enumerator == ‷${enumerator}‴`, new Error());
             while ((info = enumerator.next_file(null))) {
-                LogMessage.log_message('notes', `GzzFileDialog::display_dir: info == ‷${info}‴`, new Error());
-                if (this.get_dialog_type().toString() === GzzDialogType.SelectDir.toString() && info.get_file_type() !== Gio.FileType.DIRETORY) {
-                    LogMessage.log_message('notes', `GzzFileDialog::display_dir: info == ‷${info}‴`, new Error());
+                LogMessage.log_message(LogMessage.get_prog_id(), `GzzFileDialog::display_dir: info == ‷${info}‴`, new Error());
+                /*
+                if (this.get_dialog_type().toString() === GzzDialogType.SelectDir.toString()
+                            && info.get_file_type() !== Gio.FileType.DIRETORY) {
+                    LogMessage.log_message(
+                        LogMessage.get_prog_id(), `GzzFileDialog::display_dir: info == ‷${info}‴`, new Error()
+                    );
                     continue;
                 }
+                // */
 
                 const file_type_ = info.get_file_type();
 
                 is_dir_ = (file_type_ === Gio.FileType.DIRECTORY);
-                LogMessage.log_message('notes', `GzzFileDialog::display_dir: file_type_ == ‷${file_type_}‴`, new Error());
-                LogMessage.log_message('notes', `GzzFileDialog::display_dir: is_dir_ == ‷${is_dir_}‴`, new Error());
+                is_special = (file_type_ === Gio.FileType.SPECIAL);
+                LogMessage.log_message(
+                    LogMessage.get_prog_id(), `GzzFileDialog::display_dir: file_type_ == ‷${file_type_}‴`, new Error()
+                );
+                LogMessage.log_message(
+                    LogMessage.get_prog_id(), `GzzFileDialog::display_dir: is_dir_ == ‷${is_dir_}‴`, new Error()
+                );
 
                 const file     = enumerator.get_child(info);
-                LogMessage.log_message('notes', `GzzFileDialog::display_dir: file == ‷${file}‴`, new Error());
+                LogMessage.log_message(LogMessage.get_prog_id(), `GzzFileDialog::display_dir: file == ‷${file}‴`, new Error());
 
                 if(file_type_ === Gio.FileType.SYMBOLIC_LINK){
                     is_sym_ = true;
                     is_dir_ = this.file_is_dir(file); // will identify symlink directories as directory //
-                    LogMessage.log_message('notes', `GzzFileDialog::display_dir: is_dir_ == ‷${is_dir_}‴`, new Error());
+                    LogMessage.log_message(
+                        LogMessage.get_prog_id(), `GzzFileDialog::display_dir: is_dir_ == ‷${is_dir_}‴`, new Error()
+                    );
                 }else{
                     is_sym_ = false;
                 }
                 LogMessage.log_message(
-                    'notes', `GzzFileDialog::display_dir: this.#_filter == ‷${this.#_filter}‴`, new Error()
+                    LogMessage.get_prog_id(), `GzzFileDialog::display_dir: this.#_filter == ‷${this.#_filter}‴`, new Error()
                 );
-                LogMessage.log_message('notes', `GzzFileDialog::display_dir: is_dir_ == ‷${is_dir_}‴`, new Error());
+                LogMessage.log_message(
+                    LogMessage.get_prog_id(), `GzzFileDialog::display_dir: is_dir_ == ‷${is_dir_}‴`, new Error()
+                );
                 const matches = info.get_name().match(this.#_filter);
-                if (!matches && !is_dir_) {
-                    LogMessage.log_message('notes', `GzzFileDialog::display_dir: matches == ‷${matches}‴`, new Error());
+                if (!matches && !(is_dir_ || is_special)) {
+                    LogMessage.log_message(LogMessage.get_prog_id(), `GzzFileDialog::display_dir: matches == ‷${matches}‴`, new Error());
                     continue;
+                }
+                if(this.get_dialog_type().toString() === GzzDialogType.SelectDir.toString() && !(is_dir_ || is_special)){
+                    LogMessage.log_message(
+                        LogMessage.get_prog_id(),
+                        `GzzFileDialog::display_dir: this.get_dialog_type().toString() == ‷${this.get_dialog_type().toString()}‴`,
+                        new Error()
+                    );
+                    continue; // don't list none directory files if dialog_type is SelectDir //
                 }
 
                 const query_info = file.query_info(attributes, Gio.FileQueryInfoFlags.NONE, null);
-                LogMessage.log_message('notes', `GzzFileDialog::display_dir: query_info == ‷${query_info}‴`, new Error());
+                LogMessage.log_message(LogMessage.get_prog_id(), `GzzFileDialog::display_dir: query_info == ‷${query_info}‴`, new Error());
                 title_ = info.get_name();
-                LogMessage.log_message('notes', `GzzFileDialog::display_dir: title_ == ‷${title_}‴`, new Error());
+                LogMessage.log_message(LogMessage.get_prog_id(), `GzzFileDialog::display_dir: title_ == ‷${title_}‴`, new Error());
 
                 LogMessage.log_message(
-                    'notes',
+                    LogMessage.get_prog_id(),
                     `GzzFileDialog::display_dir: this.#_double_click_time == ${this.#_double_click_time}`,
                     new Error()
                 );
                 symlink_target_ = query_info.get_symlink_target();
-                LogMessage.log_message('notes', `GzzFileDialog::display_dir: file_type_ == ‷${file_type_}‴`, new Error());
+                LogMessage.log_message(LogMessage.get_prog_id(), `GzzFileDialog::display_dir: file_type_ == ‷${file_type_}‴`, new Error());
                 LogMessage.log_message(
-                    'notes', `GzzFileDialog::display_dir: symlink_target_ == ‷${symlink_target_}‴`, new Error()
+                    LogMessage.get_prog_id(), `GzzFileDialog::display_dir: symlink_target_ == ‷${symlink_target_}‴`, new Error()
                 );
                 const row = new GzzListFileRow({
                     owner:                this, 
@@ -3908,6 +4274,7 @@ export class GzzFileDialog extends GzzFileDialogBase {
                     symlink_target:       symlink_target_, 
                     symlink_mode:         query_info.get_attribute_uint32('unix::mode'),
                     file:                 Gio.File.new_for_path(GLib.build_filenamev([filename.get_path(), info.get_name()])),
+                    dir:                  filename.get_path(), 
                     icon:                 info.get_icon(), 
                     icon_size:            this.get_icon_size(), 
                     create_time:          info.get_creation_date_time(),
@@ -3926,18 +4293,30 @@ export class GzzFileDialog extends GzzFileDialogBase {
                     display_size:         this.#_display_size,
                     base2_file_sizes:     this.#_base2_file_sizes, 
                 });
-                row.connect('clicked', (thisrow, mousebtn, state) => {
-                    this.#clicked(thisrow, mousebtn, state);
+                row.connect('clicked', (the_row, filename, mousebtn, state, path) => {
+                    const id = LogMessage.get_prog_id();
+                    LogMessage.log_message(id, `GzzListFileRow::decorateFileName:  the_row == ${the_row}`, new Error());
+                    LogMessage.log_message(id, `GzzListFileRow::decorateFileName:  filename == ${filename}`, new Error());
+                    LogMessage.log_message(id, `GzzListFileRow::decorateFileName:  mousebtn == ${mousebtn}`, new Error());
+                    LogMessage.log_message(id, `GzzListFileRow::decorateFileName:  state == ${state}`, new Error());
+                    LogMessage.log_message(id, `GzzListFileRow::decorateFileName:  path == ${path}`, new Error());
+                    this.#clicked(filename, mousebtn, state, path);
                 });
-                row.connect('dblclick', (thisrow, mousebtn, state) => {
-                    this.#double_clicked(thisrow, mousebtn, state);
+                row.connect('dblclick', (the_row, directory, mousebtn, state, path) => {
+                    const id = LogMessage.get_prog_id();
+                    LogMessage.log_message(id, `GzzListFileRow::decorateFileName:  the_row == ${the_row}`, new Error());
+                    LogMessage.log_message(id, `GzzListFileRow::decorateFileName:  directory == ${directory}`, new Error());
+                    LogMessage.log_message(id, `GzzListFileRow::decorateFileName:  mousebtn == ${mousebtn}`, new Error());
+                    LogMessage.log_message(id, `GzzListFileRow::decorateFileName:  state == ${state}`, new Error());
+                    LogMessage.log_message(id, `GzzListFileRow::decorateFileName:  path == ${path}`, new Error());
+                    this.#double_clicked(directory, mousebtn, state, path);
                 });
 
                 this.add_row(row);
             }
         } catch(e){
-            LogMessage.log_message('notes', `GzzFileDialog::display_dir: ‷${e.stack}‴`, e);
-            LogMessage.log_message('notes', `GzzFileDialog::display_dir: Exception caught == ‷${e}‴`, e);
+            LogMessage.log_message(LogMessage.get_prog_id(), `GzzFileDialog::display_dir: ‷${e.stack}‴`, e);
+            LogMessage.log_message(LogMessage.get_prog_id(), `GzzFileDialog::display_dir: Exception caught == ‷${e}‴`, e);
             this.apply_error_handler( this, 'GzzFileDialog::display_dir', `Exception caught: ${e}:`, e);
         }
     } // display_dir(caller, filename) //
@@ -3977,7 +4356,7 @@ export class GzzFileDialog extends GzzFileDialogBase {
             ret = GLib.mkdir_with_parents(this.#_dir.get_path(), 0o755);
             if(ret == -1){
                 LogMessage.log_message(
-                    'notes',
+                    LogMessage.get_prog_id(),
                     `GzzFileDialog::save_file: this.#_dir.get_path() == ‷Error Glib.mkdir_with_parents(${this.#_dir.get_path()}, 0o755) failed‴`,
                     new Error()
                 );
@@ -3990,8 +4369,8 @@ export class GzzFileDialog extends GzzFileDialogBase {
                 );
             }
         }catch(e){
-            LogMessage.log_message('notes', `GzzFileDialog::save_file: Exception caught: ‷${e.stack}‴`, e);
-            LogMessage.log_message('notes', `GzzFileDialog::save_file: Exception caught: ‷${e}‴`, e);
+            LogMessage.log_message(LogMessage.get_prog_id(), `GzzFileDialog::save_file: Exception caught: ‷${e.stack}‴`, e);
+            LogMessage.log_message(LogMessage.get_prog_id(), `GzzFileDialog::save_file: Exception caught: ‷${e}‴`, e);
             this.apply_error_handler(
                 this,
                 'GzzFileDialog::save_file',
@@ -4015,8 +4394,8 @@ export class GzzFileDialog extends GzzFileDialogBase {
                 );
             }
         }catch(e){
-            LogMessage.log_message('notes', `GzzFileDialog::save_file: Error: ‷${e.stack}‴`, e);
-            LogMessage.log_message('notes', `GzzFileDialog::save_file: Error: ‷${e}‴`, e);
+            LogMessage.log_message(LogMessage.get_prog_id(), `GzzFileDialog::save_file: Error: ‷${e.stack}‴`, e);
+            LogMessage.log_message(LogMessage.get_prog_id(), `GzzFileDialog::save_file: Error: ‷${e}‴`, e);
             this.apply_error_handler(this, 'GzzFileDialog::save_file', `Error: GzzFileDialog::save_file: ‷${e}‴`, e);
             return this.#_result;
         }
@@ -4039,7 +4418,7 @@ export class GzzFileDialog extends GzzFileDialogBase {
     create_new_dir(caller){
         if(!(caller instanceof AbstractListFileSection)){
             LogMessage.log_message(
-                'notes',
+                LogMessage.get_prog_id(),
                 `GzzFileDialog::create_new_dir: caller should be AbstractListFileSection but you have ${caller}`,
                 new Error()
             );
@@ -4065,8 +4444,8 @@ export class GzzFileDialog extends GzzFileDialogBase {
                                 this, 'GzzFileDialog::create_new_dir_error', `make_directory Error: ${new_dir}`, new Error());
                         }
                     }catch(e){
-                        LogMessage.log_message('notes', `GzzFileDialog::create_new_dir: make_directory Exception: ${e}`, e);
-                        LogMessage.log_message('notes', `${e.stack}`, e);
+                        LogMessage.log_message(LogMessage.get_prog_id(), `GzzFileDialog::create_new_dir: make_directory Exception: ${e}`, e);
+                        LogMessage.log_message(LogMessage.get_prog_id(), `${e.stack}`, e);
                         this.apply_error_handler(this, 'GzzFileDialog::create_new_dir_error', `make_directory Exception: ${e}:`, e);
                     }
                 } // if(dlg.result && new_dir.trim() !== '') //

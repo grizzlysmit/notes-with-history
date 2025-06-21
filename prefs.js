@@ -27,6 +27,7 @@ import Gdk from 'gi://Gdk';
 import * as Constants from './icon_constants.js';
 
 import * as Config from 'resource:///org/gnome/Shell/Extensions/js/misc/config.js';
+import * as LogMessage from './log_message.js';
 
 class PageBase extends Adw.PreferencesPage {
     static {
@@ -249,8 +250,9 @@ class NotesIconsPage extends PageBase {
         customIconRow.connect('notify::enable-expansion', () => {
             this._settings.set_boolean('use-custom-icon', customIconRow.enable_expansion);
             this._caller.log_message(
-                'notes',
-                `NotesIconsPage::notify::enable-expansion: customIconRow.enable_expansion == ${customIconRow.enable_expansion}`,
+                LogMessage.get_prog_id(),
+                'NotesIconsPage::notify::enable-expansion:'
+                + ` customIconRow.enable_expansion == ${customIconRow.enable_expansion}`,
                 new Error()
             );
         });
@@ -259,7 +261,8 @@ class NotesIconsPage extends PageBase {
             const useCustomIcon = this._settings.get_boolean('use-custom-icon');
             customIconRow.set_enable_expansion(useCustomIcon)
             this._caller.log_message(
-                'notes', `NotesIconsPage::changed::use-custom-icon: useCustomIcon == ${useCustomIcon}`, new Error()
+                LogMessage.get_prog_id(), `NotesIconsPage::changed::use-custom-icon: useCustomIcon == ${useCustomIcon}`,
+                new Error()
             );
         });
 
@@ -273,7 +276,7 @@ class NotesIconsPage extends PageBase {
         });
 
         this._caller.log_message(
-            'notes', `NotesIconsPage::constructor: customIconButton == ${customIconButton}`, new Error()
+            LogMessage.get_prog_id(), `NotesIconsPage::constructor: customIconButton == ${customIconButton}`, new Error()
         );
 
         const customIconPreview = new Gtk.Image({
@@ -282,14 +285,16 @@ class NotesIconsPage extends PageBase {
         });
 
         this._caller.log_message(
-            'notes', `NotesIconsPage::constructor: customIconPreview == ${customIconPreview}`, new Error()
+            LogMessage.get_prog_id(), `NotesIconsPage::constructor: customIconPreview == ${customIconPreview}`, new Error()
         );
 
         if(this._settings.get_string('custom-icon-path')){
             const custpath = this._settings.get_string('custom-icon-path');
             customIconPreview.set_from_file(custpath);
 
-            this._caller.log_message('notes', `NotesIconsPage::constructor: custpath == ${custpath}`, new Error());
+            this._caller.log_message(
+                LogMessage.get_prog_id(), `NotesIconsPage::constructor: custpath == ${custpath}`, new Error()
+            );
         }
 
         customIconButton.connect('clicked', async () => {
@@ -298,12 +303,12 @@ class NotesIconsPage extends PageBase {
                     name: "Images",
                 });
                 this._caller.log_message(
-                    'notes', `NotesIconsPage::clicked: filter == ${filter}`, new Error()
+                    LogMessage.get_prog_id(), `NotesIconsPage::clicked: filter == ${filter}`, new Error()
                 );
 
                 filter.add_pixbuf_formats();
                 this._caller.log_message(
-                    'notes', `NotesIconsPage::clicked: filter == ${filter}`, new Error()
+                    LogMessage.get_prog_id(), `NotesIconsPage::clicked: filter == ${filter}`, new Error()
                 );
 
                 const fileDialog = new Gtk.FileDialog({
@@ -311,18 +316,22 @@ class NotesIconsPage extends PageBase {
                     modal: true,
                     default_filter: filter
                 });
-                this._caller.log_message( 'notes', `NotesIconsPage::clicked: fileDialog == ${fileDialog}`, new Error());
+                this._caller.log_message(
+                    LogMessage.get_prog_id(), `NotesIconsPage::clicked: fileDialog == ${fileDialog}`, new Error()
+                );
 
                 const file = await fileDialog.open(customIconButton.get_root(), null);
-                this._caller.log_message( 'notes', `NotesIconsPage::clicked: file == ${file}`, new Error());
+                this._caller.log_message( LogMessage.get_prog_id(), `NotesIconsPage::clicked: file == ${file}`, new Error());
                 if (file) {
                     const filename = file.get_path();
                     this._settings.set_string("custom-icon-path", filename);
                     customIconPreview.set_from_file(filename);
-                    this._caller.log_message( 'notes', `NotesIconsPage::clicked: filename == ${filename}`, new Error());
+                    this._caller.log_message( 
+                        LogMessage.get_prog_id(), `NotesIconsPage::clicked: filename == ${filename}`, new Error()
+                    );
                 }
             } catch (error) {
-                this._caller.log_message( 'notes', `NotesIconsPage::clicked: file == ${error}`, error);
+                this._caller.log_message( LogMessage.get_prog_id(), `NotesIconsPage::clicked: file == ${error}`, error);
                 console.error('notes::Error selecting custom icon:', error.message);
             }
         });
@@ -641,6 +650,7 @@ class NotesPreferencesSettings extends PageBase {
         this.show_logs_switch = show_logs_switch_row.activatable_widget;
         this.show_logs_switch.connect("state-set", (_sw, state) => {
             this._caller._window._settings.set_boolean("show-logs", state);
+            LogMessage.set_show_logs(this._caller._window._settings.get_boolean('show-logs'));
         });
         this._show_logs_switch_row  = show_logs_switch_row;
         return show_logs_switch_row;
@@ -924,7 +934,9 @@ class NotesScroller extends PageBase {
                                 vexpand: false,
                                 valign: Gtk.Align.END,
             });
-            this._caller.log_message('notes', `NotesScroller::constructor: _index == ${_index}`, new Error());
+            this._caller.log_message(
+                LogMessage.get_prog_id(), `NotesScroller::constructor: _index == ${_index}`, new Error()
+            );
             button.connect("clicked", () => { this._caller.editNote(this, Number(_index)); });
             const row = new Adw.ActionRow({
                                 title: note, 
@@ -946,7 +958,9 @@ class NotesScroller extends PageBase {
         this.add(this.containerGroup);
         this.size_changed_id = this._caller._window.connect('notify::default-height', () => {
             const height = Math.max(Math.floor((3 * this._caller._window.default_height)/10), this.scrolledWindow.min_content_height);
-            this._caller.log_message('notes', `Callback notify::default-height: height == ${height}`, new Error());
+            this._caller.log_message(
+                LogMessage.get_prog_id(), `Callback notify::default-height: height == ${height}`, new Error()
+            );
             this.scrolledWindow.set_max_content_height(height);
             this.scrolledWindow.height_request = height;
         });
@@ -994,20 +1008,30 @@ class EditNote extends PageBase {
         this.group          = new Adw.PreferencesGroup();
         this.insert = false;
         if(this.index < 0){
-            this._caller.log_message('notes', `EditNote::constructor: this.index == ${this.index}`, new Error());
+            this._caller.log_message(
+                LogMessage.get_prog_id(), `EditNote::constructor: this.index == ${this.index}`, new Error()
+            );
             this.note = '';
             this.insert = true;
         }else if(0 <= this.index && this.index < this._caller.notes.length){
-            this._caller.log_message('notes', `EditNote::constructor: this.index == ${this.index}`, new Error());
-            this._caller.log_message('notes', `EditNote::constructor: this.note == ${this.note}`, new Error());
+            this._caller.log_message(
+                LogMessage.get_prog_id(), `EditNote::constructor: this.index == ${this.index}`, new Error()
+            );
+            this._caller.log_message(
+                LogMessage.get_prog_id(), `EditNote::constructor: this.note == ${this.note}`, new Error()
+            );
             this.note = this._caller.notes[this.index];
-            this._caller.log_message('notes', `EditNote::constructor: this.note == ${this.note}`, new Error());
+            this._caller.log_message(
+                LogMessage.get_prog_id(), `EditNote::constructor: this.note == ${this.note}`, new Error()
+            );
             this.insert = false;
         }else{
             this.index = -1;
             this._caller._window._settings.set_int("index", this.index);
             this.insert = true;
-            this._caller.log_message('notes', `EditNote::constructor: this.index == ${this.index}`, new Error());
+            this._caller.log_message(
+                LogMessage.get_prog_id(), `EditNote::constructor: this.index == ${this.index}`, new Error()
+            );
         }
         this.edit           = new Adw.EntryRow({ 
                                 title:      _("Add text"), 
@@ -1078,20 +1102,30 @@ class EditNote extends PageBase {
         this.calling_page = calling_page;
         this.insert = false;
         if(this.index < 0){
-            this._caller.log_message('notes', `EditNote::constructor: this.index == ${this.index}`, new Error());
+            this._caller.log_message(
+                LogMessage.get_prog_id(), `EditNote::constructor: this.index == ${this.index}`, new Error()
+            );
             this.note = '';
             this.insert = true;
         }else if(0 <= this.index && this.index < this._caller.notes.length){
-            this._caller.log_message('notes', `EditNote::constructor: this.index == ${this.index}`, new Error());
-            this._caller.log_message('notes', `EditNote::constructor: this.note == ${this.note}`, new Error());
+            this._caller.log_message(
+                LogMessage.get_prog_id(), `EditNote::constructor: this.index == ${this.index}`, new Error()
+            );
+            this._caller.log_message(
+                LogMessage.get_prog_id(), `EditNote::constructor: this.note == ${this.note}`, new Error()
+            );
             this.note = this._caller.notes[this.index];
-            this._caller.log_message('notes', `EditNote::constructor: this.note == ${this.note}`, new Error());
+            this._caller.log_message(
+                LogMessage.get_prog_id(), `EditNote::constructor: this.note == ${this.note}`, new Error()
+            );
             this.insert = false;
         }else{
             this.index = -1;
             this._caller._window._settings.set_int("index", this.index);
             this.insert = true;
-            this._caller.log_message('notes', `EditNote::constructor: this.index == ${this.index}`, new Error());
+            this._caller.log_message(
+                LogMessage.get_prog_id(), `EditNote::constructor: this.index == ${this.index}`, new Error()
+            );
         }
         this.edit.set_text(this.note);
     } // refresh_page(calling_page) //
@@ -1148,12 +1182,18 @@ class EditNote extends PageBase {
     } // restart() //
 
     delete_note(){
-        this._caller.log_message('notes', `EditNote::delete_note: this.index: ‷${this.index}‴.`, new Error());
+        this._caller.log_message(
+            LogMessage.get_prog_id(), `EditNote::delete_note: this.index: ‷${this.index}‴.`, new Error()
+        );
         if(0 <= this.index && this.index < this._caller.notes.length){
-            this._caller.log_message('notes', `EditNote::delete_note: this._caller.notes: ‷${this._caller.notes}‴.`, new Error());
+            this._caller.log_message(
+                LogMessage.get_prog_id(), `EditNote::delete_note: this._caller.notes: ‷${this._caller.notes}‴.`, new Error()
+            );
             this._caller.notes.splice(this.index, 1);
-            this._caller.log_message('notes', `EditNote::delete_note: this._caller.notes: ‷${this._caller.notes}‴.`, new Error());
-            this._caller._window._settings.set_strv("notes", this._caller.notes);
+            this._caller.log_message(
+                LogMessage.get_prog_id(), `EditNote::delete_note: this._caller.notes: ‷${this._caller.notes}‴.`, new Error()
+            );
+            this._caller._window._settings.set_strv(LogMessage.get_prog_id(), this._caller.notes);
             this.note = null;
             this.edit.set_text('');
             this.index = -1;
@@ -1176,13 +1216,13 @@ class EditNote extends PageBase {
 
     save(_exit){
         this.note = this.get_text();
-        this._caller.log_message('notes', `EditNote::save: _exit: ‷${_exit}‴.`, new Error());
-        this._caller.log_message('notes', `EditNote::save: this.note: ‷${this.note}‴.`, new Error());
-        this._caller.log_message('notes', `EditNote::save: this.index: ‷${this.index}‴.`, new Error());
+        this._caller.log_message(LogMessage.get_prog_id(), `EditNote::save: _exit: ‷${_exit}‴.`, new Error());
+        this._caller.log_message(LogMessage.get_prog_id(), `EditNote::save: this.note: ‷${this.note}‴.`, new Error());
+        this._caller.log_message(LogMessage.get_prog_id(), `EditNote::save: this.index: ‷${this.index}‴.`, new Error());
         if(0 <= this.index && this.index < this._caller.notes.length){
             if(this.note && this.note.trim() != ''){
                 this._caller.notes[this.index] = this.note;
-                this._caller._window._settings.set_strv("notes", this._caller.notes);
+                this._caller._window._settings.set_strv(LogMessage.get_prog_id(), this._caller.notes);
             }
             if(this._caller.edit_note){
                 this._caller.edit_note = false;
@@ -1206,13 +1246,15 @@ class EditNote extends PageBase {
                 this._caller._close_request(this._caller._window);
             }
         }else{ //if(0 <= this.index && this.index < this._caller.notes.length) //
-            this._caller.log_message('notes', `EditNote::save: this.note: ‷${this.note}‴.`, new Error());
-            this._caller.log_message('notes', `EditNote::save: this.index: ‷${this.index}‴.`, new Error());
+            this._caller.log_message(LogMessage.get_prog_id(), `EditNote::save: this.note: ‷${this.note}‴.`, new Error());
+            this._caller.log_message(LogMessage.get_prog_id(), `EditNote::save: this.index: ‷${this.index}‴.`, new Error());
             if(this.note && this.note.trim() != ''){
                 this._caller.notes.unshift(this.note);
-                this._caller.log_message('notes', `EditNote::save: this._caller.notes: ‷${this._caller.notes}‴.`, new Error());
+                this._caller.log_message(
+                    LogMessage.get_prog_id(), `EditNote::save: this._caller.notes: ‷${this._caller.notes}‴.`, new Error()
+                );
                 this.index = 0;
-                this._caller._window._settings.set_strv("notes", this._caller.notes);
+                this._caller._window._settings.set_strv(LogMessage.get_prog_id(), this._caller.notes);
                 this._caller._window._settings.set_int("index", this.index);
             }
             if(this._caller.edit_note){
@@ -1296,6 +1338,8 @@ export default class NotesPreferences extends ExtensionPreferences {
         this._window = window;
 
         window._settings       = this.getSettings();
+        LogMessage.set_prog_id('notes-with-history');
+        LogMessage.set_show_logs(this._window._settings.get_boolean('show-logs'));
         if(this._window._settings.get_int("position") < 0 || this._window._settings.get_int("position") > 25){ 
             this._window._settings.set_int("position", 0);
         }
@@ -1311,7 +1355,7 @@ export default class NotesPreferences extends ExtensionPreferences {
         this._pageNotesPreferencesSettings = new NotesPreferencesSettings(this, _('Settings'), "settings", 'preferences-system-symbolic');
         this._fileDisplay                  = new FileDisplay(this, _('File Display Settings'), "fileDisplay", 'preferences-system-symbolic');
         this._notesIconsPage               = new NotesIconsPage(this, _('Icon'), 'Icon', 'emblem-photos-symbolic');
-        this._NotesScroller                = new NotesScroller(this, _("Notes"), "notes", 'notes-app');
+        this._NotesScroller                = new NotesScroller(this, _("Notes"), LogMessage.get_prog_id(), 'notes-app');
         this._EditNote                     = new EditNote(this, _("Edit note"), "editNotes", 'notes-app');
         this.aboutPage                     = new AboutPage(this, this.metadata);
         this.creditsPage                   = new CreditsPage(this, _("Credits"), "credits", 'copyright-symbolic');
@@ -1384,7 +1428,7 @@ export default class NotesPreferences extends ExtensionPreferences {
     } // fillPreferencesWindow(window) //
 
     editNote(calling_page, _index){
-        this.log_message('notes', `NotesPreferences::editNote: _index == ${_index}`, new Error());
+        this.log_message(LogMessage.get_prog_id(), `NotesPreferences::editNote: _index == ${_index}`, new Error());
         this.page = this._EditNote;
         this._EditNote.set_index(_index);
         this._EditNote.refresh_page(calling_page);
@@ -1439,10 +1483,7 @@ export default class NotesPreferences extends ExtensionPreferences {
     }
 
     log_message(id, text, e){
-        if(this._window._settings.get_boolean('show-logs')){
-            console.log(`${id}:${text}: ${e.fileName}:${e.lineNumber}:${e.columnNumber}`);
-        }
-
+        LogMessage.log_message(id, text, e);
     }
 
 } // export default class NotesPreferences extends ExtensionPreferences //
