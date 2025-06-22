@@ -925,8 +925,29 @@ class NotesScroller extends PageBase {
         this.notesGroup    = new Adw.PreferencesGroup();
         this.notesGroup.set_title(_title);
         this.notesGroup.set_name(_name);
-        for(let _index = 0; _index < this._caller.notes.length; _index++){
+        const length = this._caller.notes.length;
+        for(let _index = 0; _index < length; _index++){
             const note   = this._caller.notes[_index];
+            const up     = new Gtk.Button({
+                                label: "▲",
+                                css_classes: ['note-label'],
+                                hexpand: false,
+                                vexpand: false,
+                                valign: Gtk.Align.END,
+            });
+            const down   = new Gtk.Button({
+                                label: "▼",
+                                css_classes: ['note-label'],
+                                hexpand: false,
+                                vexpand: false,
+                                valign: Gtk.Align.END,
+            });
+            if(_index === 0){
+                up.set_sensitive(false);
+            }
+            if(_index >= length - 1){
+                down.set_sensitive(false);
+            }
             const button = new Gtk.Button({
                                 label: ">...",
                                 css_classes: ['note-label'],
@@ -943,9 +964,43 @@ class NotesScroller extends PageBase {
                                 activatable_widget: button, 
                                 title_lines: this._caller.max_note_length, 
             });
+            row.add_suffix(up);
+            row.add_suffix(down);
+            up.connect('clicked', () => {
+                const i = _index - 1;
+                this._caller.log_message(
+                    LogMessage.get_prog_id(), `NotesScroller::constructor: i == ${i}`, new Error()
+                );
+                this._caller.log_message(
+                    LogMessage.get_prog_id(), `NotesScroller::constructor: _index == ${_index}`, new Error()
+                );
+                if(i < 0 || i >= length) return;
+                if(i !== _index){
+                    const elt = this._caller.notes.splice(_index, 1)[0];
+                    this._caller.notes.splice(i, 0, elt);
+                    this._caller._window._settings.set_strv('notes', this._caller.notes);
+                    this.refresh();
+                }
+            });
+            down.connect('clicked', () => {
+                const i = _index + 1;
+                this._caller.log_message(
+                    LogMessage.get_prog_id(), `NotesScroller::constructor: i == ${i}`, new Error()
+                );
+                this._caller.log_message(
+                    LogMessage.get_prog_id(), `NotesScroller::constructor: _index == ${_index}`, new Error()
+                );
+                if(i < 0 || i >= length) return;
+                if(i !== _index){
+                    const elt = this._caller.notes.splice(_index, 1)[0];
+                    this._caller._window._settings.set_strv('notes', this._caller.notes);
+                    this._caller.notes.splice(i, 0, elt);
+                    this.refresh();
+                }
+            });
             row.add_suffix(button);
             this.notesGroup.add(row);
-        } // for(let _index = 0; _index < this._caller.notes.length; _index++) //
+        } // for(let _index = 0; _index < length; _index++) //
         this.scrolledWindow    = new Gtk.ScrolledWindow({
             name:    'scrolledWindow', 
             hexpand: true, 
@@ -972,8 +1027,23 @@ class NotesScroller extends PageBase {
         this.notesGroup    = new Adw.PreferencesGroup();
         this.notesGroup.set_title(this._title);
         this.notesGroup.set_name(this._name);
-        for(let _index = 0; _index < this._caller.notes.length; _index++){
+        const length = this._caller.notes.length;
+        for(let _index = 0; _index < length; _index++){
             const note   = this._caller.notes[_index];
+            const up     = new Gtk.Button({
+                                label: "▲",
+                                css_classes: ['note-label'],
+                                hexpand: false,
+                                vexpand: false,
+                                valign: Gtk.Align.END,
+            });
+            const down   = new Gtk.Button({
+                                label: "▼",
+                                css_classes: ['note-label'],
+                                hexpand: false,
+                                vexpand: false,
+                                valign: Gtk.Align.END,
+            });
             const button = new Gtk.Button({
                                 label: ">...",
                                 css_classes: ['note_label'],
@@ -987,9 +1057,43 @@ class NotesScroller extends PageBase {
                                 activatable_widget: button, 
                                 title_lines: this._caller.max_note_length, 
             });
+            row.add_suffix(up);
+            row.add_suffix(down);
+            up.connect('clicked', () => {
+                const i = _index - 1;
+                this._caller.log_message(
+                    LogMessage.get_prog_id(), `NotesScroller::constructor: i == ${i}`, new Error()
+                );
+                this._caller.log_message(
+                    LogMessage.get_prog_id(), `NotesScroller::constructor: _index == ${_index}`, new Error()
+                );
+                if(i < 0 || i >= length) return;
+                if(i !== _index){
+                    const elt = this._caller.notes.splice(_index, 1)[0];
+                    this._caller.notes.splice(i, 0, elt);
+                    this._caller._window._settings.set_strv('notes', this._caller.notes);
+                    this.refresh();
+                }
+            });
+            down.connect('clicked', () => {
+                const i = _index + 1;
+                this._caller.log_message(
+                    LogMessage.get_prog_id(), `NotesScroller::constructor: i == ${i}`, new Error()
+                );
+                this._caller.log_message(
+                    LogMessage.get_prog_id(), `NotesScroller::constructor: _index == ${_index}`, new Error()
+                );
+                if(i < 0 || i >= length) return;
+                if(i !== _index){
+                    const elt = this._caller.notes.splice(_index, 1)[0];
+                    this._caller._window._settings.set_strv('notes', this._caller.notes);
+                    this._caller.notes.splice(i, 0, elt);
+                    this.refresh();
+                }
+            });
             row.add_suffix(button);
             this.notesGroup.add(row);
-        } // for(let _index = 0; _index < this._caller.notes.length; _index++) //
+        } // for(let _index = 0; _index < length; _index++) //
         this.scrolledWindow.set_child(this.notesGroup);
     } // refresh() //
 
@@ -1193,7 +1297,7 @@ class EditNote extends PageBase {
             this._caller.log_message(
                 LogMessage.get_prog_id(), `EditNote::delete_note: this._caller.notes: ‷${this._caller.notes}‴.`, new Error()
             );
-            this._caller._window._settings.set_strv(LogMessage.get_prog_id(), this._caller.notes);
+            this._caller._window._settings.set_strv('notes', this._caller.notes);
             this.note = null;
             this.edit.set_text('');
             this.index = -1;
@@ -1222,7 +1326,7 @@ class EditNote extends PageBase {
         if(0 <= this.index && this.index < this._caller.notes.length){
             if(this.note && this.note.trim() != ''){
                 this._caller.notes[this.index] = this.note;
-                this._caller._window._settings.set_strv(LogMessage.get_prog_id(), this._caller.notes);
+                this._caller._window._settings.set_strv('notes', this._caller.notes);
             }
             if(this._caller.edit_note){
                 this._caller.edit_note = false;
@@ -1254,7 +1358,7 @@ class EditNote extends PageBase {
                     LogMessage.get_prog_id(), `EditNote::save: this._caller.notes: ‷${this._caller.notes}‴.`, new Error()
                 );
                 this.index = 0;
-                this._caller._window._settings.set_strv(LogMessage.get_prog_id(), this._caller.notes);
+                this._caller._window._settings.set_strv('notes', this._caller.notes);
                 this._caller._window._settings.set_int("index", this.index);
             }
             if(this._caller.edit_note){

@@ -135,8 +135,9 @@ class ApplicationMenuItem extends PopupMenu.PopupBaseMenuItem {
         super.activate(event);
         let dlg      = null;
         let new_note = null;
-        let index    = null;
+        const index  = this._item.index;
         let txt      = null;
+        let elt      = null;
         /*
         dlg          = new Gzz.GzzMessageDialog('ApplicationMenuItem::activate(event)', `Proccessing event: ‷${event}‴.`);
         LogMessage.log_message(LogMessage.get_prog_id(), `ApplicationMenuItem::activate: dlg == ‷${dlg}‴`, new Error());
@@ -163,7 +164,6 @@ class ApplicationMenuItem extends PopupMenu.PopupBaseMenuItem {
                 case "note":
                     switch(this._item.subtype){
                         case 'edit':
-                            index    = this._item.index;
                             txt = this._button._caller.notes[index];
                             LogMessage.log_message(
                                 LogMessage.get_prog_id(),
@@ -253,7 +253,6 @@ class ApplicationMenuItem extends PopupMenu.PopupBaseMenuItem {
                             dlg.open();
                             break;
                         case 'delete':
-                            index    = this._item.index;
                             LogMessage.log_message(
                                 LogMessage.get_prog_id(),
                                 `ApplicationMenuItem::activate: delete: index: ‷${index}‴.`, new Error()
@@ -286,7 +285,6 @@ class ApplicationMenuItem extends PopupMenu.PopupBaseMenuItem {
                             dlg.open();
                             break;
                         case "edit-delete-in-prefs":
-                            index    = this._item.index;
                             LogMessage.log_message(
                                 LogMessage.get_prog_id(),
                                 `ApplicationMenuItem::activate: edit-delete-in-prefs: index: ‷${index}‴.`, new Error()
@@ -296,10 +294,53 @@ class ApplicationMenuItem extends PopupMenu.PopupBaseMenuItem {
                             this._button._caller.settings.set_enum('page', string2enum['editNote']);
                             this._button._caller.openPreferences();
                             break;
+                        case 'up':
+                            LogMessage.log_message(
+                                LogMessage.get_prog_id(),
+                                `ApplicationMenuItem::activate: up: index: ‷${index}‴.`,
+                                new Error()
+                            );
+                            if(index < 1 || index >= this._button._caller.notes.length) break;
+                            elt = this._button._caller.notes.splice(index, 1)[0];
+                            LogMessage.log_message(
+                                LogMessage.get_prog_id(),
+                                `ApplicationMenuItem::activate: up: elt: ‷${elt}‴.`,
+                                new Error()
+                            );
+                            this._button._caller.notes.splice(index - 1, 0, elt);
+                            LogMessage.log_message(
+                                LogMessage.get_prog_id(),
+                                'ApplicationMenuItem::activate: up: this._button._caller.notes:' 
+                                                        + ` ‷${JSON.stringify(this._button._caller.notes)}‴.`,
+                                new Error()
+                            );
+                            this._button._caller.settings.set_strv('notes', this._button._caller.notes);
+                            break;
+                        case 'down':
+                            LogMessage.log_message(
+                                LogMessage.get_prog_id(),
+                                `ApplicationMenuItem::activate: down: index: ‷${index}‴.`,
+                                new Error()
+                            );
+                            if(index < 0 || index >= this._button._caller.notes.length - 1) break;
+                            elt = this._button._caller.notes.splice(index, 1)[0];
+                            LogMessage.log_message(
+                                LogMessage.get_prog_id(),
+                                `ApplicationMenuItem::activate: down: elt: ‷${elt}‴.`,
+                                new Error()
+                            );
+                            this._button._caller.notes.splice(index + 1, 0, elt);
+                            LogMessage.log_message(
+                                LogMessage.get_prog_id(),
+                                'ApplicationMenuItem::activate: down: this._button._caller.notes:'
+                                                                + ` ‷${JSON.stringify(this._button._caller.notes)}‴.`,
+                                new Error()
+                            );
+                            this._button._caller.settings.set_strv('notes', this._button._caller.notes);
+                            break;
                     } // switch(this._item.subtype) //
                     break;
                 case "addnote":
-                    index    = this._item.index;
                     LogMessage.log_message(
                         LogMessage.get_prog_id(),
                         `ApplicationMenuItem::activate: case addnote: index: ‷${index}‴.`, new Error()
@@ -630,7 +671,8 @@ class Indicator extends PanelMenu.Button {
 
         this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
 
-        const length = Math.min(this._caller.settings.get_int('show-messages'), this._caller.settings.get_strv('notes').length);
+        const len = this._caller.notes.length;
+        const length = Math.min(this._caller.settings.get_int('show-messages'), len);
         for(let i = 0; i < length; i++){
             submenu = new PopupMenu.PopupSubMenuMenuItem(this._caller.notes[i], true, this, 0);
             item         = new ApplicationMenuItem(this, { text: 'Edit...', index: i, type: 'note', subtype: 'edit', });
@@ -643,6 +685,18 @@ class Indicator extends PanelMenu.Button {
             //item.connect('activate', (event) => { item.activate(event); });
             submenu.menu.addMenuItem(item);
             this.menu.addMenuItem(submenu);
+            if(i == 0){
+                item = new ApplicationMenuItem(this, { text: 'down ▼', index: i, type: 'note', subtype: 'down', });
+                submenu.menu.addMenuItem(item);
+            }else if(i == len - 1){
+                item = new ApplicationMenuItem(this, { text: 'up ▲', index: i, type: 'note', subtype: 'up', });
+                submenu.menu.addMenuItem(item);
+            }else{
+                item = new ApplicationMenuItem(this, { text: 'up ▲', index: i, type: 'note', subtype: 'up', });
+                submenu.menu.addMenuItem(item);
+                item = new ApplicationMenuItem(this, { text: 'down ▼', index: i, type: 'note', subtype: 'down', });
+                submenu.menu.addMenuItem(item);
+            }
         } // for(let i = 0; i < this._caller.notes.length; i++) //
     } // loadMesessages() //
 
