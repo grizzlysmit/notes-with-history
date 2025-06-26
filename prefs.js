@@ -320,7 +320,14 @@ class NotesIconsPage extends PageBase {
                     LogMessage.get_prog_id(), `NotesIconsPage::clicked: fileDialog == ${fileDialog}`, new Error()
                 );
 
-                const file = await fileDialog.open(customIconButton.get_root(), null);
+                let file = null;
+                try {
+                    file = await fileDialog.open(customIconButton.get_root(), null);
+                } catch(e){
+                    this._caller.log_message(
+                        LogMessage.get_prog_id(), `NotesIconsPage::clicked: silly Error: ${e}`, e
+                    );
+                }
                 this._caller.log_message( LogMessage.get_prog_id(), `NotesIconsPage::clicked: file == ${file}`, new Error());
                 if (file) {
                     const filename = file.get_path();
@@ -929,18 +936,18 @@ class NotesScroller extends PageBase {
         for(let _index = 0; _index < length; _index++){
             const note   = this._caller.notes[_index];
             const up     = new Gtk.Button({
-                                label: "▲",
+                                label:       "▲",
                                 css_classes: ['note-label'],
-                                hexpand: false,
-                                vexpand: false,
-                                valign: Gtk.Align.END,
+                                hexpand:     false,
+                                vexpand:     false,
+                                valign:      Gtk.Align.END,
             });
             const down   = new Gtk.Button({
-                                label: "▼",
+                                label:       "▼",
                                 css_classes: ['note-label'],
-                                hexpand: false,
-                                vexpand: false,
-                                valign: Gtk.Align.END,
+                                hexpand:     false,
+                                vexpand:     false,
+                                valign:      Gtk.Align.END,
             });
             if(_index === 0){
                 up.set_sensitive(false);
@@ -949,11 +956,11 @@ class NotesScroller extends PageBase {
                 down.set_sensitive(false);
             }
             const button = new Gtk.Button({
-                                label: ">...",
+                                label:       ">...",
                                 css_classes: ['note-label'],
-                                hexpand: false,
-                                vexpand: false,
-                                valign: Gtk.Align.END,
+                                hexpand:     false,
+                                vexpand:     false,
+                                valign:      Gtk.Align.END,
             });
             this._caller.log_message(
                 LogMessage.get_prog_id(), `NotesScroller::constructor: _index == ${_index}`, new Error()
@@ -1031,25 +1038,27 @@ class NotesScroller extends PageBase {
         for(let _index = 0; _index < length; _index++){
             const note   = this._caller.notes[_index];
             const up     = new Gtk.Button({
-                                label: "▲",
+                                label:       "▲",
                                 css_classes: ['note-label'],
-                                hexpand: false,
-                                vexpand: false,
-                                valign: Gtk.Align.END,
+                                hexpand:     false,
+                                vexpand:     false,
+                                sensitive:   (_index > 0),
+                                valign:      Gtk.Align.END,
             });
             const down   = new Gtk.Button({
-                                label: "▼",
+                                label:       "▼",
                                 css_classes: ['note-label'],
-                                hexpand: false,
-                                vexpand: false,
-                                valign: Gtk.Align.END,
+                                hexpand:     false,
+                                vexpand:     false,
+                                sensitive:   (_index < length - 1),
+                                valign:      Gtk.Align.END,
             });
             const button = new Gtk.Button({
-                                label: ">...",
+                                label:       ">...",
                                 css_classes: ['note_label'],
-                                hexpand: false,
-                                vexpand: false,
-                                valign: Gtk.Align.END,
+                                hexpand:     false,
+                                vexpand:     false,
+                                valign:      Gtk.Align.END,
             });
             button.connect("clicked", () => { this._caller.editNote(this, Number(_index)); });
             const row = new Adw.ActionRow({
