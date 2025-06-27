@@ -102,8 +102,8 @@
         </key>
         <key type="b" name="show-logs">
             <default>false</default>
-            <summary>The maximum length of a note.</summary>
-            <description>The the maximum length a note is alowed to be.</description>
+            <summary>Show logs.</summary>
+            <description>Show logs for debugging purposes.</description>
         </key>
         <key name="time-type" enum="org.gnome.shell.extensions.notes-with-history.time-type">
             <default>'Modify'</default>
