@@ -895,8 +895,9 @@ export default class NotesWithHistoryExtension extends Extension {
         super(metadata);
         this._indicator           = null;
         const id                  = this.uuid;
-        const indx                = id.indexOf('@');
-        this._name                = id.substr(0, indx);
+        //const indx                = id.indexOf('@');
+        //this._name                = id.substr(0, indx);
+        this._name                = id;
     }
 
     enable() {

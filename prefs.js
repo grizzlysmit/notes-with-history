@@ -1402,7 +1402,7 @@ class CreditsPage extends PageBase {
         group_credits.set_title('Authors');
         group_credits.set_name('notes_Credits');
         let title    = null;
-        title = _("Copyright") + ": ©2022, ©2023 &amp; ©2024 Francis Grizzly Smit:";
+        title = _("Copyright") + ": ©2022, ©2023, ©2024 &amp; ©2025 Francis Grizzly Smit:";
         const cr_row = new Adw.ActionRow({ title });
         const licence = new Gtk.LinkButton({uri: "https://www.gnu.org/licenses/gpl-2.0.en.html", label: "Licence GPL v2+" });
         licence.set_use_underline(true);
