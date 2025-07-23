@@ -1,6 +1,6 @@
 {
   "name": "Notes With History",
-  "description": "A cross between sticky notes and a menu full of notes 🤠.\n\nYou can now change the icon in the the settings.\n\nyou can now move the notes in position using the ▲ and ▼ menu items or buttons in the setting page./",
+  "description": "A cross between sticky notes and a menu full of notes 🤠.\n\nYou can now change the icon in the the settings.\n\nyou can now move the notes in position using the ▲ and ▼ menu items or buttons in the setting page.",
   "uuid": "notes-with-history@grizzlysmit.smit.id.au",
   "credits": "(C) Francis Grizzly Smit 🤠\n\nLicence GPL v3+",
   "gettext-domain":  "notes-with-history",
