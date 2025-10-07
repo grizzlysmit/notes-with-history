@@ -475,9 +475,7 @@ class Indicator extends PanelMenu.Button {
         this.loadMesessages();
         const area               = this.areas[this.settings.get_enum("area")];
         LogMessage.log_message(LogMessage.get_prog_id(), `area == ${area}`, new Error());
-        if(Main.panel.statusArea[this._caller._name]){
-            Main.panel.statusArea[this._caller._name] = null;
-        }
+        Main.panel.statusArea[this._caller._name] = null; // in case it exists already //
         Main.panel.addToStatusArea(this._caller._name, this, this.settings.get_int("position"), area);
 
         this.settingsID_show     = this.settings.connect("changed::show-messages", () => {
